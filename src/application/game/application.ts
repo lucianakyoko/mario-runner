@@ -1,3 +1,5 @@
+import type { Mario } from '../../domain/mario/mario'
+import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import type { GameTime } from '../../domain/time'
 import type { FrameScheduler } from '../game-loop/frame-scheduler'
 import { GameLoop } from '../game-loop/game-loop'
@@ -11,11 +13,18 @@ export class GameApplication {
   private readonly gameLoop: GameLoop
   private readonly update: Update
   private readonly render: Render
+  private mario: Mario
 
-  constructor(scheduler: FrameScheduler, update: Update, render: Render) {
+  constructor(
+    scheduler: FrameScheduler,
+    mario: Mario,
+    update: Update,
+    render: Render,
+  ) {
     const clock = new Clock()
 
     this.stateMachine = new GameStateMachine()
+    this.mario = mario
     this.update = update
     this.render = render
     this.gameLoop = new GameLoop(
@@ -28,6 +37,10 @@ export class GameApplication {
 
   get state() {
     return this.stateMachine.state
+  }
+
+  get currentMario(): Mario {
+    return this.mario
   }
 
   start(): void {
@@ -52,6 +65,7 @@ export class GameApplication {
       return
     }
 
+    this.mario = updateMarioMovement(this.mario, gameTime.deltaTime)
     this.update(gameTime)
   }
 

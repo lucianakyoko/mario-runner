@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { Mario } from '../../domain/mario/mario'
 import type { GameTime } from '../../domain/time'
 import type {
   FrameCallback,
@@ -42,11 +43,29 @@ class FakeFrameScheduler implements FrameScheduler {
   }
 }
 
+const createMario = (): Mario => ({
+  position: {
+    x: 0,
+    y: 0,
+  },
+  velocity: {
+    x: 280,
+    y: 0,
+  },
+  size: {
+    width: 32,
+    height: 48,
+  },
+  movementState: 'RUNNING',
+  isGrounded: true,
+})
+
 describe('GameApplication', () => {
   it('starts in READY', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -58,6 +77,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -72,6 +92,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -87,6 +108,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -104,6 +126,7 @@ describe('GameApplication', () => {
 
     const application = new GameApplication(
       scheduler,
+      createMario(),
       (gameTime) => {
         gameTimes.push(gameTime)
       },
@@ -137,6 +160,7 @@ describe('GameApplication', () => {
 
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {
         updateCount += 1
       },
@@ -160,6 +184,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -175,6 +200,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )
@@ -191,6 +217,7 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     const application = new GameApplication(
       scheduler,
+      createMario(),
       () => {},
       () => {},
     )

@@ -1,6 +1,8 @@
 import './style.css'
 
 import { GameApplication } from './application/game/application'
+import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
+import { createInitialMario } from './domain/mario/mario'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
@@ -38,8 +40,17 @@ const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
 
+const mario = createInitialMario({
+  width: 32,
+  height: 48,
+  initialX: 0,
+  groundY: 0,
+  initialSpeed: defaultGameplayConfig.movement.initialSpeed,
+})
+
 const gameApplication = new GameApplication(
   scheduler,
+  mario,
   () => {},
   () => {
     renderer.render(gameApplication.state)
