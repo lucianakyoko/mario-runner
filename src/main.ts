@@ -6,6 +6,7 @@ import { createInitialMario } from './domain/mario/mario'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
+import { createMarioVisual } from './presentation/mario/mario-visual'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -44,17 +45,34 @@ const mario = createInitialMario({
   width: 32,
   height: 48,
   initialX: 0,
-  groundY: 0,
+  groundY: defaultGameplayConfig.physics.groundY,
   initialSpeed: defaultGameplayConfig.movement.initialSpeed,
 })
+
+const marioVisual = createMarioVisual(
+  'SMALL',
+  mario.movementState,
+  32,
+  48,
+  0,
+  0,
+)
 
 const gameApplication = new GameApplication(
   scheduler,
   mario,
   () => {},
   () => {
-    renderer.render(gameApplication.state)
+    renderer.render(
+      gameApplication.state,
+      gameApplication.currentMario,
+      marioVisual,
+    )
   },
 )
 
-renderer.render(gameApplication.state)
+renderer.render(
+  gameApplication.state,
+  gameApplication.currentMario,
+  marioVisual,
+)
