@@ -46,4 +46,4 @@ const gameApplication = new GameApplication(
   },
 )
 
-gameApplication.start()
+renderer.render(gameApplication.state)

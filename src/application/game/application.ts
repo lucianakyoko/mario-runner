@@ -31,6 +31,10 @@ export class GameApplication {
   }
 
   start(): void {
+    if (this.stateMachine.state === 'RUNNING') {
+      return
+    }
+
     this.stateMachine.transitionTo('RUNNING')
     this.gameLoop.start()
   }

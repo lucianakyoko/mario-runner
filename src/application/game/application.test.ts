@@ -68,6 +68,35 @@ describe('GameApplication', () => {
     expect(scheduler.pendingFrames).toBe(1)
   })
 
+  it('does not start a second loop when start is called again', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = new GameApplication(
+      scheduler,
+      () => {},
+      () => {},
+    )
+
+    application.start()
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+    expect(scheduler.pendingFrames).toBe(1)
+  })
+
+  it('changes to GAME_OVER when the session ends', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = new GameApplication(
+      scheduler,
+      () => {},
+      () => {},
+    )
+
+    application.start()
+    application.gameOver()
+
+    expect(application.state).toBe('GAME_OVER')
+  })
+
   it('updates and renders while RUNNING', () => {
     const scheduler = new FakeFrameScheduler()
     const gameTimes: GameTime[] = []
@@ -137,6 +166,45 @@ describe('GameApplication', () => {
 
     application.start()
     application.gameOver()
+    application.restart()
+
+    expect(application.state).toBe('READY')
+  })
+
+  it('returns to READY without starting a new loop when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = new GameApplication(
+      scheduler,
+      () => {},
+      () => {},
+    )
+
+    application.start()
+    application.gameOver()
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(scheduler.pendingFrames).toBe(1)
+  })
+
+  it('completes the full session lifecycle', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = new GameApplication(
+      scheduler,
+      () => {},
+      () => {},
+    )
+
+    expect(application.state).toBe('READY')
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    application.gameOver()
+
+    expect(application.state).toBe('GAME_OVER')
+
     application.restart()
 
     expect(application.state).toBe('READY')
