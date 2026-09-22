@@ -22,3 +22,28 @@ export interface Mario {
   movementState: MarioMovementState
   isGrounded: boolean
 }
+
+export interface InitialMarioConfig {
+  width: number
+  height: number
+  initialX: number
+  groundY: number
+  initialSpeed: number
+}
+
+export const createInitialMario = (config: InitialMarioConfig): Mario => ({
+  position: {
+    x: config.initialX,
+    y: config.groundY,
+  },
+  velocity: {
+    x: config.initialSpeed,
+    y: 0,
+  },
+  size: {
+    width: config.width,
+    height: config.height,
+  },
+  movementState: 'RUNNING',
+  isGrounded: true,
+})
