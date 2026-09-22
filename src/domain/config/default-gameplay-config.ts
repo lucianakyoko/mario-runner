@@ -8,6 +8,7 @@ export const defaultGameplayConfig: GameplayConfig = {
   physics: {
     gravity: 1800,
     jumpForce: 680,
+    groundY: 0,
   },
   spawn: {
     obstacleMinDistance: 320,

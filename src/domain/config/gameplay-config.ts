@@ -6,6 +6,7 @@ export interface MovementConfig {
 export interface PhysicsConfig {
   gravity: number
   jumpForce: number
+  groundY: number
 }
 
 export interface SpawnConfig {
