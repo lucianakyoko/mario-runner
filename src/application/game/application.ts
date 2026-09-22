@@ -1,0 +1,57 @@
+import type { GameTime } from '../../domain/time'
+import type { FrameScheduler } from '../game-loop/frame-scheduler'
+import { GameLoop } from '../game-loop/game-loop'
+import type { Render } from '../game-loop/render'
+import type { Update } from '../game-loop/update'
+import { GameStateMachine } from '../game-state/game-state-machine'
+import { Clock } from '../time/clock'
+
+export class GameApplication {
+  private readonly stateMachine: GameStateMachine
+  private readonly gameLoop: GameLoop
+  private readonly update: Update
+  private readonly render: Render
+
+  constructor(scheduler: FrameScheduler, update: Update, render: Render) {
+    const clock = new Clock()
+
+    this.stateMachine = new GameStateMachine()
+    this.update = update
+    this.render = render
+    this.gameLoop = new GameLoop(
+      clock,
+      scheduler,
+      this.updateSession,
+      this.renderSession,
+    )
+  }
+
+  get state() {
+    return this.stateMachine.state
+  }
+
+  start(): void {
+    this.stateMachine.transitionTo('RUNNING')
+    this.gameLoop.start()
+  }
+
+  restart(): void {
+    this.stateMachine.transitionTo('READY')
+  }
+
+  gameOver(): void {
+    this.stateMachine.transitionTo('GAME_OVER')
+  }
+
+  private updateSession = (gameTime: GameTime): void => {
+    if (this.stateMachine.state !== 'RUNNING') {
+      return
+    }
+
+    this.update(gameTime)
+  }
+
+  private renderSession = (): void => {
+    this.render()
+  }
+}
