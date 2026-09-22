@@ -6,7 +6,7 @@ import { createInitialMario } from './domain/mario/mario'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
-import { createMarioVisualForState } from './presentation/mario/mario-visual'
+import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -49,15 +49,20 @@ const mario = createInitialMario({
   initialSpeed: defaultGameplayConfig.movement.initialSpeed,
 })
 
+const animationFrameDuration =
+  defaultGameplayConfig.animation.defaultFrameDuration / 1000
+
 const gameApplication = new GameApplication(
   scheduler,
   mario,
   () => {},
-  () => {
+  (gameTime) => {
     const currentMario = gameApplication.currentMario
-    const marioVisual = createMarioVisualForState(
+    const marioVisual = createAnimatedMarioVisual(
       'SMALL',
       currentMario.movementState,
+      gameTime.elapsedTime,
+      animationFrameDuration,
     )
 
     renderer.render(gameApplication.state, currentMario, marioVisual)
@@ -65,9 +70,11 @@ const gameApplication = new GameApplication(
 )
 
 const currentMario = gameApplication.currentMario
-const initialMarioVisual = createMarioVisualForState(
+const initialMarioVisual = createAnimatedMarioVisual(
   'SMALL',
   currentMario.movementState,
+  0,
+  animationFrameDuration,
 )
 
 renderer.render(gameApplication.state, currentMario, initialMarioVisual)

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMarioVisual, createMarioVisualForState } from './mario-visual'
+import {
+  createAnimatedMarioVisual,
+  createMarioVisual,
+  createMarioVisualForState,
+} from './mario-visual'
 
 describe('createMarioVisual', () => {
   it('creates a small Mario visual representation', () => {
@@ -96,5 +100,59 @@ describe('createMarioVisualForState', () => {
     expect(visual.movementState).toBe('CROUCHING')
     expect(visual.width).toBe(36)
     expect(visual.height).toBe(32)
+  })
+})
+
+describe('createAnimatedMarioVisual', () => {
+  it('uses the first running frame at the beginning of the animation', () => {
+    const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'SMALL',
+      width: 32,
+      height: 48,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('switches to the second running frame after one frame duration', () => {
+    const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0.1, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'SMALL',
+      width: 34,
+      height: 46,
+      offsetX: -1,
+      offsetY: 2,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('loops back to the first running frame', () => {
+    const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0.2, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'SMALL',
+      width: 32,
+      height: 48,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('does not animate non-running states', () => {
+    const visual = createAnimatedMarioVisual('SMALL', 'JUMPING', 0.5, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'SMALL',
+      width: 34,
+      height: 48,
+      offsetX: -1,
+      offsetY: 0,
+      movementState: 'JUMPING',
+    })
   })
 })

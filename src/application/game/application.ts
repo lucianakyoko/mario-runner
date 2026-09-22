@@ -69,7 +69,7 @@ export class GameApplication {
     this.update(gameTime)
   }
 
-  private renderSession = (): void => {
-    this.render()
+  private renderSession = (gameTime: GameTime): void => {
+    this.render(gameTime)
   }
 }

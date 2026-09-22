@@ -70,8 +70,13 @@ describe('GameLoop', () => {
       receivedElapsedTime = gameTime.elapsedTime
     }
 
-    const render = (): void => {
+    const render = (gameTime: {
+      deltaTime: number
+      elapsedTime: number
+    }): void => {
       events.push('render')
+      expect(gameTime.deltaTime).toBe(receivedDeltaTime)
+      expect(gameTime.elapsedTime).toBe(receivedElapsedTime)
     }
 
     const loop = new GameLoop(clock, scheduler, update, render)

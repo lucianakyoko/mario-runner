@@ -45,3 +45,22 @@ export const createMarioVisualForState = (
       return createMarioVisual(variant, movementState, 36, 32, -2, 0)
   }
 }
+
+export const createAnimatedMarioVisual = (
+  variant: MarioVisualVariant,
+  movementState: MarioMovementState,
+  elapsedTime: number,
+  frameDuration: number,
+): MarioVisual => {
+  if (movementState !== 'RUNNING') {
+    return createMarioVisualForState(variant, movementState)
+  }
+
+  const animationFrame = Math.floor(elapsedTime / frameDuration) % 2
+
+  if (animationFrame === 0) {
+    return createMarioVisual(variant, movementState, 32, 48, 0, 0)
+  }
+
+  return createMarioVisual(variant, movementState, 34, 46, -1, 2)
+}

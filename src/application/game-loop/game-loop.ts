@@ -46,7 +46,7 @@ export class GameLoop {
     const gameTime: GameTime = this.clock.tick(timestamp)
 
     this.update(gameTime)
-    this.render()
+    this.render(gameTime)
 
     this.requestId = this.scheduler.request(this.frame)
   }
