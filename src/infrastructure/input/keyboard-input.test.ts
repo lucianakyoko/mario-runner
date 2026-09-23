@@ -187,4 +187,29 @@ describe('KeyboardInput', () => {
 
     expect(input.isActive('jump')).toBe(true)
   })
+
+  it('keeps jump active while another jump key remains pressed', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    eventTarget.dispatch('keydown', 'ArrowUp')
+    eventTarget.dispatch('keydown', 'Space')
+    eventTarget.dispatch('keyup', 'Space')
+
+    expect(input.isActive('jump')).toBe(true)
+  })
+
+  it('keeps another command active when a different command is released', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    eventTarget.dispatch('keydown', 'ArrowUp')
+    eventTarget.dispatch('keydown', 'ArrowDown')
+    eventTarget.dispatch('keyup', 'ArrowUp')
+
+    expect(input.isActive('jump')).toBe(false)
+    expect(input.isActive('crouch')).toBe(true)
+  })
 })

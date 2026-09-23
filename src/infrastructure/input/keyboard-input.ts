@@ -14,7 +14,7 @@ interface KeyboardEventTarget {
 }
 
 export class KeyboardInput implements Input {
-  private readonly activeCommands = new Set<GameplayCommand>()
+  private readonly activeKeys = new Set<string>()
   private readonly eventTarget: KeyboardEventTarget
   private isRegistered = false
 
@@ -41,32 +41,30 @@ export class KeyboardInput implements Input {
     this.eventTarget.removeEventListener('keydown', this.handleKeyDown)
     this.eventTarget.removeEventListener('keyup', this.handleKeyUp)
 
-    this.activeCommands.clear()
+    this.activeKeys.clear()
     this.isRegistered = false
   }
 
   isActive(command: GameplayCommand): boolean {
-    return this.activeCommands.has(command)
+    for (const key of this.activeKeys) {
+      if (this.getCommand(key) === command) {
+        return true
+      }
+    }
+
+    return false
   }
 
   private handleKeyDown = (event: KeyboardEvent): void => {
-    const command = this.getCommand(event.code)
-
-    if (!command) {
+    if (!this.getCommand(event.code)) {
       return
     }
 
-    this.activeCommands.add(command)
+    this.activeKeys.add(event.code)
   }
 
   private handleKeyUp = (event: KeyboardEvent): void => {
-    const command = this.getCommand(event.code)
-
-    if (!command) {
-      return
-    }
-
-    this.activeCommands.delete(command)
+    this.activeKeys.delete(event.code)
   }
 
   private getCommand(code: string): GameplayCommand | null {
