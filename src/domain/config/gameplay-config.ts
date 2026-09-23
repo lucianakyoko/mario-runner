@@ -9,6 +9,13 @@ export interface PhysicsConfig {
   groundY: number
 }
 
+export interface ScenarioConfig {
+  speed: number
+  background: {
+    id: string
+  }
+}
+
 export interface SpawnConfig {
   obstacleMinDistance: number
   obstacleMaxDistance: number
@@ -38,6 +45,7 @@ export interface AnimationConfig {
 export interface GameplayConfig {
   movement: MovementConfig
   physics: PhysicsConfig
+  scenario: ScenarioConfig
   spawn: SpawnConfig
   scoring: ScoringConfig
   progression: ProgressionConfig

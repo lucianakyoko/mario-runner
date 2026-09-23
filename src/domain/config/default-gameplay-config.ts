@@ -10,6 +10,12 @@ export const defaultGameplayConfig: GameplayConfig = {
     jumpForce: 680,
     groundY: 0,
   },
+  scenario: {
+    speed: 280,
+    background: {
+      id: 'default',
+    },
+  },
   spawn: {
     obstacleMinDistance: 320,
     obstacleMaxDistance: 700,

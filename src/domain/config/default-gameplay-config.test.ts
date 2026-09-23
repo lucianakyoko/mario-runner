@@ -7,4 +7,9 @@ describe('default gameplay configuration', () => {
     expect(defaultGameplayConfig.scoring.medalPoints).toBe(2)
     expect(defaultGameplayConfig.progression.pointsPerLevel).toBe(20)
   })
+
+  it('defines the expected scenario values', () => {
+    expect(defaultGameplayConfig.scenario.speed).toBe(280)
+    expect(defaultGameplayConfig.scenario.background.id).toBe('default')
+  })
 })
