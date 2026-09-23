@@ -6,11 +6,13 @@ import { GameLoop } from '../game-loop/game-loop'
 import type { Render } from '../game-loop/render'
 import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
+import type { Input } from '../input'
 import { Clock } from '../time/clock'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
   private readonly gameLoop: GameLoop
+  private readonly input: Input
   private readonly update: Update
   private readonly render: Render
   private mario: Mario
@@ -18,6 +20,7 @@ export class GameApplication {
   constructor(
     scheduler: FrameScheduler,
     mario: Mario,
+    input: Input,
     update: Update,
     render: Render,
   ) {
@@ -25,6 +28,7 @@ export class GameApplication {
 
     this.stateMachine = new GameStateMachine()
     this.mario = mario
+    this.input = input
     this.update = update
     this.render = render
     this.gameLoop = new GameLoop(
@@ -33,6 +37,8 @@ export class GameApplication {
       this.updateSession,
       this.renderSession,
     )
+
+    this.gameLoop.start()
   }
 
   get state() {
@@ -49,7 +55,6 @@ export class GameApplication {
     }
 
     this.stateMachine.transitionTo('RUNNING')
-    this.gameLoop.start()
   }
 
   restart(): void {
@@ -61,6 +66,14 @@ export class GameApplication {
   }
 
   private updateSession = (gameTime: GameTime): void => {
+    if (this.stateMachine.state === 'READY') {
+      if (this.input.isActive('jump')) {
+        this.start()
+      }
+
+      return
+    }
+
     if (this.stateMachine.state !== 'RUNNING') {
       return
     }

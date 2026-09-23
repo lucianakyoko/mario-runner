@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { Mario } from '../../domain/mario/mario'
 import type { GameTime } from '../../domain/time'
+import type { GameplayCommand } from '../../domain/input'
+import type { Input } from '../input'
 import type {
   FrameCallback,
   FrameScheduler,
@@ -43,6 +45,22 @@ class FakeFrameScheduler implements FrameScheduler {
   }
 }
 
+class FakeInput implements Input {
+  private readonly activeCommands = new Set<GameplayCommand>()
+
+  isActive(command: GameplayCommand): boolean {
+    return this.activeCommands.has(command)
+  }
+
+  activate(command: GameplayCommand): void {
+    this.activeCommands.add(command)
+  }
+
+  deactivate(command: GameplayCommand): void {
+    this.activeCommands.delete(command)
+  }
+}
+
 const createMario = (): Mario => ({
   position: {
     x: 0,
@@ -60,27 +78,25 @@ const createMario = (): Mario => ({
   isGrounded: true,
 })
 
+const createApplication = (
+  scheduler: FakeFrameScheduler,
+  input: FakeInput = new FakeInput(),
+  update: (gameTime: GameTime) => void = () => {},
+  render: (gameTime: GameTime) => void = () => {},
+): GameApplication =>
+  new GameApplication(scheduler, createMario(), input, update, render)
+
 describe('GameApplication', () => {
   it('starts in READY', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     expect(application.state).toBe('READY')
   })
 
   it('changes to RUNNING and starts the game loop', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     application.start()
 
@@ -90,12 +106,7 @@ describe('GameApplication', () => {
 
   it('does not start a second loop when start is called again', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     application.start()
     application.start()
@@ -106,12 +117,7 @@ describe('GameApplication', () => {
 
   it('changes to GAME_OVER when the session ends', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     application.start()
     application.gameOver()
@@ -119,14 +125,26 @@ describe('GameApplication', () => {
     expect(application.state).toBe('GAME_OVER')
   })
 
+  it('starts the session when jump is active in READY', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    input.activate('jump')
+
+    scheduler.runNext(1000)
+
+    expect(application.state).toBe('RUNNING')
+    expect(scheduler.pendingFrames).toBe(1)
+  })
+
   it('updates and renders while RUNNING', () => {
     const scheduler = new FakeFrameScheduler()
     const gameTimes: GameTime[] = []
     let renderCount = 0
-
-    const application = new GameApplication(
+    const application = createApplication(
       scheduler,
-      createMario(),
+      new FakeInput(),
       (gameTime) => {
         gameTimes.push(gameTime)
       },
@@ -157,10 +175,9 @@ describe('GameApplication', () => {
     const scheduler = new FakeFrameScheduler()
     let updateCount = 0
     let renderCount = 0
-
-    const application = new GameApplication(
+    const application = createApplication(
       scheduler,
-      createMario(),
+      new FakeInput(),
       () => {
         updateCount += 1
       },
@@ -182,12 +199,7 @@ describe('GameApplication', () => {
 
   it('restarts from GAME_OVER to READY', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     application.start()
     application.gameOver()
@@ -198,12 +210,7 @@ describe('GameApplication', () => {
 
   it('returns to READY without starting a new loop when restarting', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     application.start()
     application.gameOver()
@@ -215,12 +222,7 @@ describe('GameApplication', () => {
 
   it('completes the full session lifecycle', () => {
     const scheduler = new FakeFrameScheduler()
-    const application = new GameApplication(
-      scheduler,
-      createMario(),
-      () => {},
-      () => {},
-    )
+    const application = createApplication(scheduler)
 
     expect(application.state).toBe('READY')
 
