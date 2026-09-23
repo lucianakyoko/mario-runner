@@ -1,5 +1,6 @@
-import type { Mario } from '../../domain/mario/mario'
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { GameState } from '../../domain/game/game-state'
+import type { Mario } from '../../domain/mario/mario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 
@@ -23,10 +24,16 @@ export class GameRenderer {
   private renderMario(mario: Mario, visual: MarioVisual): void {
     const { element, context } = this.surface
 
-    const x = mario.position.x + visual.offsetX
-    const y = element.height - mario.position.y - visual.height + visual.offsetY
+    const cameraX = mario.position.x - element.width * 0.25
+    const screenX = mario.position.x - cameraX + visual.offsetX
 
-    context.fillRect(x, y, visual.width, visual.height)
+    const groundY = defaultGameplayConfig.physics.groundY
+    const screenGroundY = element.height - groundY
+
+    const screenY =
+      screenGroundY - visual.height + mario.position.y + visual.offsetY
+
+    context.fillRect(screenX, screenY, visual.width, visual.height)
   }
 
   private getStateLabel(state: GameState): string {

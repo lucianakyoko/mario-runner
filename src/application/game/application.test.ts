@@ -169,6 +169,22 @@ describe('GameApplication', () => {
     expect(application.currentMario.movementState).toBe('CROUCHING')
   })
 
+  it('keeps grounded Mario at the ground while running', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1500)
+
+    expect(application.currentMario.position.y).toBe(
+      defaultGameplayConfig.physics.groundY,
+    )
+    expect(application.currentMario.velocity.y).toBe(0)
+    expect(application.currentMario.isGrounded).toBe(true)
+  })
+
   it('updates and renders while RUNNING', () => {
     const scheduler = new FakeFrameScheduler()
     const gameTimes: GameTime[] = []

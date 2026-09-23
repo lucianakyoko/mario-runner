@@ -1,6 +1,10 @@
 import type { Mario } from './mario'
 
 export const landMario = (mario: Mario, groundY: number): Mario => {
+  if (mario.isGrounded || mario.movementState !== 'FALLING') {
+    return mario
+  }
+
   if (mario.position.y < groundY) {
     return mario
   }

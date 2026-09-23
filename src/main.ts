@@ -63,10 +63,13 @@ const gameApplication = new GameApplication(
   () => {},
   (gameTime) => {
     const currentMario = gameApplication.currentMario
+    const animationTime =
+      gameApplication.state === 'READY' ? 0 : gameTime.elapsedTime
+
     const marioVisual = createAnimatedMarioVisual(
       'SMALL',
       currentMario.movementState,
-      gameTime.elapsedTime,
+      animationTime,
       animationFrameDuration,
     )
 
