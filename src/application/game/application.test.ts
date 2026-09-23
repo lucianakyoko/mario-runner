@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { Mario } from '../../domain/mario/mario'
-import type { GameTime } from '../../domain/time'
 import type { GameplayCommand } from '../../domain/input'
+import type { GameTime } from '../../domain/time'
 import type { Input } from '../input'
 import type {
   FrameCallback,
@@ -136,6 +137,36 @@ describe('GameApplication', () => {
 
     expect(application.state).toBe('RUNNING')
     expect(scheduler.pendingFrames).toBe(1)
+  })
+
+  it('starts Mario jump when jump is active in RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    application.start()
+    input.activate('jump')
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.movementState).toBe('JUMPING')
+    expect(application.currentMario.isGrounded).toBe(false)
+    expect(application.currentMario.velocity.y).toBe(
+      -defaultGameplayConfig.physics.jumpForce,
+    )
+  })
+
+  it('starts Mario crouch when crouch is active in RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    application.start()
+    input.activate('crouch')
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.movementState).toBe('CROUCHING')
   })
 
   it('updates and renders while RUNNING', () => {

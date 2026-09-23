@@ -3,6 +3,7 @@ import './style.css'
 import { GameApplication } from './application/game/application'
 import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
 import { createInitialMario } from './domain/mario/mario'
+import { KeyboardInput } from './infrastructure/input/keyboard-input'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
@@ -40,6 +41,9 @@ if (!canvas) {
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
+const input = new KeyboardInput(window)
+
+input.register()
 
 const mario = createInitialMario({
   width: 32,
@@ -55,6 +59,7 @@ const animationFrameDuration =
 const gameApplication = new GameApplication(
   scheduler,
   mario,
+  input,
   () => {},
   (gameTime) => {
     const currentMario = gameApplication.currentMario
@@ -68,13 +73,3 @@ const gameApplication = new GameApplication(
     renderer.render(gameApplication.state, currentMario, marioVisual)
   },
 )
-
-const currentMario = gameApplication.currentMario
-const initialMarioVisual = createAnimatedMarioVisual(
-  'SMALL',
-  currentMario.movementState,
-  0,
-  animationFrameDuration,
-)
-
-renderer.render(gameApplication.state, currentMario, initialMarioVisual)

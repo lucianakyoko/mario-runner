@@ -1,4 +1,7 @@
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { Mario } from '../../domain/mario/mario'
+import { startMarioCrouch } from '../../domain/mario/start-mario-crouch'
+import { startMarioJump } from '../../domain/mario/start-mario-jump'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import type { GameTime } from '../../domain/time'
 import type { FrameScheduler } from '../game-loop/frame-scheduler'
@@ -78,8 +81,22 @@ export class GameApplication {
       return
     }
 
+    this.handleGameplayInput()
     this.mario = updateMarioMovement(this.mario, gameTime.deltaTime)
     this.update(gameTime)
+  }
+
+  private handleGameplayInput(): void {
+    if (this.input.isActive('jump')) {
+      this.mario = startMarioJump(
+        this.mario,
+        defaultGameplayConfig.physics.jumpForce,
+      )
+    }
+
+    if (this.input.isActive('crouch')) {
+      this.mario = startMarioCrouch(this.mario)
+    }
   }
 
   private renderSession = (gameTime: GameTime): void => {
