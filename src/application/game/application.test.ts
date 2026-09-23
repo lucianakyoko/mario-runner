@@ -269,4 +269,35 @@ describe('GameApplication', () => {
 
     expect(application.state).toBe('READY')
   })
+
+  it('does not start the session when crouch is active in READY', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    input.activate('crouch')
+
+    scheduler.runNext(1000)
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario.movementState).toBe('RUNNING')
+  })
+
+  it('ignores gameplay commands in GAME_OVER', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    application.start()
+    application.gameOver()
+
+    input.activate('jump')
+    input.activate('crouch')
+
+    scheduler.runNext(1000)
+
+    expect(application.state).toBe('GAME_OVER')
+    expect(application.currentMario.movementState).toBe('RUNNING')
+    expect(application.currentMario.isGrounded).toBe(true)
+  })
 })
