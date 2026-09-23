@@ -46,6 +46,10 @@ class FakeKeyboardEventTarget {
       }
     }
   }
+
+  get listenerCount(): number {
+    return this.listeners.length
+  }
 }
 
 describe('KeyboardInput', () => {
@@ -119,5 +123,68 @@ describe('KeyboardInput', () => {
     eventTarget.dispatch('keyup', 'ArrowDown')
 
     expect(input.isActive('crouch')).toBe(false)
+  })
+
+  it('does not register duplicate listeners', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    input.register()
+
+    expect(eventTarget.listenerCount).toBe(2)
+  })
+
+  it('removes listeners when disposed', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    input.dispose()
+
+    expect(eventTarget.listenerCount).toBe(0)
+  })
+
+  it('clears active commands when disposed', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    eventTarget.dispatch('keydown', 'ArrowUp')
+    eventTarget.dispatch('keydown', 'ArrowDown')
+
+    input.dispose()
+
+    expect(input.isActive('jump')).toBe(false)
+    expect(input.isActive('crouch')).toBe(false)
+  })
+
+  it('allows dispose to be called repeatedly', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+
+    expect(() => {
+      input.dispose()
+      input.dispose()
+    }).not.toThrow()
+
+    expect(eventTarget.listenerCount).toBe(0)
+  })
+
+  it('allows listeners to be registered again after dispose', () => {
+    const eventTarget = new FakeKeyboardEventTarget()
+    input = new KeyboardInput(eventTarget)
+
+    input.register()
+    input.dispose()
+    input.register()
+
+    expect(eventTarget.listenerCount).toBe(2)
+
+    eventTarget.dispatch('keydown', 'ArrowUp')
+
+    expect(input.isActive('jump')).toBe(true)
   })
 })
