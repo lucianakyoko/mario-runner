@@ -322,6 +322,25 @@ describe('GameApplication', () => {
     ])
   })
 
+  it('spawns obstacles while RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2000)
+    scheduler.runNext(3000)
+
+    expect(application.currentObstacles).toHaveLength(1)
+    expect(application.currentObstacles[0]).toMatchObject({
+      id: 'obstacle-1',
+      position: {
+        x: 520,
+      },
+    })
+  })
+
   it('does not update obstacles while READY', () => {
     const scheduler = new FakeFrameScheduler()
     const obstacle = createObstacle()
