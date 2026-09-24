@@ -6,6 +6,8 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 
 const createMario = (): Mario => ({
   position: {
@@ -44,6 +46,27 @@ const createMarioVisual = (): MarioVisual => ({
   offsetX: -1,
   offsetY: 0,
   movementState: 'JUMPING',
+})
+
+const createObstacle = (
+  type: Obstacle['type'],
+  x: number,
+  y = 0,
+): Obstacle => ({
+  id: `${type}-${x}`,
+  type,
+  position: {
+    x,
+    y,
+  },
+  size: {
+    width: 32,
+    height: 32,
+  },
+  velocity: {
+    x: -280,
+    y: 0,
+  },
 })
 
 const createSurface = (): CanvasSurface => {
@@ -293,5 +316,74 @@ describe('GameRenderer', () => {
       800,
       32,
     )
+  })
+
+  it('renders a small ground obstacle using its visual dimensions', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 268, 32, 32)
+  })
+
+  it('renders a tall ground obstacle using its visual dimensions', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_TALL, 200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 252, 32, 48)
+  })
+
+  it('renders ground obstacles according to their world position', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 300)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(380, 268, 32, 32)
+  })
+
+  it('does not change obstacles when rendering', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacles = [
+      createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 200),
+      createObstacle(OBSTACLE_TYPE.GROUND_TALL, 300),
+    ]
+    const obstaclesBeforeRender = structuredClone(obstacles)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, obstacles)
+
+    expect(obstacles).toEqual(obstaclesBeforeRender)
+  })
+
+  it('renders an air obstacle at its configured vertical position', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.AIR, 200, 64)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 340, 32, 24)
   })
 })
