@@ -239,6 +239,27 @@ describe('GameApplication', () => {
     expect(renderCount).toBe(2)
   })
 
+  it('renders the updated scenario state while RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    let renderedScenarioX: number | undefined
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {
+        renderedScenarioX = application.currentScenario.position.x
+      },
+    )
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(renderedScenarioX).toBe(defaultGameplayConfig.scenario.speed * 0.25)
+  })
+
   it('stops updating after game over', () => {
     const scheduler = new FakeFrameScheduler()
     let updateCount = 0
@@ -336,5 +357,44 @@ describe('GameApplication', () => {
     expect(application.state).toBe('GAME_OVER')
     expect(application.currentMario.movementState).toBe('RUNNING')
     expect(application.currentMario.isGrounded).toBe(true)
+  })
+
+  it('does not update the scenario while READY', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    const scenarioBeforeFrame = structuredClone(application.currentScenario)
+
+    scheduler.runNext(1000)
+
+    expect(application.currentScenario).toEqual(scenarioBeforeFrame)
+  })
+
+  it('updates the scenario while RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(application.currentScenario.position.x).toBe(
+      defaultGameplayConfig.scenario.speed * 0.25,
+    )
+  })
+
+  it('does not update the scenario after GAME_OVER', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    const scenarioAtGameOver = structuredClone(application.currentScenario)
+
+    application.gameOver()
+    scheduler.runNext(1250)
+
+    expect(application.currentScenario).toEqual(scenarioAtGameOver)
   })
 })
