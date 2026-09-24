@@ -1,3 +1,5 @@
+import type { ObstacleType } from '../obstacle/obstacle-type'
+
 export interface MovementConfig {
   initialSpeed: number
   maxSpeed: number
@@ -23,6 +25,14 @@ export interface SpawnConfig {
   powerUpChance: number
 }
 
+export interface ObstacleConfig {
+  width: number
+  height: number
+  groundOffset: number
+}
+
+export type ObstacleConfigs = Record<ObstacleType, ObstacleConfig>
+
 export interface ScoringConfig {
   coinPoints: number
   medalPoints: number
@@ -47,6 +57,7 @@ export interface GameplayConfig {
   physics: PhysicsConfig
   scenario: ScenarioConfig
   spawn: SpawnConfig
+  obstacles: ObstacleConfigs
   scoring: ScoringConfig
   progression: ProgressionConfig
   collision: CollisionConfig

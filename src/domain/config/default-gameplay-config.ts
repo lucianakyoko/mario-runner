@@ -1,3 +1,4 @@
+import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { GameplayConfig } from './gameplay-config'
 
 export const defaultGameplayConfig: GameplayConfig = {
@@ -21,6 +22,23 @@ export const defaultGameplayConfig: GameplayConfig = {
     obstacleMaxDistance: 700,
     collectibleChance: 0.25,
     powerUpChance: 0.05,
+  },
+  obstacles: {
+    [OBSTACLE_TYPE.GROUND_SMALL]: {
+      width: 32,
+      height: 32,
+      groundOffset: 0,
+    },
+    [OBSTACLE_TYPE.GROUND_TALL]: {
+      width: 32,
+      height: 48,
+      groundOffset: 0,
+    },
+    [OBSTACLE_TYPE.AIR]: {
+      width: 32,
+      height: 24,
+      groundOffset: 64,
+    },
   },
   scoring: {
     coinPoints: 1,
