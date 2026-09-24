@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
-import type { Mario } from '../../domain/mario/mario'
 import type { GameplayCommand } from '../../domain/input'
+import type { Mario } from '../../domain/mario/mario'
+import type { Scenario } from '../../domain/scenario/scenario'
 import type { GameTime } from '../../domain/time'
 import type { Input } from '../input'
 import type {
@@ -10,7 +11,6 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
-import type { Scenario } from '../../domain/scenario/scenario'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -177,6 +177,35 @@ describe('GameApplication', () => {
     )
   })
 
+  it('updates Mario jump while the scenario is moving', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    application.start()
+    input.activate('jump')
+
+    scheduler.runNext(1000)
+
+    const jumpForce = defaultGameplayConfig.physics.jumpForce
+    const gravity = defaultGameplayConfig.physics.gravity
+    const deltaTime = 0.25
+
+    scheduler.runNext(1250)
+
+    expect(application.currentMario.position.y).toBe(
+      (-jumpForce + gravity * deltaTime) * deltaTime,
+    )
+    expect(application.currentMario.velocity.y).toBe(
+      -jumpForce + gravity * deltaTime,
+    )
+    expect(application.currentMario.isGrounded).toBe(false)
+    expect(application.currentMario.movementState).toBe('JUMPING')
+    expect(application.currentScenario.position.x).toBe(
+      defaultGameplayConfig.scenario.speed * deltaTime,
+    )
+  })
+
   it('starts Mario crouch when crouch is active in RUNNING', () => {
     const scheduler = new FakeFrameScheduler()
     const input = new FakeInput()
@@ -188,6 +217,28 @@ describe('GameApplication', () => {
     scheduler.runNext(1000)
 
     expect(application.currentMario.movementState).toBe('CROUCHING')
+  })
+
+  it('keeps Mario grounded while crouching and the scenario is moving', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const application = createApplication(scheduler, input)
+
+    application.start()
+    input.activate('crouch')
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(application.currentMario.movementState).toBe('CROUCHING')
+    expect(application.currentMario.position.y).toBe(
+      defaultGameplayConfig.physics.groundY,
+    )
+    expect(application.currentMario.isGrounded).toBe(true)
+    expect(application.currentMario.velocity.y).toBe(0)
+    expect(application.currentScenario.position.x).toBe(
+      defaultGameplayConfig.scenario.speed * 0.25,
+    )
   })
 
   it('keeps grounded Mario at the ground while running', () => {
@@ -204,6 +255,23 @@ describe('GameApplication', () => {
     )
     expect(application.currentMario.velocity.y).toBe(0)
     expect(application.currentMario.isGrounded).toBe(true)
+  })
+
+  it('moves Mario independently while the scenario is moving', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(application.currentMario.position.x).toBe(
+      defaultGameplayConfig.movement.initialSpeed * 0.25,
+    )
+    expect(application.currentScenario.position.x).toBe(
+      defaultGameplayConfig.scenario.speed * 0.25,
+    )
   })
 
   it('updates and renders while RUNNING', () => {

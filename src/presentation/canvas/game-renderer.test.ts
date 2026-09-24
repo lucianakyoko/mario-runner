@@ -5,6 +5,7 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
 import type { MarioVisual } from '../mario/mario-visual'
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 
 const createMario = (): Mario => ({
   position: {
@@ -141,6 +142,25 @@ describe('GameRenderer', () => {
     )
   })
 
+  it('preserves Mario visual position when the scenario moves', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+
+    scenario.position.x = 70
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      3,
+      199,
+      292,
+      marioVisual.width,
+      marioVisual.height,
+    )
+  })
   it('renders Mario without changing its state', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)
@@ -251,5 +271,25 @@ describe('GameRenderer', () => {
     renderer.render('RUNNING', scenario, mario, marioVisual)
 
     expect(scenario).toEqual(scenarioBeforeRender)
+  })
+
+  it('aligns the visual ground with the configured Mario ground', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+
+    scenario.ground.y = defaultGameplayConfig.physics.groundY
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      2,
+      0,
+      surface.element.height - defaultGameplayConfig.physics.groundY,
+      800,
+      32,
+    )
   })
 })
