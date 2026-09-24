@@ -1,4 +1,3 @@
-import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { GameState } from '../../domain/game/game-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Scenario } from '../../domain/scenario/scenario'
@@ -31,7 +30,7 @@ export class GameRenderer {
 
     context.fillText(this.getStateLabel(state), 16, 24)
 
-    this.renderMario(mario, marioVisual)
+    this.renderMario(mario, marioVisual, scenario)
   }
 
   private renderBackground(scenario: Scenario): void {
@@ -60,14 +59,17 @@ export class GameRenderer {
     }
   }
 
-  private renderMario(mario: Mario, visual: MarioVisual): void {
+  private renderMario(
+    mario: Mario,
+    visual: MarioVisual,
+    scenario: Scenario,
+  ): void {
     const { element, context } = this.surface
 
     const cameraX = mario.position.x - element.width * 0.25
     const screenX = mario.position.x - cameraX + visual.offsetX
 
-    const groundY = defaultGameplayConfig.physics.groundY
-    const screenGroundY = element.height - groundY
+    const screenGroundY = element.height - scenario.ground.y
 
     const screenY =
       screenGroundY - visual.height + mario.position.y + visual.offsetY

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { Mario } from '../../domain/mario/mario'
 import type { Scenario } from '../../domain/scenario/scenario'
+import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
-import type { MarioVisual } from '../mario/mario-visual'
-import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 
 const createMario = (): Mario => ({
   position: {
@@ -123,7 +123,7 @@ describe('GameRenderer', () => {
     )
   })
 
-  it('preserves Mario rendering when the scenario changes', () => {
+  it('renders Mario according to the current scenario ground', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)
     const scenario = createScenario()
@@ -136,7 +136,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      292,
+      252,
       marioVisual.width,
       marioVisual.height,
     )
@@ -161,6 +161,7 @@ describe('GameRenderer', () => {
       marioVisual.height,
     )
   })
+
   it('renders Mario without changing its state', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)
@@ -260,6 +261,7 @@ describe('GameRenderer', () => {
       marioVisual.height,
     )
   })
+
   it('does not update the scenario when rendering', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)
