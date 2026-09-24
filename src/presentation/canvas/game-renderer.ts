@@ -1,8 +1,13 @@
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { GameState } from '../../domain/game/game-state'
 import type { Mario } from '../../domain/mario/mario'
+import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
+
+const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
+const DEFAULT_GROUND_HEIGHT = 32
+const DEFAULT_GROUND_COLOR = '#8B4513'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
@@ -11,14 +16,48 @@ export class GameRenderer {
     this.surface = surface
   }
 
-  render(state: GameState, mario: Mario, marioVisual: MarioVisual): void {
+  render(
+    state: GameState,
+    scenario: Scenario,
+    mario: Mario,
+    marioVisual: MarioVisual,
+  ): void {
     const { element, context } = this.surface
 
     context.clearRect(0, 0, element.width, element.height)
 
+    this.renderBackground(scenario)
+    this.renderGround(scenario)
+
     context.fillText(this.getStateLabel(state), 16, 24)
 
     this.renderMario(mario, marioVisual)
+  }
+
+  private renderBackground(scenario: Scenario): void {
+    const { element, context } = this.surface
+
+    context.fillStyle = this.getBackgroundColor(scenario.background.id)
+    context.fillRect(0, 0, element.width, element.height)
+  }
+
+  private renderGround(scenario: Scenario): void {
+    const { element, context } = this.surface
+
+    const groundY = element.height - scenario.ground.y
+
+    context.fillStyle = DEFAULT_GROUND_COLOR
+    context.fillRect(0, groundY, element.width, DEFAULT_GROUND_HEIGHT)
+  }
+
+  private getBackgroundColor(backgroundId: string): string {
+    switch (backgroundId) {
+      case 'default':
+        return DEFAULT_BACKGROUND_COLOR
+
+      default:
+        return DEFAULT_BACKGROUND_COLOR
+    }
   }
 
   private renderMario(mario: Mario, visual: MarioVisual): void {

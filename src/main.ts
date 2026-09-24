@@ -3,12 +3,12 @@ import './style.css'
 import { GameApplication } from './application/game/application'
 import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
 import { createInitialMario } from './domain/mario/mario'
+import { createInitialScenario } from './domain/scenario/scenario'
 import { KeyboardInput } from './infrastructure/input/keyboard-input'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
 import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
-import { createInitialScenario } from './domain/scenario/scenario'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -71,6 +71,7 @@ const gameApplication = new GameApplication(
   () => {},
   (gameTime) => {
     const currentMario = gameApplication.currentMario
+    const currentScenario = gameApplication.currentScenario
     const animationTime =
       gameApplication.state === 'READY' ? 0 : gameTime.elapsedTime
 
@@ -81,6 +82,11 @@ const gameApplication = new GameApplication(
       animationFrameDuration,
     )
 
-    renderer.render(gameApplication.state, currentMario, marioVisual)
+    renderer.render(
+      gameApplication.state,
+      currentScenario,
+      currentMario,
+      marioVisual,
+    )
   },
 )
