@@ -341,6 +341,72 @@ describe('GameApplication', () => {
     })
   })
 
+  it('completes the obstacle lifecycle during gameplay', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'old-obstacle',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: -40,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2250)
+
+    expect(application.currentObstacles).toHaveLength(1)
+
+    expect(application.currentObstacles[0].id).not.toBe('old-obstacle')
+    expect(application.currentObstacles[0].position.x).toBe(450)
+  })
+
+  it('does not spawn obstacles while READY', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2000)
+
+    expect(application.state).toBe('READY')
+    expect(application.currentObstacles).toEqual([])
+  })
+
+  it('does not spawn obstacles after GAME_OVER', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    application.gameOver()
+
+    scheduler.runNext(2000)
+    scheduler.runNext(3000)
+
+    expect(application.state).toBe('GAME_OVER')
+    expect(application.currentObstacles).toEqual([])
+  })
+
   it('does not update obstacles while READY', () => {
     const scheduler = new FakeFrameScheduler()
     const obstacle = createObstacle()
