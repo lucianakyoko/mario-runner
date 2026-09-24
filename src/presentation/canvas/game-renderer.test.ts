@@ -386,4 +386,34 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(280, 340, 32, 24)
   })
+  it('renders obstacles between the ground and Mario', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      3,
+      280,
+      268,
+      32,
+      32,
+    )
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      4,
+      199,
+      292,
+      marioVisual.width,
+      marioVisual.height,
+    )
+  })
 })
