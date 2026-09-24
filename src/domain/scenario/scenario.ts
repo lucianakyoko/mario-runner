@@ -16,3 +16,24 @@ export interface Scenario {
   ground: ScenarioGround
   position: ScenarioPosition
 }
+
+export interface InitialScenarioConfig {
+  id: string
+  backgroundId: string
+  groundY: number
+}
+
+export const createInitialScenario = (
+  config: InitialScenarioConfig,
+): Scenario => ({
+  id: config.id,
+  background: {
+    id: config.backgroundId,
+  },
+  ground: {
+    y: config.groundY,
+  },
+  position: {
+    x: 0,
+  },
+})

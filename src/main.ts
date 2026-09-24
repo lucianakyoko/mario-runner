@@ -8,6 +8,7 @@ import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
 import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
+import { createInitialScenario } from './domain/scenario/scenario'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -53,12 +54,19 @@ const mario = createInitialMario({
   initialSpeed: defaultGameplayConfig.movement.initialSpeed,
 })
 
+const scenario = createInitialScenario({
+  id: 'default',
+  backgroundId: defaultGameplayConfig.scenario.background.id,
+  groundY: defaultGameplayConfig.physics.groundY,
+})
+
 const animationFrameDuration =
   defaultGameplayConfig.animation.defaultFrameDuration / 1000
 
 const gameApplication = new GameApplication(
   scheduler,
   mario,
+  scenario,
   input,
   () => {},
   (gameTime) => {

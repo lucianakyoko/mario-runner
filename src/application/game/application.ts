@@ -1,10 +1,12 @@
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
-import type { Mario } from '../../domain/mario/mario'
 import { landMario } from '../../domain/mario/land-mario'
+import type { Mario } from '../../domain/mario/mario'
 import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-ground-movement'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
+import type { Scenario } from '../../domain/scenario/scenario'
+import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import type { GameTime } from '../../domain/time'
 import type { FrameScheduler } from '../game-loop/frame-scheduler'
 import { GameLoop } from '../game-loop/game-loop'
@@ -20,11 +22,14 @@ export class GameApplication {
   private readonly input: Input
   private readonly update: Update
   private readonly render: Render
+
   private mario: Mario
+  private scenario: Scenario
 
   constructor(
     scheduler: FrameScheduler,
     mario: Mario,
+    scenario: Scenario,
     input: Input,
     update: Update,
     render: Render,
@@ -33,9 +38,11 @@ export class GameApplication {
 
     this.stateMachine = new GameStateMachine()
     this.mario = mario
+    this.scenario = scenario
     this.input = input
     this.update = update
     this.render = render
+
     this.gameLoop = new GameLoop(
       clock,
       scheduler,
@@ -52,6 +59,10 @@ export class GameApplication {
 
   get currentMario(): Mario {
     return this.mario
+  }
+
+  get currentScenario(): Scenario {
+    return this.scenario
   }
 
   start(): void {
@@ -82,6 +93,12 @@ export class GameApplication {
     if (this.stateMachine.state !== 'RUNNING') {
       return
     }
+
+    this.scenario = updateScenarioMovement(
+      this.scenario,
+      defaultGameplayConfig.scenario.speed,
+      gameTime.deltaTime,
+    )
 
     this.mario = resolveMarioGroundMovement(
       this.mario,

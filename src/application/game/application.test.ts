@@ -10,6 +10,7 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
+import type { Scenario } from '../../domain/scenario/scenario'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -79,13 +80,33 @@ const createMario = (): Mario => ({
   isGrounded: true,
 })
 
+const createScenario = (): Scenario => ({
+  id: 'default',
+  background: {
+    id: 'default',
+  },
+  ground: {
+    y: 0,
+  },
+  position: {
+    x: 0,
+  },
+})
+
 const createApplication = (
   scheduler: FakeFrameScheduler,
   input: FakeInput = new FakeInput(),
   update: (gameTime: GameTime) => void = () => {},
   render: (gameTime: GameTime) => void = () => {},
 ): GameApplication =>
-  new GameApplication(scheduler, createMario(), input, update, render)
+  new GameApplication(
+    scheduler,
+    createMario(),
+    createScenario(),
+    input,
+    update,
+    render,
+  )
 
 describe('GameApplication', () => {
   it('starts in READY', () => {
