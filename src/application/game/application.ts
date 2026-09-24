@@ -23,6 +23,7 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
+import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -160,6 +161,7 @@ export class GameApplication {
     this.obstacles = spawnResult.obstacles
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
+    this.obstacles = removeOffscreenObstacles(this.obstacles)
 
     this.mario = resolveMarioGroundMovement(
       this.mario,
