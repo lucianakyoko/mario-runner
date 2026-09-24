@@ -5,6 +5,8 @@ import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-gro
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import type { GameTime } from '../../domain/time'
@@ -25,6 +27,7 @@ export class GameApplication {
 
   private mario: Mario
   private scenario: Scenario
+  private obstacles: Obstacle[]
 
   constructor(
     scheduler: FrameScheduler,
@@ -33,6 +36,7 @@ export class GameApplication {
     input: Input,
     update: Update,
     render: Render,
+    obstacles: Obstacle[] = [],
   ) {
     const clock = new Clock()
 
@@ -42,6 +46,7 @@ export class GameApplication {
     this.input = input
     this.update = update
     this.render = render
+    this.obstacles = obstacles
 
     this.gameLoop = new GameLoop(
       clock,
@@ -63,6 +68,10 @@ export class GameApplication {
 
   get currentScenario(): Scenario {
     return this.scenario
+  }
+
+  get currentObstacles(): Obstacle[] {
+    return this.obstacles
   }
 
   start(): void {
@@ -99,6 +108,8 @@ export class GameApplication {
       defaultGameplayConfig.scenario.speed,
       gameTime.deltaTime,
     )
+
+    this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
 
     this.mario = resolveMarioGroundMovement(
       this.mario,

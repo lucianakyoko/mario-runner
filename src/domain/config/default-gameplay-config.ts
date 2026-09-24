@@ -28,16 +28,19 @@ export const defaultGameplayConfig: GameplayConfig = {
       width: 32,
       height: 32,
       groundOffset: 0,
+      speed: 280,
     },
     [OBSTACLE_TYPE.GROUND_TALL]: {
       width: 32,
       height: 48,
       groundOffset: 0,
+      speed: 280,
     },
     [OBSTACLE_TYPE.AIR]: {
       width: 32,
       height: 24,
       groundOffset: 64,
+      speed: 280,
     },
   },
   scoring: {

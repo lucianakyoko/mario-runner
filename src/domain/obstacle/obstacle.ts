@@ -10,9 +10,15 @@ export interface ObstacleSize {
   height: number
 }
 
+export interface ObstacleVelocity {
+  x: number
+  y: number
+}
+
 export interface Obstacle {
   id: string
   type: ObstacleType
   position: ObstaclePosition
   size: ObstacleSize
+  velocity: ObstacleVelocity
 }

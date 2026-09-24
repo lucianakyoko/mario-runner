@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { OBSTACLE_TYPE } from './obstacle-type'
 import type { Obstacle } from './obstacle'
 
@@ -15,6 +16,10 @@ describe('Obstacle', () => {
         width: 32,
         height: 32,
       },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
     }
 
     expect(obstacle).toEqual({
@@ -27,6 +32,10 @@ describe('Obstacle', () => {
       size: {
         width: 32,
         height: 32,
+      },
+      velocity: {
+        x: -280,
+        y: 0,
       },
     })
   })
@@ -43,6 +52,10 @@ describe('Obstacle', () => {
         width: 32,
         height: 48,
       },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
     }
 
     expect(obstacle.type).toBe(OBSTACLE_TYPE.GROUND_TALL)
@@ -54,9 +67,13 @@ describe('Obstacle', () => {
       width: 32,
       height: 48,
     })
+    expect(obstacle.velocity).toEqual({
+      x: -280,
+      y: 0,
+    })
   })
 
-  it('represents an air obstacle', () => {
+  it('represents an air obstacle with independent vertical movement', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-3',
       type: OBSTACLE_TYPE.AIR,
@@ -68,6 +85,10 @@ describe('Obstacle', () => {
         width: 32,
         height: 24,
       },
+      velocity: {
+        x: -280,
+        y: 40,
+      },
     }
 
     expect(obstacle.type).toBe(OBSTACLE_TYPE.AIR)
@@ -78,6 +99,10 @@ describe('Obstacle', () => {
     expect(obstacle.size).toEqual({
       width: 32,
       height: 24,
+    })
+    expect(obstacle.velocity).toEqual({
+      x: -280,
+      y: 40,
     })
   })
 
@@ -93,6 +118,10 @@ describe('Obstacle', () => {
         width: 32,
         height: 32,
       },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
     }
 
     const secondObstacle: Obstacle = {
@@ -105,6 +134,10 @@ describe('Obstacle', () => {
       size: {
         width: 32,
         height: 32,
+      },
+      velocity: {
+        x: -280,
+        y: 0,
       },
     }
 

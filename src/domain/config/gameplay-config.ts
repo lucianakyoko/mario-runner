@@ -29,6 +29,7 @@ export interface ObstacleConfig {
   width: number
   height: number
   groundOffset: number
+  speed: number
 }
 
 export type ObstacleConfigs = Record<ObstacleType, ObstacleConfig>

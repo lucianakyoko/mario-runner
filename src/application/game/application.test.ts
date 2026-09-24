@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { GameplayCommand } from '../../domain/input'
 import type { Mario } from '../../domain/mario/mario'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 import type { Scenario } from '../../domain/scenario/scenario'
 import type { GameTime } from '../../domain/time'
 import type { Input } from '../input'
@@ -93,11 +95,29 @@ const createScenario = (): Scenario => ({
   },
 })
 
+const createObstacle = (): Obstacle => ({
+  id: 'obstacle-1',
+  type: OBSTACLE_TYPE.GROUND_SMALL,
+  position: {
+    x: 400,
+    y: 0,
+  },
+  size: {
+    width: 32,
+    height: 32,
+  },
+  velocity: {
+    x: -280,
+    y: 0,
+  },
+})
+
 const createApplication = (
   scheduler: FakeFrameScheduler,
   input: FakeInput = new FakeInput(),
   update: (gameTime: GameTime) => void = () => {},
   render: (gameTime: GameTime) => void = () => {},
+  obstacles: Obstacle[] = [],
 ): GameApplication =>
   new GameApplication(
     scheduler,
@@ -106,6 +126,7 @@ const createApplication = (
     input,
     update,
     render,
+    obstacles,
   )
 
 describe('GameApplication', () => {
@@ -272,6 +293,73 @@ describe('GameApplication', () => {
     expect(application.currentScenario.position.x).toBe(
       defaultGameplayConfig.scenario.speed * 0.25,
     )
+  })
+
+  it('updates obstacles while RUNNING', () => {
+    const scheduler = new FakeFrameScheduler()
+    const obstacle = createObstacle()
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(application.currentObstacles).toEqual([
+      {
+        ...obstacle,
+        position: {
+          x: 330,
+          y: 0,
+        },
+      },
+    ])
+  })
+
+  it('does not update obstacles while READY', () => {
+    const scheduler = new FakeFrameScheduler()
+    const obstacle = createObstacle()
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    const obstaclesBeforeFrame = structuredClone(application.currentObstacles)
+
+    scheduler.runNext(1000)
+
+    expect(application.currentObstacles).toEqual(obstaclesBeforeFrame)
+  })
+
+  it('does not update obstacles after GAME_OVER', () => {
+    const scheduler = new FakeFrameScheduler()
+    const obstacle = createObstacle()
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    const obstaclesAtGameOver = structuredClone(application.currentObstacles)
+
+    application.gameOver()
+    scheduler.runNext(1250)
+
+    expect(application.currentObstacles).toEqual(obstaclesAtGameOver)
   })
 
   it('updates and renders while RUNNING', () => {
