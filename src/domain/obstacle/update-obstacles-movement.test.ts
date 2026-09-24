@@ -63,6 +63,27 @@ describe('updateObstaclesMovement', () => {
     ])
   })
 
+  it('scales displacement proportionally to deltaTime', () => {
+    const obstacles = createObstacles()
+
+    const updatedWithQuarterSecond = updateObstaclesMovement(obstacles, 0.25)
+    const updatedWithHalfSecond = updateObstaclesMovement(obstacles, 0.5)
+
+    expect(updatedWithQuarterSecond[0].position).toEqual({
+      x: 330,
+      y: 0,
+    })
+
+    expect(updatedWithHalfSecond[0].position).toEqual({
+      x: 260,
+      y: 0,
+    })
+
+    expect(updatedWithHalfSecond[0].position.x - obstacles[0].position.x).toBe(
+      2 * (updatedWithQuarterSecond[0].position.x - obstacles[0].position.x),
+    )
+  })
+
   it('preserves the original obstacle collection', () => {
     const obstacles = createObstacles()
 
