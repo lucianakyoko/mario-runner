@@ -25,6 +25,13 @@ export interface SpawnConfig {
   powerUpChance: number
 }
 
+export interface DifficultyConfig {
+  progressionInterval: number
+  obstacleSpeedIncrease: number
+  obstacleMinDistanceDecrease: number
+  obstacleMaxDistanceDecrease: number
+}
+
 export interface ObstacleConfig {
   width: number
   height: number
@@ -58,6 +65,7 @@ export interface GameplayConfig {
   physics: PhysicsConfig
   scenario: ScenarioConfig
   spawn: SpawnConfig
+  difficulty: DifficultyConfig
   obstacles: ObstacleConfigs
   scoring: ScoringConfig
   progression: ProgressionConfig

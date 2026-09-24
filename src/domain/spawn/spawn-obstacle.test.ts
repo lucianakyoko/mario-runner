@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
+import type { ObstacleConfigs } from '../config/gameplay-config'
+import type { Difficulty } from '../difficulty/difficulty'
 import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { Obstacle } from '../obstacle/obstacle'
 import type { Random } from '../random/random'
 import { spawnObstacle } from './spawn-obstacle'
 import type { SpawnState } from './spawn-state'
 
-const obstacleConfigs = {
+const obstacleConfigs: ObstacleConfigs = {
   [OBSTACLE_TYPE.GROUND_SMALL]: {
     width: 32,
     height: 32,
@@ -25,6 +27,12 @@ const obstacleConfigs = {
     groundOffset: 64,
     speed: 280,
   },
+}
+
+const difficulty: Difficulty = {
+  obstacleSpeed: 280,
+  obstacleMinDistance: 320,
+  obstacleMaxDistance: 700,
 }
 
 const createState = (): SpawnState => ({
@@ -54,11 +62,9 @@ describe('spawnObstacle', () => {
       state,
       obstacles: [],
       random: createRandom(),
-      minDistance: 320,
-      maxDistance: 700,
+      difficulty,
       obstacleConfigs,
       spawnX: 800,
-      velocityX: -280,
       obstacleId: 'obstacle-1',
     })
 
@@ -73,11 +79,9 @@ describe('spawnObstacle', () => {
       state: createState(),
       obstacles: [],
       random: createRandom(),
-      minDistance: 320,
-      maxDistance: 700,
+      difficulty,
       obstacleConfigs,
       spawnX: 800,
-      velocityX: -280,
       obstacleId: 'obstacle-1',
     })
 
@@ -100,16 +104,14 @@ describe('spawnObstacle', () => {
     })
   })
 
-  it('resets the distance and selects the next spawn distance', () => {
+  it('uses the difficulty to select the next spawn distance', () => {
     const result = spawnObstacle({
       state: createState(),
       obstacles: [],
       random: createRandom(),
-      minDistance: 320,
-      maxDistance: 700,
+      difficulty,
       obstacleConfigs,
       spawnX: 800,
-      velocityX: -280,
       obstacleId: 'obstacle-1',
     })
 
@@ -117,6 +119,23 @@ describe('spawnObstacle', () => {
       distanceSinceLastSpawn: 0,
       nextSpawnDistance: 320,
     })
+  })
+
+  it('uses the difficulty to determine obstacle speed', () => {
+    const result = spawnObstacle({
+      state: createState(),
+      obstacles: [],
+      random: createRandom(),
+      difficulty: {
+        ...difficulty,
+        obstacleSpeed: 420,
+      },
+      obstacleConfigs,
+      spawnX: 800,
+      obstacleId: 'obstacle-1',
+    })
+
+    expect(result.obstacles[0].velocity.x).toBe(-420)
   })
 
   it('preserves existing obstacles', () => {
@@ -141,11 +160,9 @@ describe('spawnObstacle', () => {
       state: createState(),
       obstacles: [existingObstacle],
       random: createRandom(),
-      minDistance: 320,
-      maxDistance: 700,
+      difficulty,
       obstacleConfigs,
       spawnX: 800,
-      velocityX: -280,
       obstacleId: 'obstacle-1',
     })
 

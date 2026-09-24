@@ -23,6 +23,12 @@ export const defaultGameplayConfig: GameplayConfig = {
     collectibleChance: 0.25,
     powerUpChance: 0.05,
   },
+  difficulty: {
+    progressionInterval: 10,
+    obstacleSpeedIncrease: 10,
+    obstacleMinDistanceDecrease: 10,
+    obstacleMaxDistanceDecrease: 20,
+  },
   obstacles: {
     [OBSTACLE_TYPE.GROUND_SMALL]: {
       width: 32,

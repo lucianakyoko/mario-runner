@@ -1,4 +1,5 @@
-import type { ObstacleConfig } from '../config/gameplay-config'
+import type { ObstacleConfigs } from '../config/gameplay-config'
+import type { Difficulty } from '../difficulty/difficulty'
 import type { Obstacle } from '../obstacle/obstacle'
 import { createObstacle } from '../obstacle/create-obstacle'
 import type { Random } from '../random/random'
@@ -10,11 +11,9 @@ export interface SpawnObstacleParams {
   state: SpawnState
   obstacles: Obstacle[]
   random: Random
-  minDistance: number
-  maxDistance: number
-  obstacleConfigs: Record<Obstacle['type'], ObstacleConfig>
+  difficulty: Difficulty
+  obstacleConfigs: ObstacleConfigs
   spawnX: number
-  velocityX: number
   obstacleId: string
 }
 
@@ -27,11 +26,9 @@ export const spawnObstacle = ({
   state,
   obstacles,
   random,
-  minDistance,
-  maxDistance,
+  difficulty,
   obstacleConfigs,
   spawnX,
-  velocityX,
   obstacleId,
 }: SpawnObstacleParams): SpawnObstacleResult => {
   if (state.distanceSinceLastSpawn < state.nextSpawnDistance) {
@@ -49,13 +46,17 @@ export const spawnObstacle = ({
     type,
     x: spawnX,
     config,
-    velocityX,
+    velocityX: -difficulty.obstacleSpeed,
   })
 
   return {
     state: {
       distanceSinceLastSpawn: 0,
-      nextSpawnDistance: selectSpawnDistance(random, minDistance, maxDistance),
+      nextSpawnDistance: selectSpawnDistance(
+        random,
+        difficulty.obstacleMinDistance,
+        difficulty.obstacleMaxDistance,
+      ),
     },
     obstacles: [...obstacles, obstacle],
   }

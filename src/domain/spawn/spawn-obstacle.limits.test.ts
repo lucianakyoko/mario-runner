@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { SeededRandom } from '../../infrastructure/random/seeded-random'
 import type { Obstacle } from '../obstacle/obstacle'
+import type { ObstacleConfigs } from '../config/gameplay-config'
+import type { Difficulty } from '../difficulty/difficulty'
 import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import { spawnObstacle } from './spawn-obstacle'
 import type { SpawnState } from './spawn-state'
@@ -9,7 +11,13 @@ import type { SpawnState } from './spawn-state'
 const MIN_DISTANCE = 320
 const MAX_DISTANCE = 700
 
-const obstacleConfigs = {
+const difficulty: Difficulty = {
+  obstacleSpeed: 280,
+  obstacleMinDistance: MIN_DISTANCE,
+  obstacleMaxDistance: MAX_DISTANCE,
+}
+
+const obstacleConfigs: ObstacleConfigs = {
   [OBSTACLE_TYPE.GROUND_SMALL]: {
     width: 32,
     height: 32,
@@ -46,11 +54,9 @@ describe('spawnObstacle distance limits', () => {
         state,
         obstacles,
         random,
-        minDistance: MIN_DISTANCE,
-        maxDistance: MAX_DISTANCE,
+        difficulty,
         obstacleConfigs,
         spawnX: 800,
-        velocityX: -280,
         obstacleId: `obstacle-${index}`,
       })
 

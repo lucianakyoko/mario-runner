@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
+import { SeededRandom } from '../../infrastructure/random/seeded-random'
+import type { ObstacleConfigs } from '../config/gameplay-config'
+import type { Difficulty } from '../difficulty/difficulty'
 import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { Obstacle } from '../obstacle/obstacle'
-import { SeededRandom } from '../../infrastructure/random/seeded-random'
 import { spawnObstacle } from './spawn-obstacle'
 import type { SpawnState } from './spawn-state'
 
-const obstacleConfigs = {
+const obstacleConfigs: ObstacleConfigs = {
   [OBSTACLE_TYPE.GROUND_SMALL]: {
     width: 32,
     height: 32,
@@ -27,6 +29,12 @@ const obstacleConfigs = {
   },
 }
 
+const difficulty: Difficulty = {
+  obstacleSpeed: 280,
+  obstacleMinDistance: 320,
+  obstacleMaxDistance: 700,
+}
+
 const spawn = (
   random: SeededRandom,
   state: SpawnState,
@@ -37,11 +45,9 @@ const spawn = (
     state,
     obstacles,
     random,
-    minDistance: 320,
-    maxDistance: 700,
+    difficulty,
     obstacleConfigs,
     spawnX: 800,
-    velocityX: -280,
     obstacleId: id,
   })
 
