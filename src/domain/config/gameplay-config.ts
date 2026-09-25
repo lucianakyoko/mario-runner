@@ -18,6 +18,10 @@ export interface ScenarioConfig {
   }
 }
 
+export interface ViewportConfig {
+  width: number
+}
+
 export interface SpawnConfig {
   obstacleMinDistance: number
   obstacleMaxDistance: number
@@ -64,6 +68,7 @@ export interface GameplayConfig {
   movement: MovementConfig
   physics: PhysicsConfig
   scenario: ScenarioConfig
+  viewport: ViewportConfig
   spawn: SpawnConfig
   difficulty: DifficultyConfig
   obstacles: ObstacleConfigs

@@ -384,8 +384,9 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 340, 32, 24)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 212, 32, 24)
   })
+
   it('renders obstacles between the ground and Mario', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)

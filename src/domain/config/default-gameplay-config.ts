@@ -17,6 +17,9 @@ export const defaultGameplayConfig: GameplayConfig = {
       id: 'default',
     },
   },
+  viewport: {
+    width: 800,
+  },
   spawn: {
     obstacleMinDistance: 320,
     obstacleMaxDistance: 700,

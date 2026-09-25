@@ -8,6 +8,7 @@ import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
@@ -23,7 +24,6 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
-import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -143,13 +143,16 @@ export class GameApplication {
       config: defaultGameplayConfig.difficulty,
     })
 
+    const spawnX =
+      this.mario.position.x + defaultGameplayConfig.viewport.width * 0.75
+
     const spawnResult = spawnObstacle({
       state: this.spawnState,
       obstacles: this.obstacles,
       random: this.random,
       difficulty,
       obstacleConfigs: defaultGameplayConfig.obstacles,
-      spawnX: 800,
+      spawnX,
       obstacleId: `obstacle-${this.nextObstacleId}`,
     })
 

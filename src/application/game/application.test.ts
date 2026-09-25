@@ -336,7 +336,7 @@ describe('GameApplication', () => {
     expect(application.currentObstacles[0]).toMatchObject({
       id: 'obstacle-1',
       position: {
-        x: 520,
+        x: defaultGameplayConfig.viewport.width * 0.75,
       },
     })
   })
@@ -377,7 +377,7 @@ describe('GameApplication', () => {
     expect(application.currentObstacles).toHaveLength(1)
 
     expect(application.currentObstacles[0].id).not.toBe('old-obstacle')
-    expect(application.currentObstacles[0].position.x).toBe(450)
+    expect(application.currentObstacles[0].position.x).toBe(250)
   })
 
   it('does not spawn obstacles while READY', () => {
