@@ -92,5 +92,3 @@ const gameApplication = new GameApplication(
     )
   },
 )
-
-gameApplication.start()
