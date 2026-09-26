@@ -656,4 +656,131 @@ describe('GameApplication', () => {
 
     expect(application.currentScenario).toEqual(scenarioAtGameOver)
   })
+
+  it('detects collision between Mario and an active obstacle', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollision).toEqual({
+      hasCollision: true,
+    })
+  })
+
+  it('does not detect collision when obstacles do not overlap Mario', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 500,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollision).toEqual({
+      hasCollision: false,
+    })
+  })
+
+  it('does not trigger game over when a collision is detected', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollision).toEqual({
+      hasCollision: true,
+    })
+    expect(application.state).toBe('RUNNING')
+  })
 })

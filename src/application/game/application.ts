@@ -1,20 +1,24 @@
+import type { Collidable } from '../../domain/collision/collidable'
+import { detectCollision } from '../../domain/collision/detect-collision'
+import type { CollisionResult } from '../../domain/collision/collision-result'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import { calculateDifficulty } from '../../domain/difficulty/calculate-difficulty'
 import type { Difficulty } from '../../domain/difficulty/difficulty'
 import { landMario } from '../../domain/mario/land-mario'
-import type { Mario } from '../../domain/mario/mario'
+import { getMarioCollisionBounds, type Mario } from '../../domain/mario/mario'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
+import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
+import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-ground-movement'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
-import type { Obstacle } from '../../domain/obstacle/obstacle'
-import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
-import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
+import type { Scenario } from '../../domain/scenario/scenario'
+import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
 import { updateSpawnDistance } from '../../domain/spawn/update-spawn-distance'
-import type { Scenario } from '../../domain/scenario/scenario'
-import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import type { GameTime } from '../../domain/time'
 import { SeededRandom } from '../../infrastructure/random/seeded-random'
 import type { FrameScheduler } from '../game-loop/frame-scheduler'
@@ -39,6 +43,10 @@ export class GameApplication {
   private obstacles: Obstacle[]
   private spawnState: SpawnState
   private nextObstacleId = 1
+
+  private collisionResult: CollisionResult = {
+    hasCollision: false,
+  }
 
   constructor(
     scheduler: FrameScheduler,
@@ -97,6 +105,10 @@ export class GameApplication {
     return this.obstacles
   }
 
+  get currentCollision(): CollisionResult {
+    return this.collisionResult
+  }
+
   start(): void {
     if (this.stateMachine.state === 'RUNNING') {
       return
@@ -106,11 +118,25 @@ export class GameApplication {
   }
 
   restart(): void {
+    this.collisionResult = { hasCollision: false }
     this.stateMachine.transitionTo('READY')
   }
 
   gameOver(): void {
+    this.collisionResult = { hasCollision: false }
     this.stateMachine.transitionTo('GAME_OVER')
+  }
+
+  private createMarioCollidable(): Collidable {
+    return {
+      getCollisionBounds: () => getMarioCollisionBounds(this.mario),
+    }
+  }
+
+  private createObstacleCollidable(obstacle: Obstacle): Collidable {
+    return {
+      getCollisionBounds: () => getObstacleCollisionBounds(obstacle),
+    }
   }
 
   private updateSession = (gameTime: GameTime): void => {
@@ -196,6 +222,18 @@ export class GameApplication {
       this.mario = updateMarioVerticalPosition(this.mario, gameTime.deltaTime)
 
       this.mario = landMario(this.mario, defaultGameplayConfig.physics.groundY)
+    }
+
+    const mario = this.createMarioCollidable()
+
+    const hasCollision = this.obstacles.some(
+      (obstacle) =>
+        detectCollision(mario, this.createObstacleCollidable(obstacle))
+          .hasCollision,
+    )
+
+    this.collisionResult = {
+      hasCollision,
     }
 
     this.update(gameTime)
