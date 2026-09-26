@@ -56,7 +56,7 @@ describe('intersectsRectangle', () => {
     expect(intersectsRectangle(first, second)).toBe(false)
   })
 
-  it('considers rectangles colliding when they overlap by a positive area', () => {
+  it('considers rectangles colliding when they overlap horizontally', () => {
     const first = {
       x: 0,
       y: 0,
@@ -65,10 +65,46 @@ describe('intersectsRectangle', () => {
     }
 
     const second = {
-      x: 31,
+      x: 24,
       y: 0,
       width: 32,
       height: 32,
+    }
+
+    expect(intersectsRectangle(first, second)).toBe(true)
+  })
+
+  it('considers rectangles colliding when they overlap vertically', () => {
+    const first = {
+      x: 0,
+      y: 0,
+      width: 32,
+      height: 32,
+    }
+
+    const second = {
+      x: 0,
+      y: 24,
+      width: 32,
+      height: 32,
+    }
+
+    expect(intersectsRectangle(first, second)).toBe(true)
+  })
+
+  it('considers rectangles colliding when one is completely inside the other', () => {
+    const first = {
+      x: 0,
+      y: 0,
+      width: 64,
+      height: 64,
+    }
+
+    const second = {
+      x: 16,
+      y: 16,
+      width: 16,
+      height: 16,
     }
 
     expect(intersectsRectangle(first, second)).toBe(true)
