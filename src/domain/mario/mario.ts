@@ -1,3 +1,4 @@
+import type { CollisionBounds } from '../collision/collision-bounds'
 import type { MarioMovementState } from './mario-movement-state'
 
 export interface MarioPosition {
@@ -18,7 +19,13 @@ export interface MarioSize {
 export interface Mario {
   position: MarioPosition
   velocity: MarioVelocity
+
+  // Área visual (sprite renderizado)
   size: MarioSize
+
+  // Área de colisão independente do visual
+  collisionBounds: CollisionBounds
+
   movementState: MarioMovementState
   isGrounded: boolean
 }
@@ -41,6 +48,12 @@ export const createInitialMario = (config: InitialMarioConfig): Mario => ({
     y: 0,
   },
   size: {
+    width: config.width,
+    height: config.height,
+  },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
     width: config.width,
     height: config.height,
   },

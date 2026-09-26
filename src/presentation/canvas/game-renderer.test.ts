@@ -67,6 +67,7 @@ const createObstacle = (
     x: -280,
     y: 0,
   },
+  collisionBounds:
 })
 
 const createSurface = (): CanvasSurface => {
