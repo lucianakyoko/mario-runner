@@ -1,4 +1,6 @@
+import { createCollisionRectangle } from '../collision/create-collision-rectangle'
 import type { CollisionBounds } from '../collision/collision-bounds'
+import type { Rectangle } from '../collision/rectangle'
 import type { MarioMovementState } from './mario-movement-state'
 
 export interface MarioPosition {
@@ -36,6 +38,7 @@ export interface InitialMarioConfig {
   initialX: number
   groundY: number
   initialSpeed: number
+  collisionBounds: CollisionBounds
 }
 
 export const createInitialMario = (config: InitialMarioConfig): Mario => ({
@@ -51,12 +54,10 @@ export const createInitialMario = (config: InitialMarioConfig): Mario => ({
     width: config.width,
     height: config.height,
   },
-  collisionBounds: {
-    offsetX: 0,
-    offsetY: 0,
-    width: config.width,
-    height: config.height,
-  },
+  collisionBounds: config.collisionBounds,
   movementState: 'RUNNING',
   isGrounded: true,
 })
+
+export const getMarioCollisionBounds = (mario: Mario): Rectangle =>
+  createCollisionRectangle(mario.position, mario.collisionBounds)

@@ -38,18 +38,36 @@ export const defaultGameplayConfig: GameplayConfig = {
       height: 32,
       groundOffset: 0,
       speed: 280,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 30,
+      },
     },
     [OBSTACLE_TYPE.GROUND_TALL]: {
       width: 32,
       height: 48,
       groundOffset: 0,
       speed: 280,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 46,
+      },
     },
     [OBSTACLE_TYPE.AIR]: {
       width: 32,
       height: 24,
       groundOffset: 64,
       speed: 280,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 20,
+      },
     },
   },
   scoring: {
@@ -61,8 +79,12 @@ export const defaultGameplayConfig: GameplayConfig = {
     speedIncreasePerLevel: 20,
   },
   collision: {
-    horizontalPadding: 0,
-    verticalPadding: 0,
+    mario: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 44,
+    },
   },
   animation: {
     defaultFrameDuration: 100,

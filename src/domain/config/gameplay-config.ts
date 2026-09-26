@@ -36,11 +36,19 @@ export interface DifficultyConfig {
   obstacleMaxDistanceDecrease: number
 }
 
+export interface CollisionBoundsConfig {
+  offsetX: number
+  offsetY: number
+  width: number
+  height: number
+}
+
 export interface ObstacleConfig {
   width: number
   height: number
   groundOffset: number
   speed: number
+  collisionBounds: CollisionBoundsConfig
 }
 
 export type ObstacleConfigs = Record<ObstacleType, ObstacleConfig>
@@ -56,8 +64,7 @@ export interface ProgressionConfig {
 }
 
 export interface CollisionConfig {
-  horizontalPadding: number
-  verticalPadding: number
+  mario: CollisionBoundsConfig
 }
 
 export interface AnimationConfig {

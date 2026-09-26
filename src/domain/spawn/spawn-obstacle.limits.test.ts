@@ -23,18 +23,36 @@ const obstacleConfigs: ObstacleConfigs = {
     height: 32,
     groundOffset: 0,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 30,
+    },
   },
   [OBSTACLE_TYPE.GROUND_TALL]: {
     width: 32,
     height: 48,
     groundOffset: 0,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 46,
+    },
   },
   [OBSTACLE_TYPE.AIR]: {
     width: 32,
     height: 24,
     groundOffset: 64,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 20,
+    },
   },
 }
 

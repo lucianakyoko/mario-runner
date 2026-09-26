@@ -52,6 +52,7 @@ const mario = createInitialMario({
   initialX: 0,
   groundY: defaultGameplayConfig.physics.groundY,
   initialSpeed: defaultGameplayConfig.movement.initialSpeed,
+  collisionBounds: defaultGameplayConfig.collision.mario,
 })
 
 const scenario = createInitialScenario({
@@ -91,3 +92,5 @@ const gameApplication = new GameApplication(
     )
   },
 )
+
+gameApplication.start()

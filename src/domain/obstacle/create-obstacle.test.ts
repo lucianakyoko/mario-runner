@@ -25,10 +25,10 @@ describe('createObstacle', () => {
         height: 32,
       },
       collisionBounds: {
-        offsetX: 0,
-        offsetY: 0,
-        width: 32,
-        height: 32,
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 30,
       },
       velocity: {
         x: -280,
@@ -68,6 +68,38 @@ describe('createObstacle', () => {
     expect(obstacle.size).toEqual({
       width: 40,
       height: 48,
+    })
+  })
+
+  it('keeps collision bounds independent from visual dimensions', () => {
+    const obstacle = createObstacle({
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      x: 800,
+      config: {
+        ...defaultGameplayConfig.obstacles.GROUND_SMALL,
+        width: 40,
+        height: 48,
+        collisionBounds: {
+          offsetX: 4,
+          offsetY: 6,
+          width: 28,
+          height: 34,
+        },
+      },
+      velocityX: -280,
+    })
+
+    expect(obstacle.size).toEqual({
+      width: 40,
+      height: 48,
+    })
+
+    expect(obstacle.collisionBounds).toEqual({
+      offsetX: 4,
+      offsetY: 6,
+      width: 28,
+      height: 34,
     })
   })
 

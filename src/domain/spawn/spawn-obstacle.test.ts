@@ -14,18 +14,36 @@ const obstacleConfigs: ObstacleConfigs = {
     height: 32,
     groundOffset: 0,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 30,
+    },
   },
   [OBSTACLE_TYPE.GROUND_TALL]: {
     width: 32,
     height: 48,
     groundOffset: 0,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 46,
+    },
   },
   [OBSTACLE_TYPE.AIR]: {
     width: 32,
     height: 24,
     groundOffset: 64,
     speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 20,
+    },
   },
 }
 
@@ -98,10 +116,10 @@ describe('spawnObstacle', () => {
         height: 32,
       },
       collisionBounds: {
-        offsetX: 0,
-        offsetY: 0,
-        width: 32,
-        height: 32,
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 30,
       },
       velocity: {
         x: -280,
@@ -192,10 +210,10 @@ describe('spawnObstacle', () => {
         height: 32,
       },
       collisionBounds: {
-        offsetX: 0,
-        offsetY: 0,
-        width: 32,
-        height: 32,
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 30,
       },
       velocity: {
         x: -280,
