@@ -109,4 +109,58 @@ describe('intersectsRectangle', () => {
 
     expect(intersectsRectangle(first, second)).toBe(true)
   })
+
+  it('does not consider rectangles colliding when they are separated horizontally', () => {
+    const first = {
+      x: 0,
+      y: 0,
+      width: 32,
+      height: 32,
+    }
+
+    const second = {
+      x: 40,
+      y: 0,
+      width: 32,
+      height: 32,
+    }
+
+    expect(intersectsRectangle(first, second)).toBe(false)
+  })
+
+  it('does not consider rectangles colliding when they are separated vertically', () => {
+    const first = {
+      x: 0,
+      y: 0,
+      width: 32,
+      height: 32,
+    }
+
+    const second = {
+      x: 0,
+      y: 40,
+      width: 32,
+      height: 32,
+    }
+
+    expect(intersectsRectangle(first, second)).toBe(false)
+  })
+
+  it('does not consider rectangles colliding when they are separated on both axes', () => {
+    const first = {
+      x: 0,
+      y: 0,
+      width: 32,
+      height: 32,
+    }
+
+    const second = {
+      x: 40,
+      y: 40,
+      width: 32,
+      height: 32,
+    }
+
+    expect(intersectsRectangle(first, second)).toBe(false)
+  })
 })
