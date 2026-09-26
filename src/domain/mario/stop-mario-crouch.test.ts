@@ -16,6 +16,12 @@ const createMario = (): Mario => ({
     width: 32,
     height: 48,
   },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
+    width: 32,
+    height: 48,
+  },
   movementState: 'CROUCHING',
   isGrounded: true,
 })

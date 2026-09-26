@@ -97,6 +97,12 @@ describe('spawnObstacle', () => {
         width: 32,
         height: 32,
       },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
       velocity: {
         x: -280,
         y: 0,
@@ -150,6 +156,12 @@ describe('spawnObstacle', () => {
         width: 32,
         height: 48,
       },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 48,
+      },
       velocity: {
         x: -280,
         y: 0,
@@ -168,6 +180,27 @@ describe('spawnObstacle', () => {
 
     expect(result.obstacles).toHaveLength(2)
     expect(result.obstacles[0]).toEqual(existingObstacle)
-    expect(result.obstacles[1].id).toBe('obstacle-1')
+    expect(result.obstacles[1]).toEqual({
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 800,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
+    })
   })
 })

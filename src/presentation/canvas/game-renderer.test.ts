@@ -2,12 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { Mario } from '../../domain/mario/mario'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
-import type { Obstacle } from '../../domain/obstacle/obstacle'
-import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 
 const createMario = (): Mario => ({
   position: {
@@ -19,6 +19,12 @@ const createMario = (): Mario => ({
     y: -680,
   },
   size: {
+    width: 32,
+    height: 48,
+  },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
     width: 32,
     height: 48,
   },
@@ -63,11 +69,16 @@ const createObstacle = (
     width: 32,
     height: 32,
   },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
+    width: 32,
+    height: 32,
+  },
   velocity: {
     x: -280,
     y: 0,
   },
-  collisionBounds:
 })
 
 const createSurface = (): CanvasSurface => {

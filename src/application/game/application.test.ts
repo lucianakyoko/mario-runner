@@ -78,6 +78,12 @@ const createMario = (): Mario => ({
     width: 32,
     height: 48,
   },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
+    width: 32,
+    height: 48,
+  },
   movementState: 'RUNNING',
   isGrounded: true,
 })
@@ -103,6 +109,12 @@ const createObstacle = (): Obstacle => ({
     y: 0,
   },
   size: {
+    width: 32,
+    height: 32,
+  },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
     width: 32,
     height: 32,
   },
@@ -352,6 +364,12 @@ describe('GameApplication', () => {
         y: 0,
       },
       size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
         width: 32,
         height: 32,
       },

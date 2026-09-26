@@ -16,6 +16,12 @@ describe('Obstacle', () => {
         width: 32,
         height: 32,
       },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
       velocity: {
         x: -280,
         y: 0,
@@ -30,6 +36,12 @@ describe('Obstacle', () => {
         y: 0,
       },
       size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
         width: 32,
         height: 32,
       },
@@ -49,6 +61,12 @@ describe('Obstacle', () => {
         y: 0,
       },
       size: {
+        width: 32,
+        height: 48,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
         width: 32,
         height: 48,
       },
@@ -85,6 +103,12 @@ describe('Obstacle', () => {
         width: 32,
         height: 24,
       },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 24,
+      },
       velocity: {
         x: -280,
         y: 40,
@@ -118,6 +142,12 @@ describe('Obstacle', () => {
         width: 32,
         height: 32,
       },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
       velocity: {
         x: -280,
         y: 0,
@@ -132,6 +162,12 @@ describe('Obstacle', () => {
         y: 0,
       },
       size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
         width: 32,
         height: 32,
       },

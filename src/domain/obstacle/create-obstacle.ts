@@ -27,6 +27,12 @@ export const createObstacle = ({
     width: config.width,
     height: config.height,
   },
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
+    width: config.width,
+    height: config.height,
+  },
   velocity: {
     x: velocityX,
     y: 0,
