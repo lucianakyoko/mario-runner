@@ -1,6 +1,7 @@
 import type { CollectibleConfig } from '../config/gameplay-config'
 import type { Collectible } from '../collectible/collectible'
-import { createCoin } from '../collectible/create-coin'
+import { collectibleTypes } from '../collectible/collectible-type'
+import { spawnCollectible } from './spawn-collectible'
 import type { Random } from '../random/random'
 import type { SpawnState } from './spawn-state'
 
@@ -29,26 +30,24 @@ export const spawnCoin = ({
   coinId,
   velocityX,
 }: SpawnCoinParams): SpawnCoinResult => {
-  if (state.distanceSinceLastSpawn < state.nextSpawnDistance) {
-    return {
-      coins,
-    }
-  }
-
-  if (random.next() >= collectibleChance) {
-    return {
-      coins,
-    }
-  }
-
-  const coin = createCoin({
-    id: coinId,
-    x: spawnX,
-    config: coinConfig,
+  const result = spawnCollectible({
+    state,
+    collectibles: coins,
+    random,
+    collectibleChance,
+    coinSpawnWeight: 1,
+    medalSpawnWeight: 0,
+    coinConfig,
+    medalConfig: coinConfig,
+    spawnX,
+    collectibleIds: {
+      [collectibleTypes.COIN]: coinId,
+      [collectibleTypes.MEDAL]: coinId,
+    },
     velocityX,
   })
 
   return {
-    coins: [...coins, coin],
+    coins: result.collectibles,
   }
 }

@@ -26,6 +26,8 @@ export interface SpawnConfig {
   obstacleMinDistance: number
   obstacleMaxDistance: number
   collectibleChance: number
+  coinSpawnWeight: number
+  medalSpawnWeight: number
   powerUpChance: number
 }
 
@@ -88,6 +90,7 @@ export interface GameplayConfig {
   difficulty: DifficultyConfig
   obstacles: ObstacleConfigs
   coin: CollectibleConfig
+  medal: CollectibleConfig
   scoring: ScoringConfig
   progression: ProgressionConfig
   collision: CollisionConfig

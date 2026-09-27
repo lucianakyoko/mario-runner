@@ -5,6 +5,7 @@ import { defaultGameplayConfig } from '../../domain/config/default-gameplay-conf
 import { calculateDifficulty } from '../../domain/difficulty/calculate-difficulty'
 import type { Difficulty } from '../../domain/difficulty/difficulty'
 import type { Collectible } from '../../domain/collectible/collectible'
+import { collectibleTypes } from '../../domain/collectible/collectible-type'
 import { landMario } from '../../domain/mario/land-mario'
 import { getMarioCollisionBounds, type Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
@@ -17,7 +18,7 @@ import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-ver
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
-import { spawnCoin } from '../../domain/spawn/spawn-coin'
+import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
 import { updateSpawnDistance } from '../../domain/spawn/update-spawn-distance'
@@ -47,6 +48,7 @@ export class GameApplication {
   private spawnState: SpawnState
   private nextObstacleId = 1
   private nextCoinId = 1
+  private nextMedalId = 1
 
   private collisionResult: CollisionResult = {
     hasCollision: false,
@@ -199,22 +201,37 @@ export class GameApplication {
     this.spawnState = spawnResult.state
     this.obstacles = spawnResult.obstacles
 
-    const coinSpawnResult = spawnCoin({
+    const collectibleSpawnResult = spawnCollectible({
       state: this.spawnState,
-      coins: this.coins,
+      collectibles: this.coins,
       random: this.random,
       collectibleChance: defaultGameplayConfig.spawn.collectibleChance,
+      coinSpawnWeight: defaultGameplayConfig.spawn.coinSpawnWeight,
+      medalSpawnWeight: defaultGameplayConfig.spawn.medalSpawnWeight,
       coinConfig: defaultGameplayConfig.coin,
+      medalConfig: defaultGameplayConfig.medal,
       spawnX,
-      coinId: `coin-${this.nextCoinId}`,
+      collectibleIds: {
+        [collectibleTypes.COIN]: `coin-${this.nextCoinId}`,
+        [collectibleTypes.MEDAL]: `medal-${this.nextMedalId}`,
+      },
       velocityX: -difficulty.obstacleSpeed,
     })
 
-    if (coinSpawnResult.coins.length > this.coins.length) {
-      this.nextCoinId += 1
+    if (collectibleSpawnResult.collectibles.length > this.coins.length) {
+      const spawnedCollectible =
+        collectibleSpawnResult.collectibles[
+          collectibleSpawnResult.collectibles.length - 1
+        ]
+
+      if (spawnedCollectible.type === collectibleTypes.COIN) {
+        this.nextCoinId += 1
+      } else {
+        this.nextMedalId += 1
+      }
     }
 
-    this.coins = coinSpawnResult.coins
+    this.coins = collectibleSpawnResult.collectibles
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
     this.obstacles = removeOffscreenObstacles(this.obstacles)

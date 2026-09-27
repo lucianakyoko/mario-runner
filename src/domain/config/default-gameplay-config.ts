@@ -24,6 +24,8 @@ export const defaultGameplayConfig: GameplayConfig = {
     obstacleMinDistance: 320,
     obstacleMaxDistance: 700,
     collectibleChance: 0.25,
+    coinSpawnWeight: 0.8,
+    medalSpawnWeight: 0.2,
     powerUpChance: 0.05,
   },
   difficulty: {
@@ -80,6 +82,18 @@ export const defaultGameplayConfig: GameplayConfig = {
       offsetY: 2,
       width: 20,
       height: 20,
+    },
+  },
+  medal: {
+    width: 32,
+    height: 32,
+    groundOffset: 64,
+    speed: 280,
+    collisionBounds: {
+      offsetX: 4,
+      offsetY: 3,
+      width: 24,
+      height: 26,
     },
   },
   scoring: {

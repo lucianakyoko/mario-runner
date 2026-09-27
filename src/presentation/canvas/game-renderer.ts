@@ -1,4 +1,5 @@
 import type { Collectible } from '../../domain/collectible/collectible'
+import { collectibleTypes } from '../../domain/collectible/collectible-type'
 import type { GameState } from '../../domain/game/game-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
@@ -15,6 +16,7 @@ const GROUND_SMALL_COLOR = '#228B22'
 const GROUND_TALL_COLOR = '#006400'
 const AIR_COLOR = '#B22222'
 const COIN_COLOR = '#FFD700'
+const MEDAL_COLOR = '#C0C0C0'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
@@ -38,7 +40,7 @@ export class GameRenderer {
     this.renderBackground(scenario)
     this.renderGround(scenario)
     this.renderObstacles(obstacles, mario, scenario)
-    this.renderCoins(coins, mario, scenario)
+    this.renderCollectibles(coins, mario, scenario)
 
     context.fillText(this.getStateLabel(state), 16, 24)
 
@@ -82,8 +84,8 @@ export class GameRenderer {
     }
   }
 
-  private renderCoins(
-    coins: Collectible[],
+  private renderCollectibles(
+    collectibles: Collectible[],
     mario: Mario,
     scenario: Scenario,
   ): void {
@@ -92,13 +94,29 @@ export class GameRenderer {
     const cameraX = mario.position.x - this.surface.element.width * 0.25
     const screenGroundY = this.surface.element.height - scenario.ground.y
 
-    context.fillStyle = COIN_COLOR
+    for (const collectible of collectibles) {
+      const screenX = collectible.position.x - cameraX
+      const screenY =
+        screenGroundY - collectible.size.height - collectible.position.y
 
-    for (const coin of coins) {
-      const screenX = coin.position.x - cameraX
-      const screenY = screenGroundY - coin.size.height - coin.position.y
+      context.fillStyle = this.getCollectibleColor(collectible)
 
-      context.fillRect(screenX, screenY, coin.size.width, coin.size.height)
+      context.fillRect(
+        screenX,
+        screenY,
+        collectible.size.width,
+        collectible.size.height,
+      )
+    }
+  }
+
+  private getCollectibleColor(collectible: Collectible): string {
+    switch (collectible.type) {
+      case collectibleTypes.COIN:
+        return COIN_COLOR
+
+      case collectibleTypes.MEDAL:
+        return MEDAL_COLOR
     }
   }
 
