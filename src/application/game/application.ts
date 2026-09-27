@@ -4,6 +4,7 @@ import type { CollisionResult } from '../../domain/collision/collision-result'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import { calculateDifficulty } from '../../domain/difficulty/calculate-difficulty'
 import type { Difficulty } from '../../domain/difficulty/difficulty'
+import type { Collectible } from '../../domain/collectible/collectible'
 import { landMario } from '../../domain/mario/land-mario'
 import { getMarioCollisionBounds, type Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
@@ -16,6 +17,7 @@ import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-ver
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
+import { spawnCoin } from '../../domain/spawn/spawn-coin'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
 import { updateSpawnDistance } from '../../domain/spawn/update-spawn-distance'
@@ -41,8 +43,10 @@ export class GameApplication {
   private mario: Mario
   private scenario: Scenario
   private obstacles: Obstacle[]
+  private coins: Collectible[]
   private spawnState: SpawnState
   private nextObstacleId = 1
+  private nextCoinId = 1
 
   private collisionResult: CollisionResult = {
     hasCollision: false,
@@ -56,6 +60,7 @@ export class GameApplication {
     update: Update,
     render: Render,
     obstacles: Obstacle[] = [],
+    coins: Collectible[] = [],
   ) {
     const clock = new Clock()
 
@@ -66,6 +71,7 @@ export class GameApplication {
     this.update = update
     this.render = render
     this.obstacles = obstacles
+    this.coins = coins
     this.random = new SeededRandom(1)
 
     this.initialDifficulty = {
@@ -103,6 +109,10 @@ export class GameApplication {
 
   get currentObstacles(): Obstacle[] {
     return this.obstacles
+  }
+
+  get currentCoins(): Collectible[] {
+    return this.coins
   }
 
   get currentCollision(): CollisionResult {
@@ -188,6 +198,23 @@ export class GameApplication {
 
     this.spawnState = spawnResult.state
     this.obstacles = spawnResult.obstacles
+
+    const coinSpawnResult = spawnCoin({
+      state: this.spawnState,
+      coins: this.coins,
+      random: this.random,
+      collectibleChance: defaultGameplayConfig.spawn.collectibleChance,
+      coinConfig: defaultGameplayConfig.coin,
+      spawnX,
+      coinId: `coin-${this.nextCoinId}`,
+      velocityX: -difficulty.obstacleSpeed,
+    })
+
+    if (coinSpawnResult.coins.length > this.coins.length) {
+      this.nextCoinId += 1
+    }
+
+    this.coins = coinSpawnResult.coins
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
     this.obstacles = removeOffscreenObstacles(this.obstacles)

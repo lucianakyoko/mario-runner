@@ -1,3 +1,4 @@
+import type { Collectible } from '../../domain/collectible/collectible'
 import type { GameState } from '../../domain/game/game-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
@@ -13,6 +14,7 @@ const DEFAULT_GROUND_COLOR = '#8B4513'
 const GROUND_SMALL_COLOR = '#228B22'
 const GROUND_TALL_COLOR = '#006400'
 const AIR_COLOR = '#B22222'
+const COIN_COLOR = '#FFD700'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
@@ -27,6 +29,7 @@ export class GameRenderer {
     mario: Mario,
     marioVisual: MarioVisual,
     obstacles: Obstacle[] = [],
+    coins: Collectible[] = [],
   ): void {
     const { element, context } = this.surface
 
@@ -35,6 +38,7 @@ export class GameRenderer {
     this.renderBackground(scenario)
     this.renderGround(scenario)
     this.renderObstacles(obstacles, mario, scenario)
+    this.renderCoins(coins, mario, scenario)
 
     context.fillText(this.getStateLabel(state), 16, 24)
 
@@ -75,6 +79,26 @@ export class GameRenderer {
 
       context.fillStyle = this.getObstacleColor(obstacle.type)
       context.fillRect(screenX, screenY, visual.width, visual.height)
+    }
+  }
+
+  private renderCoins(
+    coins: Collectible[],
+    mario: Mario,
+    scenario: Scenario,
+  ): void {
+    const { context } = this.surface
+
+    const cameraX = mario.position.x - this.surface.element.width * 0.25
+    const screenGroundY = this.surface.element.height - scenario.ground.y
+
+    context.fillStyle = COIN_COLOR
+
+    for (const coin of coins) {
+      const screenX = coin.position.x - cameraX
+      const screenY = screenGroundY - coin.size.height - coin.position.y
+
+      context.fillRect(screenX, screenY, coin.size.width, coin.size.height)
     }
   }
 

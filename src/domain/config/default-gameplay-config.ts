@@ -70,6 +70,18 @@ export const defaultGameplayConfig: GameplayConfig = {
       },
     },
   },
+  coin: {
+    width: 24,
+    height: 24,
+    groundOffset: 48,
+    speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 20,
+      height: 20,
+    },
+  },
   scoring: {
     coinPoints: 1,
     medalPoints: 2,

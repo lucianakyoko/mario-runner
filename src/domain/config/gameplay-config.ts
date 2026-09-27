@@ -53,6 +53,14 @@ export interface ObstacleConfig {
 
 export type ObstacleConfigs = Record<ObstacleType, ObstacleConfig>
 
+export interface CollectibleConfig {
+  width: number
+  height: number
+  groundOffset: number
+  speed: number
+  collisionBounds: CollisionBoundsConfig
+}
+
 export interface ScoringConfig {
   coinPoints: number
   medalPoints: number
@@ -79,6 +87,7 @@ export interface GameplayConfig {
   spawn: SpawnConfig
   difficulty: DifficultyConfig
   obstacles: ObstacleConfigs
+  coin: CollectibleConfig
   scoring: ScoringConfig
   progression: ProgressionConfig
   collision: CollisionConfig

@@ -8,6 +8,7 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
+import type { Collectible } from '../../domain/collectible/collectible'
 
 const createMario = (): Mario => ({
   position: {
@@ -99,6 +100,30 @@ const createSurface = (): CanvasSurface => {
     context,
   }
 }
+
+const createCoin = (x: number, y = 48): Collectible => ({
+  id: `coin-${x}`,
+  type: 'coin',
+  position: {
+    x,
+    y,
+  },
+  size: {
+    width: 24,
+    height: 24,
+  },
+  collisionBounds: {
+    offsetX: 2,
+    offsetY: 2,
+    width: 20,
+    height: 20,
+  },
+  velocity: {
+    x: -280,
+    y: 0,
+  },
+  isCollected: false,
+})
 
 describe('GameRenderer', () => {
   it('renders the scenario background', () => {
@@ -397,6 +422,19 @@ describe('GameRenderer', () => {
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(280, 212, 32, 24)
+  })
+
+  it('renders a coin according to its world position and size', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const coin = createCoin(200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [], [coin])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 228, 24, 24)
   })
 
   it('renders obstacles between the ground and Mario', () => {

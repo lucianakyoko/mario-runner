@@ -89,6 +89,7 @@ const gameApplication = new GameApplication(
       currentMario,
       marioVisual,
       gameApplication.currentObstacles,
+      gameApplication.currentCoins,
     )
   },
 )
