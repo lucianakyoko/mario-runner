@@ -1,21 +1,23 @@
 import type { Collidable } from '../../domain/collision/collidable'
-import { detectCollision } from '../../domain/collision/detect-collision'
 import type { CollisionResult } from '../../domain/collision/collision-result'
+import { detectCollision } from '../../domain/collision/detect-collision'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import { calculateDifficulty } from '../../domain/difficulty/calculate-difficulty'
 import type { Difficulty } from '../../domain/difficulty/difficulty'
 import type { Collectible } from '../../domain/collectible/collectible'
 import { collectibleTypes } from '../../domain/collectible/collectible-type'
+import { collectCollectible } from '../../domain/collectible/collect-collectible'
+import { createCollectibleCollidable } from '../../domain/collectible/create-collectible-collidable'
 import { landMario } from '../../domain/mario/land-mario'
 import { getMarioCollisionBounds, type Mario } from '../../domain/mario/mario'
-import type { Obstacle } from '../../domain/obstacle/obstacle'
-import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
-import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
-import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-ground-movement'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
+import type { Obstacle } from '../../domain/obstacle/obstacle'
+import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
+import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
+import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
@@ -53,6 +55,8 @@ export class GameApplication {
   private collisionResult: CollisionResult = {
     hasCollision: false,
   }
+
+  private collectibleCollisions: Collectible[] = []
 
   constructor(
     scheduler: FrameScheduler,
@@ -121,6 +125,10 @@ export class GameApplication {
     return this.collisionResult
   }
 
+  get currentCollectibleCollisions(): Collectible[] {
+    return this.collectibleCollisions
+  }
+
   start(): void {
     if (this.stateMachine.state === 'RUNNING') {
       return
@@ -131,11 +139,13 @@ export class GameApplication {
 
   restart(): void {
     this.collisionResult = { hasCollision: false }
+    this.collectibleCollisions = []
     this.stateMachine.transitionTo('READY')
   }
 
   gameOver(): void {
     this.collisionResult = { hasCollision: false }
+    this.collectibleCollisions = []
     this.stateMachine.transitionTo('GAME_OVER')
   }
 
@@ -149,6 +159,29 @@ export class GameApplication {
     return {
       getCollisionBounds: () => getObstacleCollisionBounds(obstacle),
     }
+  }
+
+  private detectCollectibleCollisions(mario: Collidable): Collectible[] {
+    return this.coins.filter(
+      (collectible) =>
+        !collectible.isCollected &&
+        detectCollision(mario, createCollectibleCollidable(collectible))
+          .hasCollision,
+    )
+  }
+
+  private collectDetectedCollectibles(collectibles: Collectible[]): void {
+    const collectedIds = new Set(
+      collectibles.map((collectible) => collectible.id),
+    )
+
+    this.coins = this.coins
+      .map((collectible) =>
+        collectedIds.has(collectible.id)
+          ? collectCollectible(collectible)
+          : collectible,
+      )
+      .filter((collectible) => !collectible.isCollected)
   }
 
   private updateSession = (gameTime: GameTime): void => {
@@ -279,6 +312,9 @@ export class GameApplication {
     this.collisionResult = {
       hasCollision,
     }
+
+    this.collectibleCollisions = this.detectCollectibleCollisions(mario)
+    this.collectDetectedCollectibles(this.collectibleCollisions)
 
     this.update(gameTime)
   }
