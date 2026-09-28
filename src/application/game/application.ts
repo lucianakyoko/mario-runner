@@ -18,6 +18,10 @@ import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
 import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
+import { addScore } from '../../domain/score/add-score'
+import { createScore } from '../../domain/score/create-score'
+import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
+import type { Score } from '../../domain/score/score'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
@@ -47,6 +51,7 @@ export class GameApplication {
   private scenario: Scenario
   private obstacles: Obstacle[]
   private coins: Collectible[]
+  private score: Score
   private spawnState: SpawnState
   private nextObstacleId = 1
   private nextCoinId = 1
@@ -78,6 +83,7 @@ export class GameApplication {
     this.render = render
     this.obstacles = obstacles
     this.coins = coins
+    this.score = createScore()
     this.random = new SeededRandom(1)
 
     this.initialDifficulty = {
@@ -121,6 +127,10 @@ export class GameApplication {
     return this.coins
   }
 
+  get currentScore(): Score {
+    return this.score
+  }
+
   get currentCollision(): CollisionResult {
     return this.collisionResult
   }
@@ -140,6 +150,8 @@ export class GameApplication {
   restart(): void {
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
+    this.score = createScore()
+
     this.stateMachine.transitionTo('READY')
   }
 
@@ -174,6 +186,15 @@ export class GameApplication {
     const collectedIds = new Set(
       collectibles.map((collectible) => collectible.id),
     )
+
+    for (const collectible of collectibles) {
+      const points = getCollectibleScoreValue(
+        collectible.type,
+        defaultGameplayConfig.scoring,
+      )
+
+      this.score = addScore(this.score, points)
+    }
 
     this.coins = this.coins
       .map((collectible) =>

@@ -171,6 +171,19 @@ describe('GameApplication collectible collision', () => {
     expect(application.currentCollectibleCollisions).toEqual([coin])
   })
 
+  it('adds the coin score when Mario collects a coin', () => {
+    const scheduler = new FakeFrameScheduler()
+    const coin = createCoin(0)
+    const application = createApplication(scheduler, [coin])
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 1,
+    })
+  })
+
   it('detects a collision between Mario and a medal', () => {
     const scheduler = new FakeFrameScheduler()
     const medal = createMedal(0)
@@ -180,6 +193,19 @@ describe('GameApplication collectible collision', () => {
     scheduler.runNext(1000)
 
     expect(application.currentCollectibleCollisions).toEqual([medal])
+  })
+
+  it('adds the medal score when Mario collects a medal', () => {
+    const scheduler = new FakeFrameScheduler()
+    const medal = createMedal(0)
+    const application = createApplication(scheduler, [medal])
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 2,
+    })
   })
 
   it('does not detect a collectible that does not overlap Mario', () => {
@@ -293,5 +319,41 @@ describe('GameApplication collectible collision', () => {
 
     expect(application.currentCollectibleCollisions).toEqual([])
     expect(application.currentCoins).toEqual([])
+  })
+
+  it('resets the score when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const coin = createCoin(0)
+    const application = createApplication(scheduler, [coin])
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 1,
+    })
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.currentScore).toEqual({
+      value: 0,
+    })
+  })
+
+  it('adds the score of multiple collectibles collected in the same frame', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coin = createCoin(0)
+    const medal = createMedal(0)
+
+    const application = createApplication(scheduler, [coin, medal])
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 3,
+    })
   })
 })
