@@ -90,6 +90,8 @@ const gameApplication = new GameApplication(
       marioVisual,
       gameApplication.currentObstacles,
       gameApplication.currentCoins,
+      gameApplication.currentScore.value,
+      gameApplication.currentLevel,
     )
   },
 )
