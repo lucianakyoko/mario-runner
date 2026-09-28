@@ -96,8 +96,13 @@ const createScenario = (): Scenario => ({
   },
 })
 
-const createCoin = (x: number, y = 0, isCollected = false): Collectible => ({
-  id: 'coin-1',
+const createCoin = (
+  x: number,
+  y = 0,
+  isCollected = false,
+  id = 'coin-1',
+): Collectible => ({
+  id,
   type: collectibleTypes.COIN,
   position: {
     x,
@@ -120,8 +125,13 @@ const createCoin = (x: number, y = 0, isCollected = false): Collectible => ({
   isCollected,
 })
 
-const createMedal = (x: number, y = 0, isCollected = false): Collectible => ({
-  id: 'medal-1',
+const createMedal = (
+  x: number,
+  y = 0,
+  isCollected = false,
+  id = 'medal-1',
+): Collectible => ({
+  id,
   type: collectibleTypes.MEDAL,
   position: {
     x,
@@ -355,5 +365,59 @@ describe('GameApplication collectible collision', () => {
     expect(application.currentScore).toEqual({
       value: 3,
     })
+  })
+
+  it('keeps level 1 with 19 points', () => {
+    const scheduler = new FakeFrameScheduler()
+    const collectibles = [
+      ...Array.from({ length: 9 }, (_, index) =>
+        createMedal(0, 0, false, `medal-${index + 1}`),
+      ),
+      createCoin(0, 0, false, 'coin-1'),
+    ]
+
+    const application = createApplication(scheduler, collectibles)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 19,
+    })
+    expect(application.currentLevel).toBe(1)
+  })
+
+  it('starts level 2 at 20 points', () => {
+    const scheduler = new FakeFrameScheduler()
+    const collectibles = Array.from({ length: 10 }, (_, index) =>
+      createMedal(0, 0, false, `medal-${index + 1}`),
+    )
+
+    const application = createApplication(scheduler, collectibles)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 20,
+    })
+    expect(application.currentLevel).toBe(2)
+  })
+
+  it('starts level 3 at 40 points', () => {
+    const scheduler = new FakeFrameScheduler()
+    const collectibles = Array.from({ length: 20 }, (_, index) =>
+      createMedal(0, 0, false, `medal-${index + 1}`),
+    )
+
+    const application = createApplication(scheduler, collectibles)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore).toEqual({
+      value: 40,
+    })
+    expect(application.currentLevel).toBe(3)
   })
 })

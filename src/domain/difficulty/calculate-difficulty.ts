@@ -2,17 +2,17 @@ import type { DifficultyConfig } from '../config/gameplay-config'
 import type { Difficulty } from './difficulty'
 
 export interface CalculateDifficultyParams {
-  elapsedTime: number
+  level: number
   initialDifficulty: Difficulty
   config: DifficultyConfig
 }
 
 export const calculateDifficulty = ({
-  elapsedTime,
+  level,
   initialDifficulty,
   config,
 }: CalculateDifficultyParams): Difficulty => {
-  const progressionSteps = Math.floor(elapsedTime / config.progressionInterval)
+  const progressionSteps = Math.max(0, level - 1)
 
   return {
     obstacleSpeed:

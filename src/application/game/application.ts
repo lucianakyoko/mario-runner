@@ -37,6 +37,7 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
+import { calculateLevel } from '../../domain/progression/calculate-level'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -52,6 +53,7 @@ export class GameApplication {
   private obstacles: Obstacle[]
   private coins: Collectible[]
   private score: Score
+  private level = 1
   private spawnState: SpawnState
   private nextObstacleId = 1
   private nextCoinId = 1
@@ -84,6 +86,10 @@ export class GameApplication {
     this.obstacles = obstacles
     this.coins = coins
     this.score = createScore()
+    this.level = calculateLevel({
+      score: this.score.value,
+      pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
+    })
     this.random = new SeededRandom(1)
 
     this.initialDifficulty = {
@@ -131,6 +137,10 @@ export class GameApplication {
     return this.score
   }
 
+  get currentLevel(): number {
+    return this.level
+  }
+
   get currentCollision(): CollisionResult {
     return this.collisionResult
   }
@@ -151,7 +161,10 @@ export class GameApplication {
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.score = createScore()
-
+    this.level = calculateLevel({
+      score: this.score.value,
+      pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
+    })
     this.stateMachine.transitionTo('READY')
   }
 
@@ -194,6 +207,10 @@ export class GameApplication {
       )
 
       this.score = addScore(this.score, points)
+      this.level = calculateLevel({
+        score: this.score.value,
+        pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
+      })
     }
 
     this.coins = this.coins
@@ -230,11 +247,10 @@ export class GameApplication {
     )
 
     const difficulty = calculateDifficulty({
-      elapsedTime: gameTime.elapsedTime,
+      level: this.level,
       initialDifficulty: this.initialDifficulty,
       config: defaultGameplayConfig.difficulty,
     })
-
     const spawnX =
       this.mario.position.x + defaultGameplayConfig.viewport.width * 0.75
 

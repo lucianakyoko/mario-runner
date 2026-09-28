@@ -18,63 +18,63 @@ const initialDifficulty: Difficulty = {
 }
 
 describe('calculateDifficulty', () => {
-  it('preserves the initial difficulty before the first progression interval', () => {
-    const difficulty = calculateDifficulty({
-      elapsedTime: 9.99,
-      initialDifficulty,
-      config,
-    })
-
-    expect(difficulty).toEqual(initialDifficulty)
+  it('preserves the initial difficulty at level 1', () => {
+    expect(
+      calculateDifficulty({
+        level: 1,
+        initialDifficulty,
+        config,
+      }),
+    ).toEqual(initialDifficulty)
   })
 
-  it('applies one progression step after one interval', () => {
-    const difficulty = calculateDifficulty({
-      elapsedTime: 10,
-      initialDifficulty,
-      config,
-    })
-
-    expect(difficulty).toEqual({
+  it('applies one progression step at level 2', () => {
+    expect(
+      calculateDifficulty({
+        level: 2,
+        initialDifficulty,
+        config,
+      }),
+    ).toEqual({
       obstacleSpeed: 290,
       obstacleMinDistance: 310,
       obstacleMaxDistance: 680,
     })
   })
 
-  it('applies multiple progression steps based on elapsed time', () => {
-    const difficulty = calculateDifficulty({
-      elapsedTime: 35,
-      initialDifficulty,
-      config,
-    })
-
-    expect(difficulty).toEqual({
+  it('applies multiple progression steps', () => {
+    expect(
+      calculateDifficulty({
+        level: 4,
+        initialDifficulty,
+        config,
+      }),
+    ).toEqual({
       obstacleSpeed: 310,
       obstacleMinDistance: 290,
       obstacleMaxDistance: 640,
     })
   })
 
-  it('produces the same difficulty regardless of update frequency', () => {
-    const difficultyAt60Fps = calculateDifficulty({
-      elapsedTime: 30,
+  it('produces the same result for the same level', () => {
+    const first = calculateDifficulty({
+      level: 3,
       initialDifficulty,
       config,
     })
 
-    const difficultyAt30Fps = calculateDifficulty({
-      elapsedTime: 30,
+    const second = calculateDifficulty({
+      level: 3,
       initialDifficulty,
       config,
     })
 
-    expect(difficultyAt60Fps).toEqual(difficultyAt30Fps)
+    expect(first).toEqual(second)
   })
 
-  it('does not allow the minimum spawn distance to become invalid', () => {
+  it('does not allow invalid spawn distances', () => {
     const difficulty = calculateDifficulty({
-      elapsedTime: 1000,
+      level: 999,
       initialDifficulty,
       config,
     })
@@ -85,49 +85,36 @@ describe('calculateDifficulty', () => {
     )
   })
 
-  it('progresses difficulty monotonically as gameplay time increases', () => {
-    const initial = calculateDifficulty({
-      elapsedTime: 0,
+  it('progresses monotonically with level', () => {
+    const level1 = calculateDifficulty({
+      level: 1,
       initialDifficulty,
       config,
     })
 
-    const afterTenSeconds = calculateDifficulty({
-      elapsedTime: 10,
+    const level2 = calculateDifficulty({
+      level: 2,
       initialDifficulty,
       config,
     })
 
-    const afterTwentySeconds = calculateDifficulty({
-      elapsedTime: 20,
+    const level3 = calculateDifficulty({
+      level: 3,
       initialDifficulty,
       config,
     })
 
-    expect(afterTenSeconds.obstacleSpeed).toBeGreaterThan(initial.obstacleSpeed)
+    expect(level2.obstacleSpeed).toBeGreaterThan(level1.obstacleSpeed)
+    expect(level3.obstacleSpeed).toBeGreaterThan(level2.obstacleSpeed)
 
-    expect(afterTwentySeconds.obstacleSpeed).toBeGreaterThan(
-      afterTenSeconds.obstacleSpeed,
-    )
+    expect(level2.obstacleMinDistance).toBeLessThan(level1.obstacleMinDistance)
+    expect(level3.obstacleMinDistance).toBeLessThan(level2.obstacleMinDistance)
 
-    expect(afterTenSeconds.obstacleMinDistance).toBeLessThan(
-      initial.obstacleMinDistance,
-    )
-
-    expect(afterTwentySeconds.obstacleMinDistance).toBeLessThan(
-      afterTenSeconds.obstacleMinDistance,
-    )
-
-    expect(afterTenSeconds.obstacleMaxDistance).toBeLessThan(
-      initial.obstacleMaxDistance,
-    )
-
-    expect(afterTwentySeconds.obstacleMaxDistance).toBeLessThan(
-      afterTenSeconds.obstacleMaxDistance,
-    )
+    expect(level2.obstacleMaxDistance).toBeLessThan(level1.obstacleMaxDistance)
+    expect(level3.obstacleMaxDistance).toBeLessThan(level2.obstacleMaxDistance)
   })
 
-  it('uses configured progression values', () => {
+  it('uses the configured progression values', () => {
     const customConfig: DifficultyConfig = {
       progressionInterval: 5,
       obstacleSpeedIncrease: 25,
@@ -135,13 +122,13 @@ describe('calculateDifficulty', () => {
       obstacleMaxDistanceDecrease: 30,
     }
 
-    const difficulty = calculateDifficulty({
-      elapsedTime: 10,
-      initialDifficulty,
-      config: customConfig,
-    })
-
-    expect(difficulty).toEqual({
+    expect(
+      calculateDifficulty({
+        level: 3,
+        initialDifficulty,
+        config: customConfig,
+      }),
+    ).toEqual({
       obstacleSpeed: 330,
       obstacleMinDistance: 290,
       obstacleMaxDistance: 640,
