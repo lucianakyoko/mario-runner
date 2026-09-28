@@ -38,6 +38,7 @@ import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
 import { calculateLevel } from '../../domain/progression/calculate-level'
+import { updateCollectiblesMovement } from '../../domain/collectible/update-collectibles-movement'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -302,6 +303,7 @@ export class GameApplication {
     }
 
     this.coins = collectibleSpawnResult.collectibles
+    this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
     this.obstacles = removeOffscreenObstacles(this.obstacles)
