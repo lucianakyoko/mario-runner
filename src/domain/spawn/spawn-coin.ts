@@ -14,9 +14,12 @@ export interface SpawnCoinParams {
   spawnX: number
   coinId: string
   velocityX: number
+  minSpawnDistance: number
+  maxSpawnDistance: number
 }
 
 export interface SpawnCoinResult {
+  state: SpawnState
   coins: Collectible[]
 }
 
@@ -29,6 +32,8 @@ export const spawnCoin = ({
   spawnX,
   coinId,
   velocityX,
+  minSpawnDistance,
+  maxSpawnDistance,
 }: SpawnCoinParams): SpawnCoinResult => {
   const result = spawnCollectible({
     state,
@@ -45,9 +50,12 @@ export const spawnCoin = ({
       [collectibleTypes.MEDAL]: coinId,
     },
     velocityX,
+    minSpawnDistance,
+    maxSpawnDistance,
   })
 
   return {
+    state: result.state,
     coins: result.collectibles,
   }
 }

@@ -19,7 +19,7 @@ export const createMedal = ({
   type: collectibleTypes.MEDAL,
   position: {
     x,
-    y: config.groundOffset,
+    y: -config.groundOffset,
   },
   size: {
     width: config.width,

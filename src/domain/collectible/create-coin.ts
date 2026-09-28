@@ -19,7 +19,7 @@ export const createCoin = ({
   type: collectibleTypes.COIN,
   position: {
     x,
-    y: config.groundOffset,
+    y: -config.groundOffset,
   },
   size: {
     width: config.width,

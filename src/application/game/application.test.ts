@@ -13,6 +13,7 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
+import type { Collectible } from '../../domain/collectible/collectible'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -130,6 +131,7 @@ const createApplication = (
   update: (gameTime: GameTime) => void = () => {},
   render: (gameTime: GameTime) => void = () => {},
   obstacles: Obstacle[] = [],
+  coins: Collectible[] = [],
 ): GameApplication =>
   new GameApplication(
     scheduler,
@@ -139,6 +141,7 @@ const createApplication = (
     update,
     render,
     obstacles,
+    coins,
   )
 
 describe('GameApplication', () => {
@@ -351,6 +354,19 @@ describe('GameApplication', () => {
         x: defaultGameplayConfig.viewport.width * 0.75,
       },
     })
+  })
+
+  it('uses the seeded random sequence when spawning collectibles', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2000)
+    scheduler.runNext(3000)
+
+    expect(application.currentCoins).toEqual([])
   })
 
   it('completes the obstacle lifecycle during gameplay', () => {
@@ -739,6 +755,119 @@ describe('GameApplication', () => {
     expect(application.currentCollision).toEqual({
       hasCollision: false,
     })
+  })
+
+  it('collects a collectible when Mario overlaps it', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coin: Collectible = {
+      id: 'coin-1',
+      type: 'coin',
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 24,
+        height: 24,
+      },
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 20,
+        height: 20,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+      isCollected: false,
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [],
+      [coin],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollectibleCollisions).toEqual([coin])
+    expect(application.currentCoins).toEqual([])
+  })
+
+  it('updates the score after collecting a coin', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coin: Collectible = {
+      id: 'coin-1',
+      type: 'coin',
+      position: { x: 0, y: 0 },
+      size: { width: 24, height: 24 },
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 20,
+        height: 20,
+      },
+      velocity: { x: 0, y: 0 },
+      isCollected: false,
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [],
+      [coin],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore.value).toBe(1)
+    expect(application.currentLevel).toBe(1)
+    expect(application.currentCoins).toEqual([])
+  })
+
+  it('updates the level when the score reaches 20 points', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coins: Collectible[] = Array.from({ length: 20 }, (_, index) => ({
+      id: `coin-${index + 1}`,
+      type: 'coin',
+      position: { x: 0, y: 0 },
+      size: { width: 24, height: 24 },
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 20,
+        height: 20,
+      },
+      velocity: { x: 0, y: 0 },
+      isCollected: false,
+    }))
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [],
+      coins,
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore.value).toBe(20)
+    expect(application.currentLevel).toBe(2)
+    expect(application.currentCoins).toEqual([])
   })
 
   it('does not trigger game over when a collision is detected', () => {

@@ -23,6 +23,8 @@ export const defaultGameplayConfig: GameplayConfig = {
   spawn: {
     obstacleMinDistance: 320,
     obstacleMaxDistance: 700,
+    collectibleMinDistance: 320,
+    collectibleMaxDistance: 700,
     collectibleChance: 0.25,
     coinSpawnWeight: 0.8,
     medalSpawnWeight: 0.2,

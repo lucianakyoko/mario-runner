@@ -56,6 +56,7 @@ export class GameApplication {
   private score: Score
   private level = 1
   private spawnState: SpawnState
+  private collectibleSpawnState: SpawnState
   private nextObstacleId = 1
   private nextCoinId = 1
   private nextMedalId = 1
@@ -102,6 +103,11 @@ export class GameApplication {
     this.spawnState = {
       distanceSinceLastSpawn: 0,
       nextSpawnDistance: defaultGameplayConfig.spawn.obstacleMinDistance,
+    }
+
+    this.collectibleSpawnState = {
+      distanceSinceLastSpawn: 0,
+      nextSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
     }
 
     this.gameLoop = new GameLoop(
@@ -236,15 +242,20 @@ export class GameApplication {
       return
     }
 
+    const traveledDistance =
+      defaultGameplayConfig.scenario.speed * gameTime.deltaTime
+
     this.scenario = updateScenarioMovement(
       this.scenario,
       defaultGameplayConfig.scenario.speed,
       gameTime.deltaTime,
     )
 
-    this.spawnState = updateSpawnDistance(
-      this.spawnState,
-      defaultGameplayConfig.scenario.speed * gameTime.deltaTime,
+    this.spawnState = updateSpawnDistance(this.spawnState, traveledDistance)
+
+    this.collectibleSpawnState = updateSpawnDistance(
+      this.collectibleSpawnState,
+      traveledDistance,
     )
 
     const difficulty = calculateDifficulty({
@@ -252,8 +263,44 @@ export class GameApplication {
       initialDifficulty: this.initialDifficulty,
       config: defaultGameplayConfig.difficulty,
     })
+
     const spawnX =
       this.mario.position.x + defaultGameplayConfig.viewport.width * 0.75
+
+    const collectibleSpawnResult = spawnCollectible({
+      state: this.collectibleSpawnState,
+      collectibles: this.coins,
+      random: this.random,
+      collectibleChance: defaultGameplayConfig.spawn.collectibleChance,
+      coinSpawnWeight: defaultGameplayConfig.spawn.coinSpawnWeight,
+      medalSpawnWeight: defaultGameplayConfig.spawn.medalSpawnWeight,
+      coinConfig: defaultGameplayConfig.coin,
+      medalConfig: defaultGameplayConfig.medal,
+      spawnX,
+      collectibleIds: {
+        [collectibleTypes.COIN]: `coin-${this.nextCoinId}`,
+        [collectibleTypes.MEDAL]: `medal-${this.nextMedalId}`,
+      },
+      velocityX: -difficulty.obstacleSpeed,
+      minSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
+      maxSpawnDistance: defaultGameplayConfig.spawn.collectibleMaxDistance,
+    })
+
+    if (collectibleSpawnResult.collectibles.length > this.coins.length) {
+      const spawnedCollectible =
+        collectibleSpawnResult.collectibles[
+          collectibleSpawnResult.collectibles.length - 1
+        ]
+
+      if (spawnedCollectible.type === collectibleTypes.COIN) {
+        this.nextCoinId += 1
+      } else {
+        this.nextMedalId += 1
+      }
+    }
+
+    this.collectibleSpawnState = collectibleSpawnResult.state
+    this.coins = collectibleSpawnResult.collectibles
 
     const spawnResult = spawnObstacle({
       state: this.spawnState,
@@ -272,40 +319,10 @@ export class GameApplication {
     this.spawnState = spawnResult.state
     this.obstacles = spawnResult.obstacles
 
-    const collectibleSpawnResult = spawnCollectible({
-      state: this.spawnState,
-      collectibles: this.coins,
-      random: this.random,
-      collectibleChance: defaultGameplayConfig.spawn.collectibleChance,
-      coinSpawnWeight: defaultGameplayConfig.spawn.coinSpawnWeight,
-      medalSpawnWeight: defaultGameplayConfig.spawn.medalSpawnWeight,
-      coinConfig: defaultGameplayConfig.coin,
-      medalConfig: defaultGameplayConfig.medal,
-      spawnX,
-      collectibleIds: {
-        [collectibleTypes.COIN]: `coin-${this.nextCoinId}`,
-        [collectibleTypes.MEDAL]: `medal-${this.nextMedalId}`,
-      },
-      velocityX: -difficulty.obstacleSpeed,
-    })
-
-    if (collectibleSpawnResult.collectibles.length > this.coins.length) {
-      const spawnedCollectible =
-        collectibleSpawnResult.collectibles[
-          collectibleSpawnResult.collectibles.length - 1
-        ]
-
-      if (spawnedCollectible.type === collectibleTypes.COIN) {
-        this.nextCoinId += 1
-      } else {
-        this.nextMedalId += 1
-      }
-    }
-
-    this.coins = collectibleSpawnResult.collectibles
     this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
+
     this.obstacles = removeOffscreenObstacles(this.obstacles)
 
     this.mario = resolveMarioGroundMovement(
@@ -353,6 +370,7 @@ export class GameApplication {
     }
 
     this.collectibleCollisions = this.detectCollectibleCollisions(mario)
+
     this.collectDetectedCollectibles(this.collectibleCollisions)
 
     this.update(gameTime)

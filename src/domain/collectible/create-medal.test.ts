@@ -31,7 +31,7 @@ describe('createMedal', () => {
       type: collectibleTypes.MEDAL,
       position: {
         x: 800,
-        y: 64,
+        y: -64,
       },
       size: {
         width: 32,
@@ -87,7 +87,7 @@ describe('createMedal', () => {
   it('uses the configured ground offset for its vertical position', () => {
     const config: CollectibleConfig = {
       ...medalConfig,
-      groundOffset: 80,
+      groundOffset: -80,
     }
 
     const medal = createMedal({

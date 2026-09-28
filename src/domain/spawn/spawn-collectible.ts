@@ -8,6 +8,7 @@ import { createCoin } from '../collectible/create-coin'
 import { createMedal } from '../collectible/create-medal'
 import type { Random } from '../random/random'
 import type { SpawnState } from './spawn-state'
+import { selectSpawnDistance } from './select-spawn-distance'
 
 export interface SpawnCollectibleParams {
   state: SpawnState
@@ -21,9 +22,12 @@ export interface SpawnCollectibleParams {
   spawnX: number
   collectibleIds: Record<CollectibleType, string>
   velocityX: number
+  minSpawnDistance: number
+  maxSpawnDistance: number
 }
 
 export interface SpawnCollectibleResult {
+  state: SpawnState
   collectibles: Collectible[]
 }
 
@@ -57,15 +61,28 @@ export const spawnCollectible = ({
   spawnX,
   collectibleIds,
   velocityX,
+  minSpawnDistance,
+  maxSpawnDistance,
 }: SpawnCollectibleParams): SpawnCollectibleResult => {
   if (state.distanceSinceLastSpawn < state.nextSpawnDistance) {
     return {
+      state,
       collectibles,
     }
   }
 
+  const nextState: SpawnState = {
+    distanceSinceLastSpawn: 0,
+    nextSpawnDistance: selectSpawnDistance(
+      random,
+      minSpawnDistance,
+      maxSpawnDistance,
+    ),
+  }
+
   if (random.next() >= collectibleChance) {
     return {
+      state: nextState,
       collectibles,
     }
   }
@@ -92,6 +109,7 @@ export const spawnCollectible = ({
         })
 
   return {
+    state: nextState,
     collectibles: [...collectibles, collectible],
   }
 }

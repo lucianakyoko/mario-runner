@@ -31,7 +31,7 @@ describe('createCoin', () => {
       type: collectibleTypes.COIN,
       position: {
         x: 800,
-        y: 48,
+        y: -48,
       },
       size: {
         width: 24,
@@ -87,7 +87,7 @@ describe('createCoin', () => {
   it('uses the configured ground offset for its vertical position', () => {
     const config: CollectibleConfig = {
       ...coinConfig,
-      groundOffset: 72,
+      groundOffset: -72,
     }
 
     const coin = createCoin({

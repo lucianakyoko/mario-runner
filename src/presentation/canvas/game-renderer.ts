@@ -32,6 +32,8 @@ export class GameRenderer {
     marioVisual: MarioVisual,
     obstacles: Obstacle[] = [],
     coins: Collectible[] = [],
+    score = 0,
+    level = 1,
   ): void {
     const { element, context } = this.surface
 
@@ -41,9 +43,7 @@ export class GameRenderer {
     this.renderGround(scenario)
     this.renderObstacles(obstacles, mario, scenario)
     this.renderCollectibles(coins, mario, scenario)
-
-    context.fillText(this.getStateLabel(state), 16, 24)
-
+    this.renderHud(state, score, level)
     this.renderMario(mario, marioVisual, scenario)
   }
 
@@ -96,8 +96,11 @@ export class GameRenderer {
 
     for (const collectible of collectibles) {
       const screenX = collectible.position.x - cameraX
+
+      // Mesmo sistema vertical do Mario:
+      // chão = 0 | acima do chão = valores negativos
       const screenY =
-        screenGroundY - collectible.size.height - collectible.position.y
+        screenGroundY - collectible.size.height + collectible.position.y
 
       context.fillStyle = this.getCollectibleColor(collectible)
 
@@ -108,6 +111,19 @@ export class GameRenderer {
         collectible.size.height,
       )
     }
+  }
+
+  private renderHud(state: GameState, score: number, level: number): void {
+    const { context } = this.surface
+
+    context.fillStyle = '#000000'
+    context.font = '16px monospace'
+    context.textAlign = 'left'
+    context.textBaseline = 'top'
+
+    context.fillText(`STATE: ${this.getStateLabel(state)}`, 16, 16)
+    context.fillText(`SCORE: ${score}`, 16, 36)
+    context.fillText(`LEVEL: ${level}`, 16, 56)
   }
 
   private getCollectibleColor(collectible: Collectible): string {
@@ -189,6 +205,7 @@ export class GameRenderer {
     const screenY =
       screenGroundY - visual.height + mario.position.y + visual.offsetY
 
+    context.fillStyle = '#000000'
     context.fillRect(screenX, screenY, visual.width, visual.height)
   }
 

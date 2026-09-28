@@ -21,17 +21,12 @@ export interface CollectibleVelocity {
 export interface Collectible {
   id: string
   type: CollectibleType
-
   position: CollectiblePosition
-
   // Área visual (sprite renderizado)
   size: CollectibleSize
-
   // Área de colisão independente do visual
   collisionBounds: CollisionBounds
-
   velocity: CollectibleVelocity
-
   isCollected: boolean
 }
 

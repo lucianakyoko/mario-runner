@@ -64,6 +64,8 @@ const createParams = (
     [collectibleTypes.MEDAL]: 'medal-1',
   },
   velocityX: -280,
+  minSpawnDistance: 300,
+  maxSpawnDistance: 500,
 })
 
 describe('spawnCollectible', () => {
@@ -78,40 +80,34 @@ describe('spawnCollectible', () => {
       state,
     })
 
+    expect(result.state).toEqual(state)
     expect(result.collectibles).toEqual([])
   })
 
-  it('does not spawn when the collectible chance is not reached', () => {
+  it('resets the spawn state when the collectible chance is not reached', () => {
     const result = spawnCollectible(createParams(createRandom([0.25, 0.9])))
 
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
+    expect(result.state.nextSpawnDistance).toBeGreaterThanOrEqual(300)
+    expect(result.state.nextSpawnDistance).toBeLessThanOrEqual(500)
     expect(result.collectibles).toEqual([])
   })
 
   it('spawns a medal when the type selection falls outside the coin weight', () => {
     const result = spawnCollectible(createParams(createRandom([0.1, 0.8])))
 
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
+    expect(result.state.nextSpawnDistance).toBeGreaterThanOrEqual(300)
+    expect(result.state.nextSpawnDistance).toBeLessThanOrEqual(500)
+
     expect(result.collectibles).toEqual([
       {
         id: 'medal-1',
         type: collectibleTypes.MEDAL,
-        position: {
-          x: 800,
-          y: 64,
-        },
-        size: {
-          width: 32,
-          height: 32,
-        },
-        collisionBounds: {
-          offsetX: 4,
-          offsetY: 3,
-          width: 24,
-          height: 26,
-        },
-        velocity: {
-          x: -280,
-          y: 0,
-        },
+        position: { x: 800, y: -64 },
+        size: { width: 32, height: 32 },
+        collisionBounds: { offsetX: 4, offsetY: 3, width: 24, height: 26 },
+        velocity: { x: -280, y: 0 },
         isCollected: false,
       },
     ])
@@ -121,24 +117,10 @@ describe('spawnCollectible', () => {
     const existingCoin = {
       id: 'coin-existing',
       type: collectibleTypes.COIN,
-      position: {
-        x: 600,
-        y: 48,
-      },
-      size: {
-        width: 24,
-        height: 24,
-      },
-      collisionBounds: {
-        offsetX: 2,
-        offsetY: 2,
-        width: 20,
-        height: 20,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
+      position: { x: 600, y: 48 },
+      size: { width: 24, height: 24 },
+      collisionBounds: { offsetX: 2, offsetY: 2, width: 20, height: 20 },
+      velocity: { x: -280, y: 0 },
       isCollected: false,
     }
 
@@ -146,29 +128,16 @@ describe('spawnCollectible', () => {
       createParams(createRandom([0.1, 0.8]), [existingCoin]),
     )
 
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
     expect(result.collectibles).toHaveLength(2)
     expect(result.collectibles[0]).toEqual(existingCoin)
     expect(result.collectibles[1]).toEqual({
       id: 'medal-1',
       type: collectibleTypes.MEDAL,
-      position: {
-        x: 800,
-        y: 64,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
-      collisionBounds: {
-        offsetX: 4,
-        offsetY: 3,
-        width: 24,
-        height: 26,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
+      position: { x: 800, y: -64 },
+      size: { width: 32, height: 32 },
+      collisionBounds: { offsetX: 4, offsetY: 3, width: 24, height: 26 },
+      velocity: { x: -280, y: 0 },
       isCollected: false,
     })
   })

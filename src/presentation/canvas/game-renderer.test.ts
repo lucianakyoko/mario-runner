@@ -101,7 +101,7 @@ const createSurface = (): CanvasSurface => {
   }
 }
 
-const createCoin = (x: number, y = 48): Collectible => ({
+const createCoin = (x: number, y = -48): Collectible => ({
   id: `coin-${x}`,
   type: 'coin',
   position: {

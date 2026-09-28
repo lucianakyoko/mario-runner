@@ -25,6 +25,8 @@ export interface ViewportConfig {
 export interface SpawnConfig {
   obstacleMinDistance: number
   obstacleMaxDistance: number
+  collectibleMinDistance: number
+  collectibleMaxDistance: number
   collectibleChance: number
   coinSpawnWeight: number
   medalSpawnWeight: number

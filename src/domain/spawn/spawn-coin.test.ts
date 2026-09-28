@@ -44,8 +44,11 @@ describe('spawnCoin', () => {
       spawnX: 800,
       coinId: 'coin-1',
       velocityX: -280,
+      minSpawnDistance: 300,
+      maxSpawnDistance: 500,
     })
 
+    expect(result.state).toEqual(state)
     expect(result.coins).toEqual([])
   })
 
@@ -55,12 +58,15 @@ describe('spawnCoin', () => {
       coins: [],
       random: createRandom(0.25),
       collectibleChance: 0.25,
-      spawnX: 800,
       coinConfig,
+      spawnX: 800,
       coinId: 'coin-1',
       velocityX: -280,
+      minSpawnDistance: 300,
+      maxSpawnDistance: 500,
     })
 
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
     expect(result.coins).toEqual([])
   })
 
@@ -74,7 +80,11 @@ describe('spawnCoin', () => {
       spawnX: 800,
       coinId: 'coin-1',
       velocityX: -280,
+      minSpawnDistance: 300,
+      maxSpawnDistance: 500,
     })
+
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
 
     expect(result.coins).toEqual([
       {
@@ -82,7 +92,7 @@ describe('spawnCoin', () => {
         type: 'coin',
         position: {
           x: 800,
-          y: 48,
+          y: -48,
         },
         size: {
           width: 24,
@@ -137,8 +147,11 @@ describe('spawnCoin', () => {
       spawnX: 800,
       coinId: 'coin-2',
       velocityX: -280,
+      minSpawnDistance: 300,
+      maxSpawnDistance: 500,
     })
 
+    expect(result.state.distanceSinceLastSpawn).toBe(0)
     expect(result.coins).toHaveLength(2)
     expect(result.coins[0]).toEqual(existingCoin)
     expect(result.coins[1].id).toBe('coin-2')

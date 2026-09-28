@@ -420,4 +420,30 @@ describe('GameApplication collectible collision', () => {
     })
     expect(application.currentLevel).toBe(3)
   })
+
+  it('detects a collision when Mario reaches the configured coin height', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coin = createCoin(0, -48)
+    const application = createApplication(scheduler, [coin])
+
+    application.currentMario.position.y = -48
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollectibleCollisions).toEqual([coin])
+  })
+
+  it('does not collide with a spawned coin while Mario is at ground level', () => {
+    const scheduler = new FakeFrameScheduler()
+    const coin = createCoin(0, 48)
+
+    const application = createApplication(scheduler, [coin])
+
+    application.start()
+    scheduler.runNext(16)
+
+    expect(application.currentCollectibleCollisions).toEqual([])
+  })
 })
