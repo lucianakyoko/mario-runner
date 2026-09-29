@@ -43,6 +43,7 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
+import { consumePowerUp } from '../../domain/power-up/consume-power-up'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -262,6 +263,16 @@ export class GameApplication {
       .filter((collectible) => !collectible.isCollected)
   }
 
+  private consumeDetectedPowerUps(powerUps: PowerUp[]): void {
+    const consumedIds = new Set(powerUps.map((powerUp) => powerUp.id))
+
+    this.powerUps = this.powerUps
+      .map((powerUp) =>
+        consumedIds.has(powerUp.id) ? consumePowerUp(powerUp) : powerUp,
+      )
+      .filter((powerUp) => !powerUp.isCollected)
+  }
+
   private updateSession = (gameTime: GameTime): void => {
     if (this.stateMachine.state === 'READY') {
       if (this.input.isActive('jump')) {
@@ -432,6 +443,8 @@ export class GameApplication {
     this.collectDetectedCollectibles(this.collectibleCollisions)
 
     this.powerUpCollisions = this.detectPowerUpCollisions(mario)
+
+    this.consumeDetectedPowerUps(this.powerUpCollisions)
 
     this.update(gameTime)
   }
