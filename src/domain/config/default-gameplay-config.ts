@@ -29,6 +29,8 @@ export const defaultGameplayConfig: GameplayConfig = {
     coinSpawnWeight: 0.8,
     medalSpawnWeight: 0.2,
     powerUpChance: 0.05,
+    powerUpMinDistance: 320,
+    powerUpMaxDistance: 700,
   },
   difficulty: {
     progressionInterval: 10,

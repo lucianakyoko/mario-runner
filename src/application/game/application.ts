@@ -8,8 +8,11 @@ import type { Collectible } from '../../domain/collectible/collectible'
 import { collectibleTypes } from '../../domain/collectible/collectible-type'
 import { collectCollectible } from '../../domain/collectible/collect-collectible'
 import { createCollectibleCollidable } from '../../domain/collectible/create-collectible-collidable'
+import { updateCollectiblesMovement } from '../../domain/collectible/update-collectibles-movement'
+import { calculateLevel } from '../../domain/progression/calculate-level'
+import type { Mario } from '../../domain/mario/mario'
+import { getMarioCollisionBounds } from '../../domain/mario/mario'
 import { landMario } from '../../domain/mario/land-mario'
-import { getMarioCollisionBounds, type Mario } from '../../domain/mario/mario'
 import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-ground-movement'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
@@ -18,6 +21,7 @@ import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
 import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
+import type { PowerUp } from '../../domain/power-up/power-up'
 import { addScore } from '../../domain/score/add-score'
 import { createScore } from '../../domain/score/create-score'
 import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
@@ -25,6 +29,7 @@ import type { Score } from '../../domain/score/score'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
+import { spawnMushroom } from '../../domain/spawn/spawn-mushroom'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
 import { updateSpawnDistance } from '../../domain/spawn/update-spawn-distance'
@@ -37,8 +42,6 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
-import { calculateLevel } from '../../domain/progression/calculate-level'
-import { updateCollectiblesMovement } from '../../domain/collectible/update-collectibles-movement'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -53,13 +56,16 @@ export class GameApplication {
   private scenario: Scenario
   private obstacles: Obstacle[]
   private coins: Collectible[]
+  private powerUps: PowerUp[]
   private score: Score
   private level = 1
   private spawnState: SpawnState
   private collectibleSpawnState: SpawnState
+  private powerUpSpawnState: SpawnState
   private nextObstacleId = 1
   private nextCoinId = 1
   private nextMedalId = 1
+  private nextMushroomId = 1
 
   private collisionResult: CollisionResult = {
     hasCollision: false,
@@ -76,6 +82,7 @@ export class GameApplication {
     render: Render,
     obstacles: Obstacle[] = [],
     coins: Collectible[] = [],
+    powerUps: PowerUp[] = [],
   ) {
     const clock = new Clock()
 
@@ -87,6 +94,7 @@ export class GameApplication {
     this.render = render
     this.obstacles = obstacles
     this.coins = coins
+    this.powerUps = powerUps
     this.score = createScore()
     this.level = calculateLevel({
       score: this.score.value,
@@ -108,6 +116,11 @@ export class GameApplication {
     this.collectibleSpawnState = {
       distanceSinceLastSpawn: 0,
       nextSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
+    }
+
+    this.powerUpSpawnState = {
+      distanceSinceLastSpawn: 0,
+      nextSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
     }
 
     this.gameLoop = new GameLoop(
@@ -138,6 +151,10 @@ export class GameApplication {
 
   get currentCoins(): Collectible[] {
     return this.coins
+  }
+
+  get currentPowerUps(): PowerUp[] {
+    return this.powerUps
   }
 
   get currentScore(): Score {
@@ -258,6 +275,11 @@ export class GameApplication {
       traveledDistance,
     )
 
+    this.powerUpSpawnState = updateSpawnDistance(
+      this.powerUpSpawnState,
+      traveledDistance,
+    )
+
     const difficulty = calculateDifficulty({
       level: this.level,
       initialDifficulty: this.initialDifficulty,
@@ -318,6 +340,26 @@ export class GameApplication {
 
     this.spawnState = spawnResult.state
     this.obstacles = spawnResult.obstacles
+
+    const mushroomSpawnResult = spawnMushroom({
+      state: this.powerUpSpawnState,
+      powerUps: this.powerUps,
+      random: this.random,
+      powerUpChance: defaultGameplayConfig.spawn.powerUpChance,
+      mushroomConfig: defaultGameplayConfig.powerUp,
+      spawnX,
+      mushroomId: `mushroom-${this.nextMushroomId}`,
+      velocityX: -difficulty.obstacleSpeed,
+      minSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
+      maxSpawnDistance: defaultGameplayConfig.spawn.powerUpMaxDistance,
+    })
+
+    if (mushroomSpawnResult.powerUps.length > this.powerUps.length) {
+      this.nextMushroomId += 1
+    }
+
+    this.powerUpSpawnState = mushroomSpawnResult.state
+    this.powerUps = mushroomSpawnResult.powerUps
 
     this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
 
