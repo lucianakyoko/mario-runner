@@ -13,14 +13,8 @@ export const growMario = (mario: Mario, config: MarioGrowthConfig): Mario => {
     return mario
   }
 
-  const heightDifference = config.height - mario.size.height
-
   return {
     ...mario,
-    position: {
-      ...mario.position,
-      y: mario.position.y - heightDifference,
-    },
     size: {
       width: config.width,
       height: config.height,
