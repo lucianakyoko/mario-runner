@@ -47,4 +47,33 @@ describe('PowerUp', () => {
       height: 22,
     })
   })
+
+  it('should keep collision bounds independent from visual size', () => {
+    const powerUp: PowerUp = {
+      id: 'mushroom-2',
+      type: POWER_UP_TYPE.MUSHROOM,
+      position: { x: 300, y: 120 },
+      size: { width: 64, height: 48 },
+      collisionBounds: {
+        offsetX: 8,
+        offsetY: 4,
+        width: 32,
+        height: 20,
+      },
+      velocity: { x: -280, y: 0 },
+      isCollected: false,
+    }
+
+    expect(getPowerUpCollisionBounds(powerUp)).toEqual({
+      x: 308,
+      y: 124,
+      width: 32,
+      height: 20,
+    })
+
+    expect(powerUp.size).toEqual({
+      width: 64,
+      height: 48,
+    })
+  })
 })
