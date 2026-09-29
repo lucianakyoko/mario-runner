@@ -23,6 +23,7 @@ const createMario = (isGrounded = true): Mario => ({
     height: 48,
   },
   movementState: 'RUNNING',
+  powerState: 'NORMAL',
   isGrounded,
 })
 

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { getMarioCollisionBounds, createInitialMario } from './mario'
+
+import { createInitialMario, getMarioCollisionBounds } from './mario'
+import { marioPowerState } from './mario-power-state'
 
 describe('createInitialMario', () => {
   it('creates Mario in the expected initial state', () => {
@@ -40,6 +42,7 @@ describe('createInitialMario', () => {
     })
 
     expect(mario.movementState).toBe('RUNNING')
+    expect(mario.powerState).toBe(marioPowerState.NORMAL)
     expect(mario.isGrounded).toBe(true)
   })
 })

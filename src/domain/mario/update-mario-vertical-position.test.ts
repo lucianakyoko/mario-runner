@@ -23,6 +23,7 @@ const createMario = (): Mario => ({
     height: 48,
   },
   movementState: 'FALLING',
+  powerState: 'NORMAL',
   isGrounded: false,
 })
 

@@ -112,6 +112,16 @@ export const defaultGameplayConfig: GameplayConfig = {
       height: 28,
     },
   },
+  mario: {
+    normal: {
+      width: 32,
+      height: 48,
+    },
+    powered: {
+      width: 32,
+      height: 64,
+    },
+  },
   scoring: {
     coinPoints: 1,
     medalPoints: 2,

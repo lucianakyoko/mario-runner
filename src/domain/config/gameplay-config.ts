@@ -75,6 +75,16 @@ export interface PowerUpConfig {
   collisionBounds: CollisionBoundsConfig
 }
 
+export interface MarioStateConfig {
+  width: number
+  height: number
+}
+
+export interface MarioConfig {
+  normal: MarioStateConfig
+  powered: MarioStateConfig
+}
+
 export interface ScoringConfig {
   coinPoints: number
   medalPoints: number
@@ -104,6 +114,7 @@ export interface GameplayConfig {
   coin: CollectibleConfig
   medal: CollectibleConfig
   powerUp: PowerUpConfig
+  mario: MarioConfig
   scoring: ScoringConfig
   progression: ProgressionConfig
   collision: CollisionConfig

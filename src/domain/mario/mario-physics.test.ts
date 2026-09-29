@@ -29,6 +29,7 @@ const createMario = (): Mario => ({
     height: 48,
   },
   movementState: 'RUNNING',
+  powerState: 'NORMAL',
   isGrounded: true,
 })
 
@@ -82,6 +83,7 @@ describe('Mario physics', () => {
         y: 400,
       },
       movementState: 'FALLING',
+      powerState: 'NORMAL',
       isGrounded: false,
     }
 

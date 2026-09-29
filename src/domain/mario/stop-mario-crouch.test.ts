@@ -23,6 +23,7 @@ const createMario = (): Mario => ({
     height: 48,
   },
   movementState: 'CROUCHING',
+  powerState: 'NORMAL',
   isGrounded: true,
 })
 
@@ -56,6 +57,7 @@ describe('stopMarioCrouch', () => {
     const mario: Mario = {
       ...createMario(),
       movementState: 'RUNNING',
+      powerState: 'NORMAL',
     }
 
     const updatedMario = stopMarioCrouch(mario)

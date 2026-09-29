@@ -30,6 +30,7 @@ const createMario = (): Mario => ({
     height: 48,
   },
   movementState: 'RUNNING',
+  powerState: 'NORMAL',
   isGrounded: true,
 })
 
@@ -101,6 +102,7 @@ describe('Mario movement transitions', () => {
     mario = {
       ...mario,
       movementState: 'FALLING',
+      powerState: 'NORMAL',
     }
 
     expect(mario.movementState).toBe('FALLING')
@@ -120,6 +122,7 @@ describe('Mario movement transitions', () => {
         y: 400,
       },
       movementState: 'FALLING',
+      powerState: 'NORMAL',
       isGrounded: false,
     }
 
