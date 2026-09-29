@@ -44,6 +44,7 @@ import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
 import { consumePowerUp } from '../../domain/power-up/consume-power-up'
+import { growMario } from '../../domain/mario/grow-mario'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -273,6 +274,18 @@ export class GameApplication {
       .filter((powerUp) => !powerUp.isCollected)
   }
 
+  private applyPowerUpTransformation(powerUps: PowerUp[]): void {
+    if (powerUps.length === 0) {
+      return
+    }
+
+    this.mario = growMario(this.mario, {
+      width: defaultGameplayConfig.mario.powered.width,
+      height: defaultGameplayConfig.mario.powered.height,
+      collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+    })
+  }
+
   private updateSession = (gameTime: GameTime): void => {
     if (this.stateMachine.state === 'READY') {
       if (this.input.isActive('jump')) {
@@ -445,6 +458,8 @@ export class GameApplication {
     this.powerUpCollisions = this.detectPowerUpCollisions(mario)
 
     this.consumeDetectedPowerUps(this.powerUpCollisions)
+
+    this.applyPowerUpTransformation(this.powerUpCollisions)
 
     this.update(gameTime)
   }

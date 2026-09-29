@@ -190,7 +190,7 @@ describe('GameApplication power-up consumption', () => {
     expect(application.currentPowerUps).toEqual([distantMushroom])
   })
 
-  it('does not transform Mario while consuming the mushroom', () => {
+  it('consumes the mushroom before the transformation is verified independently', () => {
     const scheduler = new FakeFrameScheduler()
     const mushroom = createMushroom(0)
     const application = createApplication(scheduler, [mushroom])
@@ -199,6 +199,6 @@ describe('GameApplication power-up consumption', () => {
     scheduler.runNext(1000)
 
     expect(application.currentPowerUps).toEqual([])
-    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.powerState).toBe('POWERED')
   })
 })

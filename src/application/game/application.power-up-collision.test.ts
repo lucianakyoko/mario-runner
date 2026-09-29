@@ -200,7 +200,7 @@ describe('GameApplication power-up collision', () => {
     expect(application.currentPowerUpCollisions).toEqual([])
   })
 
-  it('does not transform Mario during collision detection', () => {
+  it('detects the mushroom before applying its transformation consequence', () => {
     const scheduler = new FakeFrameScheduler()
     const mushroom = createMushroom(0)
     const application = createApplication(scheduler, [mushroom])
@@ -210,7 +210,7 @@ describe('GameApplication power-up collision', () => {
 
     expect(application.currentPowerUpCollisions).toEqual([mushroom])
     expect(application.currentPowerUps).toEqual([])
-    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.powerState).toBe('POWERED')
   })
 
   it('clears power-up collisions when restarting', () => {
