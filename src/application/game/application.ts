@@ -22,6 +22,7 @@ import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
 import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import type { PowerUp } from '../../domain/power-up/power-up'
+import { createPowerUpCollidable } from '../../domain/power-up/create-power-up-collidable'
 import { addScore } from '../../domain/score/add-score'
 import { createScore } from '../../domain/score/create-score'
 import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
@@ -72,6 +73,7 @@ export class GameApplication {
   }
 
   private collectibleCollisions: Collectible[] = []
+  private powerUpCollisions: PowerUp[] = []
 
   constructor(
     scheduler: FrameScheduler,
@@ -173,6 +175,10 @@ export class GameApplication {
     return this.collectibleCollisions
   }
 
+  get currentPowerUpCollisions(): PowerUp[] {
+    return this.powerUpCollisions
+  }
+
   start(): void {
     if (this.stateMachine.state === 'RUNNING') {
       return
@@ -184,6 +190,7 @@ export class GameApplication {
   restart(): void {
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
+    this.powerUpCollisions = []
     this.score = createScore()
     this.level = calculateLevel({
       score: this.score.value,
@@ -195,6 +202,7 @@ export class GameApplication {
   gameOver(): void {
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
+    this.powerUpCollisions = []
     this.stateMachine.transitionTo('GAME_OVER')
   }
 
@@ -216,6 +224,14 @@ export class GameApplication {
         !collectible.isCollected &&
         detectCollision(mario, createCollectibleCollidable(collectible))
           .hasCollision,
+    )
+  }
+
+  private detectPowerUpCollisions(mario: Collidable): PowerUp[] {
+    return this.powerUps.filter(
+      (powerUp) =>
+        !powerUp.isCollected &&
+        detectCollision(mario, createPowerUpCollidable(powerUp)).hasCollision,
     )
   }
 
@@ -414,6 +430,8 @@ export class GameApplication {
     this.collectibleCollisions = this.detectCollectibleCollisions(mario)
 
     this.collectDetectedCollectibles(this.collectibleCollisions)
+
+    this.powerUpCollisions = this.detectPowerUpCollisions(mario)
 
     this.update(gameTime)
   }
