@@ -98,6 +98,18 @@ export const defaultGameplayConfig: GameplayConfig = {
       height: 26,
     },
   },
+  powerUp: {
+    width: 32,
+    height: 32,
+    groundOffset: 0,
+    speed: 280,
+    collisionBounds: {
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 28,
+    },
+  },
   scoring: {
     coinPoints: 1,
     medalPoints: 2,

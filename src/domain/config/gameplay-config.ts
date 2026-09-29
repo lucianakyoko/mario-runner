@@ -65,6 +65,14 @@ export interface CollectibleConfig {
   collisionBounds: CollisionBoundsConfig
 }
 
+export interface PowerUpConfig {
+  width: number
+  height: number
+  groundOffset: number
+  speed: number
+  collisionBounds: CollisionBoundsConfig
+}
+
 export interface ScoringConfig {
   coinPoints: number
   medalPoints: number
@@ -91,8 +99,12 @@ export interface GameplayConfig {
   spawn: SpawnConfig
   difficulty: DifficultyConfig
   obstacles: ObstacleConfigs
+
   coin: CollectibleConfig
   medal: CollectibleConfig
+
+  powerUp: PowerUpConfig
+
   scoring: ScoringConfig
   progression: ProgressionConfig
   collision: CollisionConfig
