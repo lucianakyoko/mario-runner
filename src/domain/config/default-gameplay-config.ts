@@ -116,10 +116,22 @@ export const defaultGameplayConfig: GameplayConfig = {
     normal: {
       width: 32,
       height: 48,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 44,
+      },
     },
     powered: {
       width: 32,
       height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
     },
   },
   scoring: {

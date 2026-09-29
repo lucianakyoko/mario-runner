@@ -35,6 +35,12 @@ describe('growMario', () => {
     const poweredMario = growMario(mario, {
       width: 32,
       height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
     })
 
     expect(poweredMario.powerState).toBe(marioPowerState.POWERED)
@@ -44,12 +50,40 @@ describe('growMario', () => {
     })
   })
 
+  it('updates collision bounds when Mario grows', () => {
+    const mario = createMario()
+
+    const poweredMario = growMario(mario, {
+      width: 32,
+      height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
+    })
+
+    expect(poweredMario.collisionBounds).toEqual({
+      offsetX: 2,
+      offsetY: 2,
+      width: 28,
+      height: 60,
+    })
+  })
+
   it('preserves Mario ground contact when he grows', () => {
     const mario = createMario()
 
     const poweredMario = growMario(mario, {
       width: 32,
       height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
     })
 
     expect(mario.position.y).toBe(0)
@@ -62,6 +96,12 @@ describe('growMario', () => {
     const poweredMario = growMario(mario, {
       width: 32,
       height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
     })
 
     expect(poweredMario.position.x).toBe(mario.position.x)
@@ -69,16 +109,30 @@ describe('growMario', () => {
   })
 
   it('does not grow Mario again when he is already powered', () => {
-    const mario = growMario(createMario(), {
-      width: 32,
-      height: 64,
-    })
+    const mario = createMario()
 
     const poweredMario = growMario(mario, {
       width: 32,
       height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
     })
 
-    expect(poweredMario).toBe(mario)
+    const unchangedMario = growMario(poweredMario, {
+      width: 32,
+      height: 64,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 28,
+        height: 60,
+      },
+    })
+
+    expect(unchangedMario).toBe(poweredMario)
   })
 })

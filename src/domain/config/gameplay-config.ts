@@ -78,6 +78,7 @@ export interface PowerUpConfig {
 export interface MarioStateConfig {
   width: number
   height: number
+  collisionBounds: CollisionBoundsConfig
 }
 
 export interface MarioConfig {
