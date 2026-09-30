@@ -47,6 +47,7 @@ import { consumePowerUp } from '../../domain/power-up/consume-power-up'
 import { growMario } from '../../domain/mario/grow-mario'
 import { loseMarioPower } from '../../domain/mario/lose-mario-power'
 import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
+import { updatePowerUpsMovement } from '../../domain/power-up/update-power-ups-movement'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -404,6 +405,8 @@ export class GameApplication {
     this.powerUps = mushroomSpawnResult.powerUps
 
     this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
+
+    this.powerUps = updatePowerUpsMovement(this.powerUps, gameTime.deltaTime)
 
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
 
