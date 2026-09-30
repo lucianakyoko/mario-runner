@@ -459,6 +459,7 @@ export class GameApplication {
 
     if (this.mario.lifeState === marioLifeState.DEAD) {
       this.gameOver()
+      return
     }
 
     this.collectibleCollisions = this.detectCollectibleCollisions(mario)
