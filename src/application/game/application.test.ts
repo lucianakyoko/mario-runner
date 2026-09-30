@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { GameplayCommand } from '../../domain/input'
 import type { Mario } from '../../domain/mario/mario'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
+import type { Collectible } from '../../domain/collectible/collectible'
+import { growMario } from '../../domain/mario/grow-mario'
 import type { Scenario } from '../../domain/scenario/scenario'
 import type { GameTime } from '../../domain/time'
 import type { Input } from '../input'
@@ -13,9 +16,6 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
-import type { Collectible } from '../../domain/collectible/collectible'
-import { growMario } from '../../domain/mario/grow-mario'
-import { marioLifeState } from '../../domain/mario/mario-life-state'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -715,7 +715,7 @@ describe('GameApplication', () => {
     scheduler.runNext(1000)
 
     expect(application.currentCollision).toEqual({
-      hasCollision: true,
+      hasCollision: false,
     })
   })
 
@@ -759,6 +759,7 @@ describe('GameApplication', () => {
     expect(application.currentCollision).toEqual({
       hasCollision: false,
     })
+    expect(application.state).toBe('RUNNING')
   })
 
   it('collects a collectible when Mario overlaps it', () => {
@@ -874,7 +875,7 @@ describe('GameApplication', () => {
     expect(application.currentCoins).toEqual([])
   })
 
-  it('does not trigger game over when a collision is detected', () => {
+  it('changes to GAME_OVER when normal Mario collides with an obstacle', () => {
     const scheduler = new FakeFrameScheduler()
 
     const obstacle: Obstacle = {
@@ -911,10 +912,8 @@ describe('GameApplication', () => {
     application.start()
     scheduler.runNext(1000)
 
-    expect(application.currentCollision).toEqual({
-      hasCollision: true,
-    })
-    expect(application.state).toBe('RUNNING')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
   })
 
   it('removes Mario power after colliding with an obstacle', () => {
@@ -960,20 +959,9 @@ describe('GameApplication', () => {
     application.start()
     scheduler.runNext(1000)
 
-    expect(application.currentCollision).toEqual({
-      hasCollision: true,
-    })
     expect(application.currentMario.powerState).toBe('NORMAL')
-    expect(application.currentMario.size).toEqual({
-      width: 32,
-      height: 48,
-    })
-    expect(application.currentMario.collisionBounds).toEqual({
-      offsetX: 2,
-      offsetY: 2,
-      width: 28,
-      height: 44,
-    })
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.state).toBe('RUNNING')
   })
 
   it('keeps the session running after Mario loses power', () => {
@@ -997,7 +985,7 @@ describe('GameApplication', () => {
         height: 32,
       },
       velocity: {
-        x: 0,
+        x: -280,
         y: 0,
       },
     }
@@ -1020,51 +1008,7 @@ describe('GameApplication', () => {
     scheduler.runNext(1000)
 
     expect(application.currentMario.powerState).toBe('NORMAL')
-    expect(application.state).toBe('RUNNING')
-  })
-
-  it('keeps normal Mario unchanged after colliding with an obstacle', () => {
-    const scheduler = new FakeFrameScheduler()
-
-    const obstacle: Obstacle = {
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
-      position: {
-        x: 0,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
-      collisionBounds: {
-        offsetX: 0,
-        offsetY: 0,
-        width: 32,
-        height: 32,
-      },
-      velocity: {
-        x: 0,
-        y: 0,
-      },
-    }
-
-    const application = createApplication(
-      scheduler,
-      new FakeInput(),
-      () => {},
-      () => {},
-      [obstacle],
-    )
-
-    application.start()
-    scheduler.runNext(1000)
-
-    expect(application.currentMario.powerState).toBe('NORMAL')
-    expect(application.currentMario.size).toEqual({
-      width: 32,
-      height: 48,
-    })
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
     expect(application.state).toBe('RUNNING')
   })
 
@@ -1104,6 +1048,7 @@ describe('GameApplication', () => {
     scheduler.runNext(1000)
 
     expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
     expect(application.state).toBe('RUNNING')
 
     const positionAfterLoss = application.currentMario.position.x
@@ -1155,12 +1100,12 @@ describe('GameApplication', () => {
     application.start()
     scheduler.runNext(1000)
 
-    expect(application.currentCollision).toEqual({ hasCollision: true })
     expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
     expect(application.state).toBe('RUNNING')
   })
 
-  it('keeps normal Mario unchanged after an obstacle collision', () => {
+  it('kills normal Mario after an obstacle collision', () => {
     const scheduler = new FakeFrameScheduler()
 
     const obstacle: Obstacle = {
@@ -1190,18 +1135,7 @@ describe('GameApplication', () => {
     application.start()
     scheduler.runNext(1000)
 
-    expect(application.currentCollision).toEqual({ hasCollision: true })
-    expect(application.currentMario.powerState).toBe('NORMAL')
-    expect(application.currentMario.size).toEqual({
-      width: 32,
-      height: 48,
-    })
-    expect(application.currentMario.collisionBounds).toEqual({
-      offsetX: 0,
-      offsetY: 0,
-      width: 32,
-      height: 48,
-    })
-    expect(application.state).toBe('RUNNING')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
   })
 })

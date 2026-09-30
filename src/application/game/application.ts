@@ -10,10 +10,13 @@ import { collectCollectible } from '../../domain/collectible/collect-collectible
 import { createCollectibleCollidable } from '../../domain/collectible/create-collectible-collidable'
 import { updateCollectiblesMovement } from '../../domain/collectible/update-collectibles-movement'
 import { calculateLevel } from '../../domain/progression/calculate-level'
+import { dieMario } from '../../domain/mario/die-mario'
 import type { Mario } from '../../domain/mario/mario'
 import { getMarioCollisionBounds } from '../../domain/mario/mario'
 import { landMario } from '../../domain/mario/land-mario'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 import { resolveMarioGroundMovement } from '../../domain/mario/resolve-mario-ground-movement'
+import { shouldDieMario } from '../../domain/mario/should-die-mario'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
@@ -22,7 +25,12 @@ import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
 import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import type { PowerUp } from '../../domain/power-up/power-up'
+import { consumePowerUp } from '../../domain/power-up/consume-power-up'
 import { createPowerUpCollidable } from '../../domain/power-up/create-power-up-collidable'
+import { updatePowerUpsMovement } from '../../domain/power-up/update-power-ups-movement'
+import { growMario } from '../../domain/mario/grow-mario'
+import { loseMarioPower } from '../../domain/mario/lose-mario-power'
+import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
 import { addScore } from '../../domain/score/add-score'
 import { createScore } from '../../domain/score/create-score'
 import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
@@ -43,11 +51,6 @@ import type { Update } from '../game-loop/update'
 import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
-import { consumePowerUp } from '../../domain/power-up/consume-power-up'
-import { growMario } from '../../domain/mario/grow-mario'
-import { loseMarioPower } from '../../domain/mario/lose-mario-power'
-import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
-import { updatePowerUpsMovement } from '../../domain/power-up/update-power-ups-movement'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -405,11 +408,8 @@ export class GameApplication {
     this.powerUps = mushroomSpawnResult.powerUps
 
     this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
-
     this.powerUps = updatePowerUpsMovement(this.powerUps, gameTime.deltaTime)
-
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
-
     this.obstacles = removeOffscreenObstacles(this.obstacles)
 
     this.mario = resolveMarioGroundMovement(
@@ -440,7 +440,6 @@ export class GameApplication {
       }
 
       this.mario = updateMarioVerticalPosition(this.mario, gameTime.deltaTime)
-
       this.mario = landMario(this.mario, defaultGameplayConfig.physics.groundY)
     }
 
@@ -456,16 +455,17 @@ export class GameApplication {
       hasCollision,
     }
 
-    this.applyMarioPowerLoss()
+    this.resolveMarioObstacleCollision()
+
+    if (this.mario.lifeState === marioLifeState.DEAD) {
+      this.gameOver()
+    }
 
     this.collectibleCollisions = this.detectCollectibleCollisions(mario)
-
     this.collectDetectedCollectibles(this.collectibleCollisions)
 
     this.powerUpCollisions = this.detectPowerUpCollisions(mario)
-
     this.consumeDetectedPowerUps(this.powerUpCollisions)
-
     this.applyPowerUpTransformation(this.powerUpCollisions)
 
     this.update(gameTime)
@@ -475,15 +475,19 @@ export class GameApplication {
     this.render(gameTime)
   }
 
-  private applyMarioPowerLoss(): void {
-    if (!shouldLoseMarioPower(this.mario, this.collisionResult.hasCollision)) {
+  private resolveMarioObstacleCollision(): void {
+    if (shouldLoseMarioPower(this.mario, this.collisionResult.hasCollision)) {
+      this.mario = loseMarioPower(this.mario, {
+        width: defaultGameplayConfig.mario.normal.width,
+        height: defaultGameplayConfig.mario.normal.height,
+        collisionBounds: defaultGameplayConfig.mario.normal.collisionBounds,
+      })
+
       return
     }
 
-    this.mario = loseMarioPower(this.mario, {
-      width: defaultGameplayConfig.mario.normal.width,
-      height: defaultGameplayConfig.mario.normal.height,
-      collisionBounds: defaultGameplayConfig.mario.normal.collisionBounds,
-    })
+    if (shouldDieMario(this.mario, this.collisionResult.hasCollision)) {
+      this.mario = dieMario(this.mario)
+    }
   }
 }
