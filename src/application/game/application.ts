@@ -45,6 +45,8 @@ import type { Input } from '../input'
 import { Clock } from '../time/clock'
 import { consumePowerUp } from '../../domain/power-up/consume-power-up'
 import { growMario } from '../../domain/mario/grow-mario'
+import { loseMarioPower } from '../../domain/mario/lose-mario-power'
+import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -451,6 +453,8 @@ export class GameApplication {
       hasCollision,
     }
 
+    this.applyMarioPowerLoss()
+
     this.collectibleCollisions = this.detectCollectibleCollisions(mario)
 
     this.collectDetectedCollectibles(this.collectibleCollisions)
@@ -466,5 +470,17 @@ export class GameApplication {
 
   private renderSession = (gameTime: GameTime): void => {
     this.render(gameTime)
+  }
+
+  private applyMarioPowerLoss(): void {
+    if (!shouldLoseMarioPower(this.mario, this.collisionResult.hasCollision)) {
+      return
+    }
+
+    this.mario = loseMarioPower(this.mario, {
+      width: defaultGameplayConfig.mario.normal.width,
+      height: defaultGameplayConfig.mario.normal.height,
+      collisionBounds: defaultGameplayConfig.mario.normal.collisionBounds,
+    })
   }
 }
