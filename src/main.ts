@@ -2,13 +2,17 @@ import './style.css'
 
 import { GameApplication } from './application/game/application'
 import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
+import { marioPowerState } from './domain/mario/mario-power-state'
 import { createInitialMario } from './domain/mario/mario'
 import { createInitialScenario } from './domain/scenario/scenario'
 import { KeyboardInput } from './infrastructure/input/keyboard-input'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
-import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
+import {
+  createAnimatedMarioVisual,
+  type MarioVisualVariant,
+} from './presentation/mario/mario-visual'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -76,8 +80,11 @@ const gameApplication = new GameApplication(
     const animationTime =
       gameApplication.state === 'READY' ? 0 : gameTime.elapsedTime
 
+    const marioVariant: MarioVisualVariant =
+      currentMario.powerState === marioPowerState.POWERED ? 'BIG' : 'SMALL'
+
     const marioVisual = createAnimatedMarioVisual(
-      'SMALL',
+      marioVariant,
       currentMario.movementState,
       animationTime,
       animationFrameDuration,
