@@ -1065,4 +1065,53 @@ describe('GameApplication', () => {
     })
     expect(application.state).toBe('RUNNING')
   })
+
+  it('continues running after Mario loses power from an obstacle collision', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: { x: 0, y: 0 },
+      size: { width: 32, height: 32 },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: { x: 0, y: 0 },
+    }
+
+    const application = new GameApplication(
+      scheduler,
+      growMario(createMario(), {
+        width: defaultGameplayConfig.mario.powered.width,
+        height: defaultGameplayConfig.mario.powered.height,
+        collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+      }),
+      createScenario(),
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.state).toBe('RUNNING')
+
+    const positionAfterLoss = application.currentMario.position.x
+
+    scheduler.runNext(2000)
+
+    expect(application.state).toBe('RUNNING')
+    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.position.x).toBeGreaterThan(
+      positionAfterLoss,
+    )
+  })
 })
