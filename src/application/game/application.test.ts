@@ -1157,4 +1157,49 @@ describe('GameApplication', () => {
     expect(application.currentMario.powerState).toBe('NORMAL')
     expect(application.state).toBe('RUNNING')
   })
+
+  it('keeps normal Mario unchanged after an obstacle collision', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: { x: 0, y: 0 },
+      size: { width: 32, height: 32 },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: { x: 0, y: 0 },
+    }
+
+    const application = new GameApplication(
+      scheduler,
+      createMario(),
+      createScenario(),
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollision).toEqual({ hasCollision: true })
+    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.currentMario.size).toEqual({
+      width: 32,
+      height: 48,
+    })
+    expect(application.currentMario.collisionBounds).toEqual({
+      offsetX: 0,
+      offsetY: 0,
+      width: 32,
+      height: 48,
+    })
+    expect(application.state).toBe('RUNNING')
+  })
 })
