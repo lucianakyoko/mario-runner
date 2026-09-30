@@ -1114,4 +1114,47 @@ describe('GameApplication', () => {
       positionAfterLoss,
     )
   })
+
+  it('removes power from powered Mario without ending the game', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: { x: 0, y: 0 },
+      size: { width: 32, height: 32 },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: { x: 0, y: 0 },
+    }
+
+    const poweredMario = growMario(createMario(), {
+      width: defaultGameplayConfig.mario.powered.width,
+      height: defaultGameplayConfig.mario.powered.height,
+      collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+    })
+
+    const application = new GameApplication(
+      scheduler,
+      poweredMario,
+      createScenario(),
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    expect(application.currentMario.powerState).toBe('POWERED')
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollision).toEqual({ hasCollision: true })
+    expect(application.currentMario.powerState).toBe('NORMAL')
+    expect(application.state).toBe('RUNNING')
+  })
 })
