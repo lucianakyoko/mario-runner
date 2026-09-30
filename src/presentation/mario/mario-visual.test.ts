@@ -21,14 +21,14 @@ describe('createMarioVisual', () => {
   })
 
   it('supports a big Mario visual representation', () => {
-    const visual = createMarioVisual('BIG', 'RUNNING', 32, 64, 0, -16)
+    const visual = createMarioVisual('BIG', 'RUNNING', 32, 64, 0, 0)
 
     expect(visual).toEqual({
       variant: 'BIG',
       width: 32,
       height: 64,
       offsetX: 0,
-      offsetY: -16,
+      offsetY: 0,
       movementState: 'RUNNING',
     })
   })
@@ -41,13 +41,26 @@ describe('createMarioVisual', () => {
 })
 
 describe('createMarioVisualForState', () => {
-  it('creates the running representation', () => {
+  it('creates the small running representation', () => {
     const visual = createMarioVisualForState('SMALL', 'RUNNING')
 
     expect(visual).toEqual({
       variant: 'SMALL',
       width: 32,
       height: 48,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('creates the big running representation', () => {
+    const visual = createMarioVisualForState('BIG', 'RUNNING')
+
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 32,
+      height: 64,
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
@@ -67,6 +80,19 @@ describe('createMarioVisualForState', () => {
     })
   })
 
+  it('creates the big jumping representation', () => {
+    const visual = createMarioVisualForState('BIG', 'JUMPING')
+
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 34,
+      height: 64,
+      offsetX: -1,
+      offsetY: 0,
+      movementState: 'JUMPING',
+    })
+  })
+
   it('creates a distinct falling representation', () => {
     const visual = createMarioVisualForState('SMALL', 'FALLING')
 
@@ -74,6 +100,19 @@ describe('createMarioVisualForState', () => {
       variant: 'SMALL',
       width: 30,
       height: 46,
+      offsetX: 1,
+      offsetY: 2,
+      movementState: 'FALLING',
+    })
+  })
+
+  it('creates the big falling representation', () => {
+    const visual = createMarioVisualForState('BIG', 'FALLING')
+
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 30,
+      height: 62,
       offsetX: 1,
       offsetY: 2,
       movementState: 'FALLING',
@@ -93,18 +132,22 @@ describe('createMarioVisualForState', () => {
     })
   })
 
-  it('preserves the big Mario variant across movement states', () => {
+  it('creates the big crouching representation', () => {
     const visual = createMarioVisualForState('BIG', 'CROUCHING')
 
-    expect(visual.variant).toBe('BIG')
-    expect(visual.movementState).toBe('CROUCHING')
-    expect(visual.width).toBe(36)
-    expect(visual.height).toBe(32)
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 36,
+      height: 48,
+      offsetX: -2,
+      offsetY: 0,
+      movementState: 'CROUCHING',
+    })
   })
 })
 
 describe('createAnimatedMarioVisual', () => {
-  it('uses the first running frame at the beginning of the animation', () => {
+  it('uses the first small running frame at the beginning of the animation', () => {
     const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0, 0.1)
 
     expect(visual).toEqual({
@@ -117,13 +160,39 @@ describe('createAnimatedMarioVisual', () => {
     })
   })
 
-  it('switches to the second running frame after one frame duration', () => {
+  it('uses the first big running frame at the beginning of the animation', () => {
+    const visual = createAnimatedMarioVisual('BIG', 'RUNNING', 0, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 32,
+      height: 64,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('switches to the second small running frame after one frame duration', () => {
     const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0.1, 0.1)
 
     expect(visual).toEqual({
       variant: 'SMALL',
       width: 34,
       height: 46,
+      offsetX: -1,
+      offsetY: 2,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('switches to the second big running frame after one frame duration', () => {
+    const visual = createAnimatedMarioVisual('BIG', 'RUNNING', 0.1, 0.1)
+
+    expect(visual).toEqual({
+      variant: 'BIG',
+      width: 34,
+      height: 62,
       offsetX: -1,
       offsetY: 2,
       movementState: 'RUNNING',
