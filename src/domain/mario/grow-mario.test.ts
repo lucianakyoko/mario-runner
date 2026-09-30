@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { growMario } from './grow-mario'
 import { marioPowerState } from './mario-power-state'
 import type { Mario } from './mario'
+import { marioLifeState } from './mario-life-state'
 
 const poweredConfig = {
   width: 32,
@@ -17,7 +18,7 @@ const poweredConfig = {
 
 const createMario = (): Mario => ({
   position: {
-    x: 100,
+    x: 0,
     y: 0,
   },
   velocity: {
@@ -29,13 +30,14 @@ const createMario = (): Mario => ({
     height: 48,
   },
   collisionBounds: {
-    offsetX: 2,
-    offsetY: 2,
-    width: 28,
-    height: 44,
+    offsetX: 0,
+    offsetY: 0,
+    width: 32,
+    height: 48,
   },
   movementState: 'RUNNING',
-  powerState: marioPowerState.NORMAL,
+  powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

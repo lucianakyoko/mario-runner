@@ -15,6 +15,7 @@ import type {
 import { GameApplication } from './application'
 import type { Collectible } from '../../domain/collectible/collectible'
 import { growMario } from '../../domain/mario/grow-mario'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -88,6 +89,7 @@ const createMario = (): Mario => ({
   },
   movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { loseMarioPower } from './lose-mario-power'
 import { marioPowerState } from './mario-power-state'
 import type { Mario } from './mario'
+import { marioLifeState } from './mario-life-state'
 
 const normalConfig = {
   width: 32,
@@ -17,7 +18,7 @@ const normalConfig = {
 
 const createPoweredMario = (): Mario => ({
   position: {
-    x: 100,
+    x: 0,
     y: 0,
   },
   velocity: {
@@ -36,6 +37,7 @@ const createPoweredMario = (): Mario => ({
   },
   movementState: 'RUNNING',
   powerState: marioPowerState.POWERED,
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

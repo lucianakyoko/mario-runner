@@ -11,6 +11,7 @@ import type {
 } from '../game-loop/frame-scheduler'
 import type { Input } from '../input'
 import { GameApplication } from './application'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -80,6 +81,7 @@ const createMario = (): Mario => ({
   },
   movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

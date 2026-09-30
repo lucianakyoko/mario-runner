@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { Mario } from './mario'
 import { updateMarioVerticalMovement } from './update-mario-vertical-movement'
+import { marioLifeState } from './mario-life-state'
 
 const createMario = (): Mario => ({
   position: {
-    x: 100,
-    y: 200,
+    x: 0,
+    y: 0,
   },
   velocity: {
     x: 280,
@@ -24,6 +25,7 @@ const createMario = (): Mario => ({
   },
   movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

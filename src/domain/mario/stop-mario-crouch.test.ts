@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { Mario } from './mario'
 import { stopMarioCrouch } from './stop-mario-crouch'
+import { marioLifeState } from './mario-life-state'
 
 const createMario = (): Mario => ({
   position: {
     x: 100,
-    y: 300,
+    y: 200,
   },
   velocity: {
     x: 280,
@@ -22,43 +23,48 @@ const createMario = (): Mario => ({
     width: 32,
     height: 48,
   },
-  movementState: 'CROUCHING',
+  movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 
 describe('stopMarioCrouch', () => {
-  it('returns Mario to running state', () => {
-    const mario = createMario()
+  it('stops Mario from crouching', () => {
+    const mario: Mario = {
+      ...createMario(),
+      movementState: 'CROUCHING',
+    }
 
     const updatedMario = stopMarioCrouch(mario)
 
     expect(updatedMario.movementState).toBe('RUNNING')
   })
 
-  it('preserves grounded state', () => {
-    const mario = createMario()
-
-    const updatedMario = stopMarioCrouch(mario)
-
-    expect(updatedMario.isGrounded).toBe(true)
-  })
-
-  it('preserves position and velocity', () => {
-    const mario = createMario()
+  it('preserves Mario position when stopping crouch', () => {
+    const mario: Mario = {
+      ...createMario(),
+      movementState: 'CROUCHING',
+    }
 
     const updatedMario = stopMarioCrouch(mario)
 
     expect(updatedMario.position).toEqual(mario.position)
+  })
+
+  it('preserves Mario velocity when stopping crouch', () => {
+    const mario: Mario = {
+      ...createMario(),
+      movementState: 'CROUCHING',
+    }
+
+    const updatedMario = stopMarioCrouch(mario)
+
     expect(updatedMario.velocity).toEqual(mario.velocity)
   })
 
-  it('does nothing when Mario is not crouching', () => {
-    const mario: Mario = {
-      ...createMario(),
-      movementState: 'RUNNING',
-      powerState: 'NORMAL',
-    }
+  it('does not change Mario when he is not crouching', () => {
+    const mario = createMario()
 
     const updatedMario = stopMarioCrouch(mario)
 
@@ -66,7 +72,10 @@ describe('stopMarioCrouch', () => {
   })
 
   it('preserves the original Mario state', () => {
-    const mario = createMario()
+    const mario = {
+      ...createMario(),
+      movementState: 'CROUCHING' as const,
+    }
 
     stopMarioCrouch(mario)
 

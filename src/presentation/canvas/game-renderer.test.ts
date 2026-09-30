@@ -6,18 +6,19 @@ import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 import type { Scenario } from '../../domain/scenario/scenario'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
 
 const createMario = (): Mario => ({
   position: {
-    x: 120,
-    y: 40,
+    x: 0,
+    y: 0,
   },
   velocity: {
     x: 280,
-    y: -680,
+    y: 0,
   },
   size: {
     width: 32,
@@ -29,9 +30,10 @@ const createMario = (): Mario => ({
     width: 32,
     height: 48,
   },
-  movementState: 'JUMPING',
+  movementState: 'RUNNING',
   powerState: 'NORMAL',
-  isGrounded: false,
+  lifeState: marioLifeState.ALIVE,
+  isGrounded: true,
 })
 
 const createScenario = (): Scenario => ({
@@ -187,7 +189,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      292,
+      252,
       marioVisual.width,
       marioVisual.height,
     )
@@ -206,7 +208,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      276,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -229,7 +231,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual)
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(199, 276, 34, 64)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(199, 236, 34, 64)
   })
 
   it('renders Mario according to the current scenario ground', () => {
@@ -245,7 +247,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      252,
+      212,
       marioVisual.width,
       marioVisual.height,
     )
@@ -265,7 +267,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       199,
-      292,
+      252,
       marioVisual.width,
       marioVisual.height,
     )
@@ -365,7 +367,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       199,
-      292,
+      252,
       marioVisual.width,
       marioVisual.height,
     )
@@ -414,7 +416,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 268, 32, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 268, 32, 32)
   })
 
   it('renders a tall ground obstacle using its visual dimensions', () => {
@@ -427,7 +429,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 252, 32, 48)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 252, 32, 48)
   })
 
   it('renders ground obstacles according to their world position', () => {
@@ -440,7 +442,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(380, 268, 32, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(500, 268, 32, 32)
   })
 
   it('does not change obstacles when rendering', () => {
@@ -470,7 +472,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 212, 32, 24)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 212, 32, 24)
   })
 
   it('renders a coin according to its world position and size', () => {
@@ -483,7 +485,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [], [coin])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(280, 228, 24, 24)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 228, 24, 24)
   })
 
   it('renders obstacles between the ground and Mario', () => {
@@ -502,7 +504,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
-      280,
+      400,
       268,
       32,
       32,
@@ -511,7 +513,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       4,
       199,
-      292,
+      252,
       marioVisual.width,
       marioVisual.height,
     )

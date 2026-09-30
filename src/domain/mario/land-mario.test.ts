@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Mario } from './mario'
 import { landMario } from './land-mario'
+import { marioLifeState } from './mario-life-state'
 
 const createMario = (positionY: number): Mario => ({
   position: {
@@ -10,7 +11,7 @@ const createMario = (positionY: number): Mario => ({
   },
   velocity: {
     x: 280,
-    y: 400,
+    y: 0,
   },
   size: {
     width: 32,
@@ -22,14 +23,25 @@ const createMario = (positionY: number): Mario => ({
     width: 32,
     height: 48,
   },
-  movementState: 'FALLING',
+  movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
+  isGrounded: true,
+})
+
+const createFallingMario = (positionY: number): Mario => ({
+  ...createMario(positionY),
+  velocity: {
+    x: 280,
+    y: 400,
+  },
+  movementState: 'FALLING',
   isGrounded: false,
 })
 
 describe('landMario', () => {
   it('places Mario exactly on the ground', () => {
-    const mario = createMario(300)
+    const mario = createFallingMario(300)
 
     const updatedMario = landMario(mario, 300)
 
@@ -40,7 +52,7 @@ describe('landMario', () => {
   })
 
   it('prevents Mario from remaining below the ground', () => {
-    const mario = createMario(320)
+    const mario = createFallingMario(320)
 
     const updatedMario = landMario(mario, 300)
 
@@ -49,7 +61,7 @@ describe('landMario', () => {
   })
 
   it('does not land Mario while he is above the ground', () => {
-    const mario = createMario(250)
+    const mario = createFallingMario(250)
 
     const updatedMario = landMario(mario, 300)
 
@@ -57,7 +69,7 @@ describe('landMario', () => {
   })
 
   it('preserves horizontal movement when landing', () => {
-    const mario = createMario(300)
+    const mario = createFallingMario(300)
 
     const updatedMario = landMario(mario, 300)
 
@@ -65,7 +77,7 @@ describe('landMario', () => {
   })
 
   it('preserves the original Mario state', () => {
-    const mario = createMario(320)
+    const mario = createFallingMario(320)
 
     landMario(mario, 300)
 

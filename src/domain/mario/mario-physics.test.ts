@@ -4,6 +4,7 @@ import type { Mario } from './mario'
 import { landMario } from './land-mario'
 import { startMarioJump } from './start-mario-jump'
 import { updateMarioVerticalMovement } from './update-mario-vertical-movement'
+import { marioLifeState } from './mario-life-state'
 
 const gravity = 1800
 const jumpForce = 680
@@ -11,8 +12,8 @@ const groundY = 300
 
 const createMario = (): Mario => ({
   position: {
-    x: 100,
-    y: groundY,
+    x: 0,
+    y: 0,
   },
   velocity: {
     x: 280,
@@ -30,6 +31,7 @@ const createMario = (): Mario => ({
   },
   movementState: 'RUNNING',
   powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 

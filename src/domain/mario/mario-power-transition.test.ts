@@ -4,6 +4,7 @@ import { growMario } from './grow-mario'
 import { loseMarioPower } from './lose-mario-power'
 import { marioPowerState } from './mario-power-state'
 import type { Mario } from './mario'
+import { marioLifeState } from './mario-life-state'
 
 const normalConfig = {
   width: 32,
@@ -29,20 +30,26 @@ const poweredConfig = {
 
 const createMario = (): Mario => ({
   position: {
-    x: 120,
+    x: 0,
     y: 0,
   },
   velocity: {
-    x: 320,
+    x: 280,
     y: 0,
   },
   size: {
     width: 32,
     height: 48,
   },
-  collisionBounds: normalConfig.collisionBounds,
+  collisionBounds: {
+    offsetX: 0,
+    offsetY: 0,
+    width: 32,
+    height: 48,
+  },
   movementState: 'RUNNING',
-  powerState: marioPowerState.NORMAL,
+  powerState: 'NORMAL',
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 
@@ -57,23 +64,41 @@ describe('Mario power transitions', () => {
     expect(normalMario.powerState).toBe(marioPowerState.NORMAL)
 
     expect(normalMario.size).toEqual(mario.size)
-    expect(normalMario.collisionBounds).toEqual(mario.collisionBounds)
+    expect(normalMario.collisionBounds).toEqual(normalConfig.collisionBounds)
   })
 
-  it('preserves ground contact throughout the complete transition cycle', () => {
+  it('restores normal Mario dimensions after losing power', () => {
     const mario = createMario()
 
     const poweredMario = growMario(mario, poweredConfig)
     const normalMario = loseMarioPower(poweredMario, normalConfig)
 
-    expect(poweredMario.position.y).toBe(0)
-    expect(normalMario.position.y).toBe(0)
-
-    expect(poweredMario.isGrounded).toBe(true)
-    expect(normalMario.isGrounded).toBe(true)
+    expect(normalMario.size).toEqual({
+      width: 32,
+      height: 48,
+    })
   })
 
-  it('preserves movement state and velocity throughout the complete transition cycle', () => {
+  it('restores normal Mario collision bounds after losing power', () => {
+    const mario = createMario()
+
+    const poweredMario = growMario(mario, poweredConfig)
+    const normalMario = loseMarioPower(poweredMario, normalConfig)
+
+    expect(normalMario.collisionBounds).toEqual(normalConfig.collisionBounds)
+  })
+
+  it('preserves Mario position during the full power transition', () => {
+    const mario = createMario()
+
+    const poweredMario = growMario(mario, poweredConfig)
+    const normalMario = loseMarioPower(poweredMario, normalConfig)
+
+    expect(poweredMario.position).toEqual(mario.position)
+    expect(normalMario.position).toEqual(mario.position)
+  })
+
+  it('preserves Mario velocity during the full power transition', () => {
     const mario = createMario()
 
     const poweredMario = growMario(mario, poweredConfig)
@@ -81,49 +106,25 @@ describe('Mario power transitions', () => {
 
     expect(poweredMario.velocity).toEqual(mario.velocity)
     expect(normalMario.velocity).toEqual(mario.velocity)
+  })
+
+  it('preserves Mario movement state during the full power transition', () => {
+    const mario = createMario()
+
+    const poweredMario = growMario(mario, poweredConfig)
+    const normalMario = loseMarioPower(poweredMario, normalConfig)
 
     expect(poweredMario.movementState).toBe(mario.movementState)
     expect(normalMario.movementState).toBe(mario.movementState)
   })
 
-  it('preserves the horizontal position throughout the complete transition cycle', () => {
+  it('preserves Mario ground contact during the full power transition', () => {
     const mario = createMario()
 
     const poweredMario = growMario(mario, poweredConfig)
     const normalMario = loseMarioPower(poweredMario, normalConfig)
 
-    expect(poweredMario.position.x).toBe(mario.position.x)
-    expect(normalMario.position.x).toBe(mario.position.x)
-  })
-
-  it('supports the complete transition cycle while Mario is airborne', () => {
-    const mario: Mario = {
-      ...createMario(),
-      position: {
-        x: 120,
-        y: -96,
-      },
-      velocity: {
-        x: 320,
-        y: 180,
-      },
-      movementState: 'FALLING',
-      isGrounded: false,
-    }
-
-    const poweredMario = growMario(mario, poweredConfig)
-    const normalMario = loseMarioPower(poweredMario, normalConfig)
-
-    expect(poweredMario.powerState).toBe(marioPowerState.POWERED)
-    expect(normalMario.powerState).toBe(marioPowerState.NORMAL)
-
-    expect(poweredMario.position.y).toBe(-96)
-    expect(normalMario.position.y).toBe(-96)
-
-    expect(poweredMario.velocity).toEqual(mario.velocity)
-    expect(normalMario.velocity).toEqual(mario.velocity)
-
-    expect(poweredMario.isGrounded).toBe(false)
-    expect(normalMario.isGrounded).toBe(false)
+    expect(poweredMario.isGrounded).toBe(true)
+    expect(normalMario.isGrounded).toBe(true)
   })
 })

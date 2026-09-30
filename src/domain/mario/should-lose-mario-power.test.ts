@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Mario } from './mario'
 import { shouldLoseMarioPower } from './should-lose-mario-power'
+import { marioLifeState } from './mario-life-state'
 
 const createMario = (powerState: Mario['powerState']): Mario => ({
   position: {
@@ -24,6 +25,7 @@ const createMario = (powerState: Mario['powerState']): Mario => ({
   },
   movementState: 'RUNNING',
   powerState,
+  lifeState: marioLifeState.ALIVE,
   isGrounded: true,
 })
 
