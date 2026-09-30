@@ -47,6 +47,37 @@ describe('dieMario', () => {
     expect(deadMario.powerState).toBe(marioPowerState.POWERED)
   })
 
+  it('preserves Mario movement state when he dies', () => {
+    const mario = createMario()
+
+    const deadMario = dieMario(mario)
+
+    expect(deadMario.movementState).toBe('FALLING')
+  })
+
+  it('allows dead Mario to remain powered', () => {
+    const mario = createMario()
+
+    const deadMario = dieMario(mario)
+
+    expect(deadMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(deadMario.powerState).toBe(marioPowerState.POWERED)
+  })
+
+  it('allows dead Mario to remain in a non-running movement state', () => {
+    const mario: Mario = {
+      ...createMario(),
+      movementState: 'CROUCHING',
+      isGrounded: true,
+    }
+
+    const deadMario = dieMario(mario)
+
+    expect(deadMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(deadMario.movementState).toBe('CROUCHING')
+    expect(deadMario.isGrounded).toBe(true)
+  })
+
   it('preserves Mario gameplay state when he dies', () => {
     const mario = createMario()
 
