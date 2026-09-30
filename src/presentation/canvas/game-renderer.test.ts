@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { Collectible } from '../../domain/collectible/collectible'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
@@ -8,7 +9,6 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
-import type { Collectible } from '../../domain/collectible/collectible'
 
 const createMario = (): Mario => ({
   position: {
@@ -51,6 +51,15 @@ const createMarioVisual = (): MarioVisual => ({
   variant: 'SMALL',
   width: 34,
   height: 48,
+  offsetX: -1,
+  offsetY: 0,
+  movementState: 'JUMPING',
+})
+
+const createBigMarioVisual = (): MarioVisual => ({
+  variant: 'BIG',
+  width: 34,
+  height: 64,
   offsetX: -1,
   offsetY: 0,
   movementState: 'JUMPING',
@@ -182,6 +191,45 @@ describe('GameRenderer', () => {
       marioVisual.width,
       marioVisual.height,
     )
+  })
+
+  it('renders powered Mario using the provided big visual dimensions', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createBigMarioVisual()
+
+    mario.powerState = 'POWERED'
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(
+      199,
+      276,
+      marioVisual.width,
+      marioVisual.height,
+    )
+  })
+
+  it('renders Mario using visual dimensions independently from collision bounds', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createBigMarioVisual()
+
+    mario.powerState = 'POWERED'
+    mario.collisionBounds = {
+      offsetX: 4,
+      offsetY: 6,
+      width: 24,
+      height: 52,
+    }
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(199, 276, 34, 64)
   })
 
   it('renders Mario according to the current scenario ground', () => {
