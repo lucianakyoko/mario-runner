@@ -33,6 +33,19 @@ describe('createMarioVisual', () => {
     })
   })
 
+  it('supports a dead Mario visual representation', () => {
+    const visual = createMarioVisual('DEAD', 'RUNNING', 32, 48, 0, 0)
+
+    expect(visual).toEqual({
+      variant: 'DEAD',
+      width: 32,
+      height: 48,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
   it('preserves the movement state', () => {
     const visual = createMarioVisual('SMALL', 'CROUCHING', 32, 48, 0, 0)
 
@@ -61,6 +74,19 @@ describe('createMarioVisualForState', () => {
       variant: 'BIG',
       width: 32,
       height: 64,
+      offsetX: 0,
+      offsetY: 0,
+      movementState: 'RUNNING',
+    })
+  })
+
+  it('preserves the dead variant in the running representation', () => {
+    const visual = createMarioVisualForState('DEAD', 'RUNNING')
+
+    expect(visual).toEqual({
+      variant: 'DEAD',
+      width: 32,
+      height: 48,
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
