@@ -231,6 +231,10 @@ export class GameApplication {
     this.mario = createInitialMario(this.initialMarioConfig)
     this.scenario = createInitialScenario(this.initialScenarioConfig)
 
+    this.obstacles = []
+    this.coins = []
+    this.powerUps = []
+
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.powerUpCollisions = []

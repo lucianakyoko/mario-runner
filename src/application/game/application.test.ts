@@ -682,6 +682,123 @@ describe('GameApplication', () => {
     })
   })
 
+  it('clears all collision state when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const coin: Collectible = {
+      id: 'coin-1',
+      type: 'coin',
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 24,
+        height: 24,
+      },
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 2,
+        width: 20,
+        height: 20,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+      isCollected: false,
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [],
+      [coin],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentCollectibleCollisions).toEqual([coin])
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.currentCollision).toEqual({
+      hasCollision: false,
+    })
+    expect(application.currentCollectibleCollisions).toEqual([])
+    expect(application.currentPowerUpCollisions).toEqual([])
+  })
+
+  it('fully resets gameplay state when restarting after progress', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle = createObstacle()
+
+    const coin: Collectible = {
+      id: 'coin-1',
+      type: 'coin',
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 24,
+        height: 24,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 24,
+        height: 24,
+      },
+      velocity: {
+        x: -280,
+        y: 0,
+      },
+      isCollected: false,
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+      [coin],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentScore.value).toBe(1)
+    expect(application.currentCoins).toEqual([])
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario).toEqual(createMario())
+    expect(application.currentScenario).toEqual(createScenario())
+    expect(application.currentScore.value).toBe(0)
+    expect(application.currentLevel).toBe(
+      calculateLevel({
+        score: 0,
+        pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
+      }),
+    )
+    expect(application.currentObstacles).toEqual([])
+    expect(application.currentCoins).toEqual([])
+    expect(application.currentCollision).toEqual({
+      hasCollision: false,
+    })
+    expect(application.currentCollectibleCollisions).toEqual([])
+    expect(application.currentPowerUpCollisions).toEqual([])
+  })
+
   it('does not start the session when crouch is active in READY', () => {
     const scheduler = new FakeFrameScheduler()
     const input = new FakeInput()
