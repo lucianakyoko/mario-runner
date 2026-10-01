@@ -16,6 +16,7 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
+import { calculateLevel } from '../../domain/progression/calculate-level'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -633,6 +634,24 @@ describe('GameApplication', () => {
 
     expect(application.state).toBe('READY')
     expect(application.currentMario).toEqual(createMario())
+  })
+
+  it('resets score and level when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.currentScore.value).toBe(0)
+    expect(application.currentLevel).toBe(
+      calculateLevel({
+        score: 0,
+        pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
+      }),
+    )
   })
 
   it('does not start the session when crouch is active in READY', () => {
