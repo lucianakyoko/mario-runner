@@ -68,4 +68,16 @@ describe('SeededRandom', () => {
 
     expect(firstSequence).not.toEqual(secondSequence)
   })
+
+  it('resets the sequence to the initial seed', () => {
+    const random = new SeededRandom(123)
+
+    const firstSequence = Array.from({ length: 10 }, () => random.next())
+
+    random.reset()
+
+    const secondSequence = Array.from({ length: 10 }, () => random.next())
+
+    expect(secondSequence).toEqual(firstSequence)
+  })
 })

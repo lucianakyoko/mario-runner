@@ -158,6 +158,13 @@ export class GameApplication {
       nextSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
     }
 
+    this.nextObstacleId = 1
+    this.nextCoinId = 1
+    this.nextMedalId = 1
+    this.nextMushroomId = 1
+
+    this.random.reset()
+
     this.gameLoop = new GameLoop(
       clock,
       scheduler,
@@ -223,14 +230,39 @@ export class GameApplication {
   restart(): void {
     this.mario = createInitialMario(this.initialMarioConfig)
     this.scenario = createInitialScenario(this.initialScenarioConfig)
+
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.powerUpCollisions = []
+
     this.score = createScore()
     this.level = calculateLevel({
       score: this.score.value,
       pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
     })
+
+    this.spawnState = {
+      distanceSinceLastSpawn: 0,
+      nextSpawnDistance: defaultGameplayConfig.spawn.obstacleMinDistance,
+    }
+
+    this.collectibleSpawnState = {
+      distanceSinceLastSpawn: 0,
+      nextSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
+    }
+
+    this.powerUpSpawnState = {
+      distanceSinceLastSpawn: 0,
+      nextSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
+    }
+
+    this.nextObstacleId = 1
+    this.nextCoinId = 1
+    this.nextMedalId = 1
+    this.nextMushroomId = 1
+
+    this.random.reset()
+
     this.stateMachine.transitionTo('READY')
   }
 

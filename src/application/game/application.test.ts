@@ -654,6 +654,34 @@ describe('GameApplication', () => {
     )
   })
 
+  it('resets spawn state, entity ids, and random sequence when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2000)
+
+    expect(application.currentObstacles).toEqual([])
+
+    application.gameOver()
+    application.restart()
+    application.start()
+
+    scheduler.runNext(3000)
+
+    expect(application.currentObstacles).toEqual([])
+
+    scheduler.runNext(5000)
+
+    expect(application.currentObstacles).toHaveLength(1)
+    expect(application.currentObstacles[0]).toMatchObject({
+      id: 'obstacle-1',
+      type: 'GROUND_TALL',
+    })
+  })
+
   it('does not start the session when crouch is active in READY', () => {
     const scheduler = new FakeFrameScheduler()
     const input = new FakeInput()

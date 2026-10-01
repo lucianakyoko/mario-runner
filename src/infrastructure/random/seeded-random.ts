@@ -5,10 +5,16 @@ const INCREMENT = 1013904223
 const MODULUS = 2 ** 32
 
 export class SeededRandom implements Random {
+  private readonly seed: number
   private state: number
 
   constructor(seed: number) {
+    this.seed = seed
     this.state = seed >>> 0
+  }
+
+  reset(): void {
+    this.state = this.seed >>> 0
   }
 
   next(): number {
