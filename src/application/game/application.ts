@@ -11,7 +11,11 @@ import { createCollectibleCollidable } from '../../domain/collectible/create-col
 import { updateCollectiblesMovement } from '../../domain/collectible/update-collectibles-movement'
 import { calculateLevel } from '../../domain/progression/calculate-level'
 import { dieMario } from '../../domain/mario/die-mario'
-import type { Mario } from '../../domain/mario/mario'
+import {
+  createInitialMario,
+  type InitialMarioConfig,
+  type Mario,
+} from '../../domain/mario/mario'
 import { getMarioCollisionBounds } from '../../domain/mario/mario'
 import { landMario } from '../../domain/mario/land-mario'
 import { marioLifeState } from '../../domain/mario/mario-life-state'
@@ -60,6 +64,7 @@ export class GameApplication {
   private readonly render: Render
   private readonly random: SeededRandom
   private readonly initialDifficulty: Difficulty
+  private readonly initialMarioConfig: InitialMarioConfig
 
   private mario: Mario
   private scenario: Scenario
@@ -111,6 +116,15 @@ export class GameApplication {
       pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
     })
     this.random = new SeededRandom(1)
+
+    this.initialMarioConfig = {
+      width: mario.size.width,
+      height: mario.size.height,
+      initialX: mario.position.x,
+      groundY: mario.position.y,
+      initialSpeed: mario.velocity.x,
+      collisionBounds: mario.collisionBounds,
+    }
 
     this.initialDifficulty = {
       obstacleSpeed: defaultGameplayConfig.scenario.speed,
@@ -196,6 +210,7 @@ export class GameApplication {
   }
 
   restart(): void {
+    this.mario = createInitialMario(this.initialMarioConfig)
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.powerUpCollisions = []
@@ -345,13 +360,13 @@ export class GameApplication {
       coinConfig: defaultGameplayConfig.coin,
       medalConfig: defaultGameplayConfig.medal,
       spawnX,
+      velocityX: -difficulty.obstacleSpeed,
+      minSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
+      maxSpawnDistance: defaultGameplayConfig.spawn.collectibleMaxDistance,
       collectibleIds: {
         [collectibleTypes.COIN]: `coin-${this.nextCoinId}`,
         [collectibleTypes.MEDAL]: `medal-${this.nextMedalId}`,
       },
-      velocityX: -difficulty.obstacleSpeed,
-      minSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
-      maxSpawnDistance: defaultGameplayConfig.spawn.collectibleMaxDistance,
     })
 
     if (collectibleSpawnResult.collectibles.length > this.coins.length) {

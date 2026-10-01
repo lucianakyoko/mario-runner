@@ -607,6 +607,20 @@ describe('GameApplication', () => {
     expect(application.state).toBe('READY')
   })
 
+  it('resets Mario to the initial state when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario).toEqual(createMario())
+  })
+
   it('does not start the session when crouch is active in READY', () => {
     const scheduler = new FakeFrameScheduler()
     const input = new FakeInput()
