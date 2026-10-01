@@ -1,6 +1,6 @@
 import type { MarioMovementState } from '../../domain/mario/mario-movement-state'
 
-export type MarioVisualVariant = 'SMALL' | 'BIG'
+export type MarioVisualVariant = 'SMALL' | 'BIG' | 'DEAD'
 
 export interface MarioVisual {
   variant: MarioVisualVariant

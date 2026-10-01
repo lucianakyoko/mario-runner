@@ -77,7 +77,10 @@ const gameApplication = new GameApplication(
     const animationTime =
       gameApplication.state === 'READY' ? 0 : gameTime.elapsedTime
 
-    const marioVariant = selectMarioVisualVariant(currentMario.powerState)
+    const marioVariant = selectMarioVisualVariant(
+      currentMario.lifeState,
+      currentMario.powerState,
+    )
 
     const marioVisual = createAnimatedMarioVisual(
       marioVariant,
