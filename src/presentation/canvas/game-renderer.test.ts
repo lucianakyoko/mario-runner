@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { Collectible } from '../../domain/collectible/collectible'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
+import { marioLifeState } from '../../domain/mario/mario-life-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 import type { Scenario } from '../../domain/scenario/scenario'
-import { marioLifeState } from '../../domain/mario/mario-life-state'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
@@ -100,6 +100,9 @@ const createSurface = (): CanvasSurface => {
     fillText: vi.fn(),
     fillRect: vi.fn(),
     fillStyle: '',
+    font: '',
+    textAlign: 'left',
+    textBaseline: 'top',
   } as unknown as CanvasRenderingContext2D
 
   const canvas = {
@@ -486,6 +489,62 @@ describe('GameRenderer', () => {
     renderer.render('RUNNING', scenario, mario, marioVisual, [], [coin])
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(400, 228, 24, 24)
+  })
+
+  it('renders Game Over feedback when the game state is GAME_OVER', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+
+    renderer.render('GAME_OVER', scenario, mario, marioVisual)
+
+    expect(surface.context.fillText).toHaveBeenCalledWith('GAME OVER', 400, 134)
+    expect(surface.context.fillText).toHaveBeenCalledWith(
+      'PRESS RESTART',
+      400,
+      174,
+    )
+  })
+
+  it('does not render Game Over feedback while the game is running', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillText).not.toHaveBeenCalledWith(
+      'GAME OVER',
+      400,
+      134,
+    )
+    expect(surface.context.fillText).not.toHaveBeenCalledWith(
+      'PRESS RESTART',
+      400,
+      174,
+    )
+  })
+
+  it('uses the resolved game state instead of Mario life state for Game Over feedback', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+
+    mario.lifeState = marioLifeState.DEAD
+
+    renderer.render('RUNNING', scenario, mario, marioVisual)
+
+    expect(surface.context.fillText).not.toHaveBeenCalledWith(
+      'GAME OVER',
+      400,
+      134,
+    )
   })
 
   it('renders obstacles between the ground and Mario', () => {

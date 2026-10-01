@@ -5,6 +5,7 @@ import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
 import type { Scenario } from '../../domain/scenario/scenario'
+import { createGameOverVisual } from '../game-over/game-over-visual'
 import type { MarioVisual } from '../mario/mario-visual'
 import type { ObstacleVisual } from '../obstacle/obstacle-visual'
 import { CanvasSurface } from './canvas-surface'
@@ -17,6 +18,9 @@ const GROUND_TALL_COLOR = '#006400'
 const AIR_COLOR = '#B22222'
 const COIN_COLOR = '#FFD700'
 const MEDAL_COLOR = '#C0C0C0'
+const GAME_OVER_TITLE_FONT = 'bold 32px monospace'
+const GAME_OVER_INSTRUCTION_FONT = '16px monospace'
+const GAME_OVER_TEXT_COLOR = '#000000'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
@@ -45,6 +49,7 @@ export class GameRenderer {
     this.renderCollectibles(coins, mario, scenario)
     this.renderHud(state, score, level)
     this.renderMario(mario, marioVisual, scenario)
+    this.renderGameOver(state)
   }
 
   private renderBackground(scenario: Scenario): void {
@@ -124,6 +129,27 @@ export class GameRenderer {
     context.fillText(`STATE: ${this.getStateLabel(state)}`, 16, 16)
     context.fillText(`SCORE: ${score}`, 16, 36)
     context.fillText(`LEVEL: ${level}`, 16, 56)
+  }
+
+  private renderGameOver(state: GameState): void {
+    if (state !== 'GAME_OVER') {
+      return
+    }
+
+    const { element, context } = this.surface
+    const visual = createGameOverVisual()
+    const centerX = element.width / 2
+    const centerY = element.height / 2
+
+    context.fillStyle = GAME_OVER_TEXT_COLOR
+    context.textAlign = 'center'
+    context.textBaseline = 'middle'
+
+    context.font = GAME_OVER_TITLE_FONT
+    context.fillText(visual.title, centerX, centerY - 16)
+
+    context.font = GAME_OVER_INSTRUCTION_FONT
+    context.fillText(visual.instruction, centerX, centerY + 24)
   }
 
   private getCollectibleColor(collectible: Collectible): string {
