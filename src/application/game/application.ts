@@ -39,7 +39,11 @@ import { addScore } from '../../domain/score/add-score'
 import { createScore } from '../../domain/score/create-score'
 import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
 import type { Score } from '../../domain/score/score'
-import type { Scenario } from '../../domain/scenario/scenario'
+import {
+  createInitialScenario,
+  type InitialScenarioConfig,
+  type Scenario,
+} from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
 import { spawnMushroom } from '../../domain/spawn/spawn-mushroom'
@@ -65,6 +69,7 @@ export class GameApplication {
   private readonly random: SeededRandom
   private readonly initialDifficulty: Difficulty
   private readonly initialMarioConfig: InitialMarioConfig
+  private readonly initialScenarioConfig: InitialScenarioConfig
 
   private mario: Mario
   private scenario: Scenario
@@ -124,6 +129,12 @@ export class GameApplication {
       groundY: mario.position.y,
       initialSpeed: mario.velocity.x,
       collisionBounds: mario.collisionBounds,
+    }
+
+    this.initialScenarioConfig = {
+      id: scenario.id,
+      backgroundId: scenario.background.id,
+      groundY: scenario.ground.y,
     }
 
     this.initialDifficulty = {
@@ -211,6 +222,7 @@ export class GameApplication {
 
   restart(): void {
     this.mario = createInitialMario(this.initialMarioConfig)
+    this.scenario = createInitialScenario(this.initialScenarioConfig)
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.powerUpCollisions = []

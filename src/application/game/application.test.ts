@@ -607,6 +607,20 @@ describe('GameApplication', () => {
     expect(application.state).toBe('READY')
   })
 
+  it('resets the scenario to the initial state when restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+    const application = createApplication(scheduler)
+
+    application.start()
+    scheduler.runNext(1000)
+
+    application.gameOver()
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(application.currentScenario).toEqual(createScenario())
+  })
+
   it('resets Mario to the initial state when restarting', () => {
     const scheduler = new FakeFrameScheduler()
     const application = createApplication(scheduler)
