@@ -25,7 +25,18 @@ app.innerHTML = `
         width="800"
         height="300"
         aria-label="Mario Runner"
+        aria-describedby="game-status"
       ></canvas>
+
+      <p
+        id="game-status"
+        class="visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        READY
+      </p>
     </section>
 
     <section aria-label="Information">
@@ -38,6 +49,12 @@ const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')
 
 if (!canvas) {
   throw new Error('Game canvas element not found.')
+}
+
+const gameStatus = document.querySelector<HTMLParagraphElement>('#game-status')
+
+if (!gameStatus) {
+  throw new Error('Game status element not found.')
 }
 
 const surface = new CanvasSurface(canvas)
@@ -65,6 +82,12 @@ const scenario = createInitialScenario({
 const animationFrameDuration =
   defaultGameplayConfig.animation.defaultFrameDuration / 1000
 
+const prefersReducedMotion = window.matchMedia(
+  '(prefers-reduced-motion: reduce)',
+).matches
+
+let previousGameState: string | undefined
+
 const gameApplication = new GameApplication(
   scheduler,
   mario,
@@ -74,8 +97,21 @@ const gameApplication = new GameApplication(
   (gameTime) => {
     const currentMario = gameApplication.currentMario
     const currentScenario = gameApplication.currentScenario
+    const currentState = gameApplication.state
+
+    if (currentState !== previousGameState) {
+      gameStatus.textContent =
+        currentState === 'GAME_OVER'
+          ? 'GAME OVER — PRESS RESTART'
+          : currentState
+
+      previousGameState = currentState
+    }
+
     const animationTime =
-      gameApplication.state === 'READY' ? 0 : gameTime.elapsedTime
+      currentState === 'READY' || prefersReducedMotion
+        ? 0
+        : gameTime.elapsedTime
 
     const marioVariant = selectMarioVisualVariant(
       currentMario.lifeState,
@@ -90,7 +126,7 @@ const gameApplication = new GameApplication(
     )
 
     renderer.render(
-      gameApplication.state,
+      currentState,
       currentScenario,
       currentMario,
       marioVisual,
