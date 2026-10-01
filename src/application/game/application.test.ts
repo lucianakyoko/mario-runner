@@ -17,6 +17,7 @@ import type {
 } from '../game-loop/frame-scheduler'
 import { GameApplication } from './application'
 import { calculateLevel } from '../../domain/progression/calculate-level'
+import { marioPowerState } from '../../domain/mario/mario-power-state'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -1442,5 +1443,385 @@ describe('GameApplication', () => {
     expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
     expect(application.state).toBe('GAME_OVER')
     expect(updateCount).toBe(0)
+  })
+
+  it('completes the fatal collision flow for normal Mario', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: { x: 0, y: 0 },
+      size: { width: 32, height: 32 },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: { x: 0, y: 0 },
+    }
+
+    let updateCount = 0
+
+    const application = new GameApplication(
+      scheduler,
+      createMario(),
+      createScenario(),
+      new FakeInput(),
+      () => {
+        updateCount += 1
+      },
+      () => {},
+      [obstacle],
+    )
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
+    expect(updateCount).toBe(0)
+
+    scheduler.runNext(2000)
+
+    expect(application.state).toBe('GAME_OVER')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(updateCount).toBe(0)
+  })
+
+  it('completes the fatal collision flow after losing the power-up', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const firstObstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const secondObstacle: Obstacle = {
+      id: 'obstacle-2',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 280,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const poweredMario = growMario(createMario(), {
+      width: defaultGameplayConfig.mario.powered.width,
+      height: defaultGameplayConfig.mario.powered.height,
+      collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+    })
+
+    const application = new GameApplication(
+      scheduler,
+      poweredMario,
+      createScenario(),
+      new FakeInput(),
+      () => {},
+      () => {},
+      [firstObstacle, secondObstacle],
+    )
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.currentMario.powerState).toBe(marioPowerState.POWERED)
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(2000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(application.state).toBe('GAME_OVER')
+
+    scheduler.runNext(3000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(application.state).toBe('GAME_OVER')
+  })
+
+  it('keeps the game over state stable after a fatal collision', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    let updateCount = 0
+    let renderCount = 0
+
+    const application = new GameApplication(
+      scheduler,
+      createMario(),
+      createScenario(),
+      new FakeInput(),
+      () => {
+        updateCount += 1
+      },
+      () => {
+        renderCount += 1
+      },
+      [obstacle],
+    )
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
+    expect(updateCount).toBe(0)
+    expect(renderCount).toBe(1)
+
+    scheduler.runNext(2000)
+    scheduler.runNext(3000)
+
+    expect(application.state).toBe('GAME_OVER')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(updateCount).toBe(0)
+    expect(renderCount).toBe(3)
+  })
+
+  it('restarts the game from Game Over with a clean initial state', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const application = new GameApplication(
+      scheduler,
+      createMario(),
+      createScenario(),
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.state).toBe('GAME_OVER')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(application.currentMario.position).toEqual({
+      x: 0,
+      y: 0,
+    })
+    expect(application.currentMario.velocity).toEqual({
+      x: 280,
+      y: 0,
+    })
+    expect(application.currentScore.value).toBe(0)
+    expect(application.currentLevel).toBe(1)
+    expect(application.currentObstacles).toEqual([])
+    expect(application.currentCoins).toEqual([])
+    expect(application.currentPowerUps).toEqual([])
+    expect(application.currentCollision).toEqual({
+      hasCollision: false,
+    })
+    expect(application.currentCollectibleCollisions).toEqual([])
+    expect(application.currentPowerUpCollisions).toEqual([])
+  })
+
+  it('starts a new independent match after restarting from Game Over', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 1000,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    let updateCount = 0
+
+    const application = new GameApplication(
+      scheduler,
+      createMario(),
+      createScenario(),
+      new FakeInput(),
+      () => {
+        updateCount += 1
+      },
+      () => {},
+      [obstacle],
+    )
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(1000)
+
+    expect(application.state).toBe('RUNNING')
+    expect(updateCount).toBe(1)
+
+    application.gameOver()
+
+    expect(application.state).toBe('GAME_OVER')
+
+    application.restart()
+
+    expect(application.state).toBe('READY')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+
+    application.start()
+
+    expect(application.state).toBe('RUNNING')
+
+    scheduler.runNext(2000)
+
+    expect(application.state).toBe('RUNNING')
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(updateCount).toBe(2)
+  })
+
+  it('reproduces the same obstacle type after restarting', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const application = createApplication(scheduler)
+
+    application.start()
+
+    scheduler.runNext(1000)
+    scheduler.runNext(2000)
+    scheduler.runNext(3000)
+
+    expect(application.currentObstacles).toHaveLength(1)
+
+    const firstObstacle = application.currentObstacles[0]
+
+    application.gameOver()
+    application.restart()
+    application.start()
+
+    scheduler.runNext(4000)
+    scheduler.runNext(5000)
+    scheduler.runNext(6000)
+
+    expect(application.currentObstacles).toHaveLength(1)
+
+    const secondObstacle = application.currentObstacles[0]
+
+    expect(secondObstacle.id).toBe('obstacle-1')
+    expect(secondObstacle.type).toBe(firstObstacle.type)
+    expect(secondObstacle.size).toEqual(firstObstacle.size)
+    expect(secondObstacle.collisionBounds).toEqual(
+      firstObstacle.collisionBounds,
+    )
+    expect(secondObstacle.velocity).toEqual(firstObstacle.velocity)
   })
 })
