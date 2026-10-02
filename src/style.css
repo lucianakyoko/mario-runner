@@ -33,11 +33,13 @@ main > section:first-child {
 
 .game-surface {
   width: 100%;
+  min-width: 0;
 }
 
 canvas {
   display: block;
   width: 100%;
+  max-width: 800px;
   height: auto;
   border: 1px solid #222;
 }
@@ -103,6 +105,13 @@ main > section:last-child p {
   }
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    gap: 28px;
+    padding: 32px 16px 24px;
+  }
+}
+
 @media (max-width: 768px) {
   main {
     gap: 24px;
@@ -117,5 +126,12 @@ main > section:last-child p {
   .touch-control {
     width: 88px;
     min-height: 64px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .touch-controls {
+    flex-direction: row;
+    align-items: center;
   }
 }
