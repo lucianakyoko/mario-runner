@@ -5,6 +5,7 @@ import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
 import { createInitialMario } from './domain/mario/mario'
 import { createInitialScenario } from './domain/scenario/scenario'
 import { KeyboardInput } from './infrastructure/input/keyboard-input'
+import { TouchInput } from './infrastructure/input/touch-input'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
 import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
@@ -20,13 +21,38 @@ if (!app) {
 app.innerHTML = `
   <main>
     <section aria-label="Game">
-      <canvas
-        id="game-canvas"
-        width="800"
-        height="300"
-        aria-label="Mario Runner"
-        aria-describedby="game-status"
-      ></canvas>
+      <div class="game-surface">
+        <canvas
+          id="game-canvas"
+          width="800"
+          height="300"
+          aria-label="Mario Runner"
+          aria-describedby="game-status"
+        ></canvas>
+
+        <div
+          class="touch-controls"
+          aria-label="Touch controls"
+        >
+          <button
+            id="touch-jump"
+            class="touch-control"
+            type="button"
+            aria-label="Jump"
+          >
+            Jump
+          </button>
+
+          <button
+            id="touch-crouch"
+            class="touch-control"
+            type="button"
+            aria-label="Crouch"
+          >
+            Crouch
+          </button>
+        </div>
+      </div>
 
       <p
         id="game-status"
@@ -57,12 +83,20 @@ if (!gameStatus) {
   throw new Error('Game status element not found.')
 }
 
+const jumpButton = document.querySelector<HTMLButtonElement>('#touch-jump')
+
+if (!jumpButton) {
+  throw new Error('Touch jump button not found.')
+}
+
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
-const input = new KeyboardInput(window)
+const keyboardInput = new KeyboardInput(window)
+const touchInput = new TouchInput(jumpButton)
 
-input.register()
+keyboardInput.register()
+touchInput.register()
 
 const mario = createInitialMario({
   width: 32,
@@ -88,11 +122,45 @@ const prefersReducedMotion = window.matchMedia(
 
 let previousGameState: string | undefined
 
+const handleJumpPointerDown = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.press('jump')
+}
+
+const handleJumpPointerUp = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.release('jump')
+}
+
+const handleJumpPointerCancel = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.release('jump')
+}
+
+jumpButton.addEventListener('pointerdown', handleJumpPointerDown)
+jumpButton.addEventListener('pointerup', handleJumpPointerUp)
+jumpButton.addEventListener('pointercancel', handleJumpPointerCancel)
+
 const gameApplication = new GameApplication(
   scheduler,
   mario,
   scenario,
-  input,
+  {
+    isActive: (command) =>
+      keyboardInput.isActive(command) || touchInput.isActive(command),
+  },
   () => {},
   (gameTime) => {
     const currentMario = gameApplication.currentMario

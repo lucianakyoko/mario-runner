@@ -330,3 +330,36 @@ describe('TouchInput concurrent interaction', () => {
     expect(input.isActive('jump')).toBe(true)
   })
 })
+
+describe('TouchInput manual commands', () => {
+  it('activates a command when it is pressed', () => {
+    const eventTarget = createEventTarget()
+    const input = new TouchInput(eventTarget)
+
+    input.press('jump')
+
+    expect(input.isActive('jump')).toBe(true)
+  })
+
+  it('deactivates a command when it is released', () => {
+    const eventTarget = createEventTarget()
+    const input = new TouchInput(eventTarget)
+
+    input.press('jump')
+    input.release('jump')
+
+    expect(input.isActive('jump')).toBe(false)
+  })
+
+  it('does not affect other commands when a command is released', () => {
+    const eventTarget = createEventTarget()
+    const input = new TouchInput(eventTarget)
+
+    input.press('jump')
+    input.press('crouch')
+    input.release('jump')
+
+    expect(input.isActive('jump')).toBe(false)
+    expect(input.isActive('crouch')).toBe(true)
+  })
+})

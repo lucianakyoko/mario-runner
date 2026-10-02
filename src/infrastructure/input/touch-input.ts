@@ -69,6 +69,14 @@ export class TouchInput implements Input {
     return this.activeCommands.has(command)
   }
 
+  press(command: GameplayCommand): void {
+    this.activeCommands.add(command)
+  }
+
+  release(command: GameplayCommand): void {
+    this.activeCommands.delete(command)
+  }
+
   private handlePointerDown = (event: PointerEvent): void => {
     if (event.pointerType !== 'touch') {
       return
