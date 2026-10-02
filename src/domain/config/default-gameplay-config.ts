@@ -31,6 +31,7 @@ export const defaultGameplayConfig: GameplayConfig = {
     powerUpChance: 0.05,
     powerUpMinDistance: 320,
     powerUpMaxDistance: 700,
+    powerUpObstacleClearance: 64,
   },
   difficulty: {
     progressionInterval: 10,

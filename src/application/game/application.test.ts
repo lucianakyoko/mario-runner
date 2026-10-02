@@ -1298,9 +1298,8 @@ describe('GameApplication', () => {
     expect(application.state).toBe('RUNNING')
   })
 
-  it('completes the fatal collision flow after powered Mario loses power', () => {
+  it('does not immediately kill Mario after losing power to the same obstacle', () => {
     const scheduler = new FakeFrameScheduler()
-    let updateCount = 0
 
     const obstacle: Obstacle = {
       id: 'obstacle-1',
@@ -1336,9 +1335,7 @@ describe('GameApplication', () => {
       poweredMario,
       createScenario(),
       new FakeInput(),
-      () => {
-        updateCount += 1
-      },
+      () => {},
       () => {},
       [obstacle],
     )
@@ -1350,20 +1347,12 @@ describe('GameApplication', () => {
     expect(application.currentMario.powerState).toBe('NORMAL')
     expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
     expect(application.state).toBe('RUNNING')
-    expect(updateCount).toBe(1)
 
-    scheduler.runNext(2000)
+    scheduler.runNext(1016)
 
     expect(application.currentMario.powerState).toBe('NORMAL')
-    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
-    expect(application.state).toBe('GAME_OVER')
-    expect(updateCount).toBe(1)
-
-    scheduler.runNext(3000)
-
-    expect(application.state).toBe('GAME_OVER')
-    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
-    expect(updateCount).toBe(1)
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.state).toBe('RUNNING')
   })
 
   it('kills normal Mario after an obstacle collision', () => {

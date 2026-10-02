@@ -6,6 +6,8 @@ import { marioLifeState } from '../../domain/mario/mario-life-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
+import type { PowerUp } from '../../domain/power-up/power-up'
+import { POWER_UP_TYPE } from '../../domain/power-up/power-up-type'
 import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
@@ -92,6 +94,30 @@ const createObstacle = (
     x: -280,
     y: 0,
   },
+})
+
+const createPowerUp = (x: number, y = 0): PowerUp => ({
+  id: `mushroom-${x}`,
+  type: POWER_UP_TYPE.MUSHROOM,
+  position: {
+    x,
+    y,
+  },
+  size: {
+    width: defaultGameplayConfig.powerUp.width,
+    height: defaultGameplayConfig.powerUp.height,
+  },
+  collisionBounds: {
+    offsetX: 2,
+    offsetY: 2,
+    width: 28,
+    height: 28,
+  },
+  velocity: {
+    x: -280,
+    y: 0,
+  },
+  isCollected: false,
 })
 
 const createSurface = (): CanvasSurface => {
@@ -491,6 +517,117 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenCalledWith(400, 228, 24, 24)
   })
 
+  it('renders a mushroom according to its world position and visual size', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const mushroom = createPowerUp(200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [], [], [mushroom])
+
+    expect(surface.context.fillRect).toHaveBeenCalledWith(
+      400,
+      268,
+      mushroom.size.width,
+      mushroom.size.height,
+    )
+  })
+
+  it('does not change power-ups when rendering', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const powerUps = [createPowerUp(200)]
+    const powerUpsBeforeRender = structuredClone(powerUps)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [], [], powerUps)
+
+    expect(powerUps).toEqual(powerUpsBeforeRender)
+  })
+
+  it('renders power-ups between collectibles and Mario', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const coin = createCoin(200)
+    const mushroom = createPowerUp(250)
+
+    renderer.render(
+      'RUNNING',
+      scenario,
+      mario,
+      marioVisual,
+      [],
+      [coin],
+      [mushroom],
+    )
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      3,
+      400,
+      228,
+      24,
+      24,
+    )
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      4,
+      450,
+      268,
+      mushroom.size.width,
+      mushroom.size.height,
+    )
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      5,
+      199,
+      252,
+      marioVisual.width,
+      marioVisual.height,
+    )
+  })
+
+  it('renders obstacles between the ground and collectibles', () => {
+    const surface = createSurface()
+    const renderer = new GameRenderer(surface)
+    const scenario = createScenario()
+    const mario = createMario()
+    const marioVisual = createMarioVisual()
+    const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 200)
+
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle], [], [])
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      3,
+      400,
+      268,
+      32,
+      32,
+    )
+
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(
+      4,
+      199,
+      252,
+      marioVisual.width,
+      marioVisual.height,
+    )
+  })
+
   it('renders Game Over feedback when the game state is GAME_OVER', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)
@@ -555,7 +692,7 @@ describe('GameRenderer', () => {
     const marioVisual = createMarioVisual()
     const obstacle = createObstacle(OBSTACLE_TYPE.GROUND_SMALL, 200)
 
-    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
+    renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle], [], [])
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
 

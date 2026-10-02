@@ -33,6 +33,7 @@ export interface SpawnConfig {
   powerUpChance: number
   powerUpMinDistance: number
   powerUpMaxDistance: number
+  powerUpObstacleClearance: number
 }
 
 export interface DifficultyConfig {

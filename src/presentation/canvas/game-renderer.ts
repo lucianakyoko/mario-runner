@@ -4,6 +4,8 @@ import type { GameState } from '../../domain/game/game-state'
 import type { Mario } from '../../domain/mario/mario'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { OBSTACLE_TYPE } from '../../domain/obstacle/obstacle-type'
+import type { PowerUp } from '../../domain/power-up/power-up'
+import { POWER_UP_TYPE } from '../../domain/power-up/power-up-type'
 import type { Scenario } from '../../domain/scenario/scenario'
 import { createGameOverVisual } from '../game-over/game-over-visual'
 import type { MarioVisual } from '../mario/mario-visual'
@@ -18,6 +20,7 @@ const GROUND_TALL_COLOR = '#006400'
 const AIR_COLOR = '#B22222'
 const COIN_COLOR = '#FFD700'
 const MEDAL_COLOR = '#C0C0C0'
+const MUSHROOM_COLOR = '#FF0000'
 const GAME_OVER_TITLE_FONT = 'bold 32px monospace'
 const GAME_OVER_INSTRUCTION_FONT = '16px monospace'
 const GAME_OVER_TEXT_COLOR = '#000000'
@@ -36,6 +39,7 @@ export class GameRenderer {
     marioVisual: MarioVisual,
     obstacles: Obstacle[] = [],
     coins: Collectible[] = [],
+    powerUps: PowerUp[] = [],
     score = 0,
     level = 1,
   ): void {
@@ -47,6 +51,7 @@ export class GameRenderer {
     this.renderGround(scenario)
     this.renderObstacles(obstacles, mario, scenario)
     this.renderCollectibles(coins, mario, scenario)
+    this.renderPowerUps(powerUps, mario, scenario)
     this.renderHud(state, score, level)
     this.renderMario(mario, marioVisual, scenario)
     this.renderGameOver(state)
@@ -102,8 +107,6 @@ export class GameRenderer {
     for (const collectible of collectibles) {
       const screenX = collectible.position.x - cameraX
 
-      // Mesmo sistema vertical do Mario:
-      // chão = 0 | acima do chão = valores negativos
       const screenY =
         screenGroundY - collectible.size.height + collectible.position.y
 
@@ -114,6 +117,32 @@ export class GameRenderer {
         screenY,
         collectible.size.width,
         collectible.size.height,
+      )
+    }
+  }
+
+  private renderPowerUps(
+    powerUps: PowerUp[],
+    mario: Mario,
+    scenario: Scenario,
+  ): void {
+    const { context } = this.surface
+
+    const cameraX = mario.position.x - this.surface.element.width * 0.25
+    const screenGroundY = this.surface.element.height - scenario.ground.y
+
+    for (const powerUp of powerUps) {
+      const screenX = powerUp.position.x - cameraX
+
+      const screenY = screenGroundY - powerUp.size.height + powerUp.position.y
+
+      context.fillStyle = this.getPowerUpColor(powerUp)
+
+      context.fillRect(
+        screenX,
+        screenY,
+        powerUp.size.width,
+        powerUp.size.height,
       )
     }
   }
@@ -159,6 +188,13 @@ export class GameRenderer {
 
       case collectibleTypes.MEDAL:
         return MEDAL_COLOR
+    }
+  }
+
+  private getPowerUpColor(powerUp: PowerUp): string {
+    switch (powerUp.type) {
+      case POWER_UP_TYPE.MUSHROOM:
+        return MUSHROOM_COLOR
     }
   }
 

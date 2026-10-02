@@ -46,6 +46,7 @@ import {
 } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
 import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
+import { calculatePowerUpSpawnX } from '../../domain/spawn/calculate-power-up-spawn-x'
 import { spawnMushroom } from '../../domain/spawn/spawn-mushroom'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
@@ -70,6 +71,7 @@ export class GameApplication {
   private readonly initialDifficulty: Difficulty
   private readonly initialMarioConfig: InitialMarioConfig
   private readonly initialScenarioConfig: InitialScenarioConfig
+  private readonly processedObstacleCollisionIds = new Set<string>()
 
   private mario: Mario
   private scenario: Scenario
@@ -266,7 +268,7 @@ export class GameApplication {
     this.nextMushroomId = 1
 
     this.random.reset()
-
+    this.processedObstacleCollisionIds.clear()
     this.stateMachine.transitionTo('READY')
   }
 
@@ -443,7 +445,10 @@ export class GameApplication {
       obstacleId: `obstacle-${this.nextObstacleId}`,
     })
 
-    if (spawnResult.obstacles.length > this.obstacles.length) {
+    const obstacleWasSpawned =
+      spawnResult.obstacles.length > this.obstacles.length
+
+    if (obstacleWasSpawned) {
       this.nextObstacleId += 1
     }
 
@@ -456,7 +461,11 @@ export class GameApplication {
       random: this.random,
       powerUpChance: defaultGameplayConfig.spawn.powerUpChance,
       mushroomConfig: defaultGameplayConfig.powerUp,
-      spawnX,
+      spawnX: calculatePowerUpSpawnX(
+        spawnX,
+        obstacleWasSpawned,
+        defaultGameplayConfig.spawn.powerUpObstacleClearance,
+      ),
       mushroomId: `mushroom-${this.nextMushroomId}`,
       velocityX: -difficulty.obstacleSpeed,
       minSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
@@ -508,11 +517,18 @@ export class GameApplication {
 
     const mario = this.createMarioCollidable()
 
-    const hasCollision = this.obstacles.some(
+    const collidingObstacle = this.obstacles.find(
       (obstacle) =>
+        !this.processedObstacleCollisionIds.has(obstacle.id) &&
         detectCollision(mario, this.createObstacleCollidable(obstacle))
           .hasCollision,
     )
+
+    const hasCollision = collidingObstacle !== undefined
+
+    if (collidingObstacle) {
+      this.processedObstacleCollisionIds.add(collidingObstacle.id)
+    }
 
     this.collisionResult = {
       hasCollision,
