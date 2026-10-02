@@ -118,10 +118,10 @@ main > section:last-child p {
     padding: 24px 12px;
   }
 
-  .touch-controls {
+  /* .touch-controls {
     flex-direction: column;
     align-items: center;
-  }
+  } */
 
   .touch-control {
     width: 88px;

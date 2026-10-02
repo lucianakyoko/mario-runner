@@ -38,18 +38,18 @@ app.innerHTML = `
             id="touch-jump"
             class="touch-control"
             type="button"
-            aria-label="Jump"
+            aria-label="Pular"
           >
-            Jump
+            Pular
           </button>
 
           <button
             id="touch-crouch"
             class="touch-control"
             type="button"
-            aria-label="Crouch"
+            aria-label="Abaixar"
           >
-            Crouch
+            Abaixar
           </button>
         </div>
       </div>
