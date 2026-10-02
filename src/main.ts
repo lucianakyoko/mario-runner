@@ -89,6 +89,12 @@ if (!jumpButton) {
   throw new Error('Touch jump button not found.')
 }
 
+const crouchButton = document.querySelector<HTMLButtonElement>('#touch-crouch')
+
+if (!crouchButton) {
+  throw new Error('Touch crouch button not found.')
+}
+
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
@@ -149,9 +155,40 @@ const handleJumpPointerCancel = (event: PointerEvent): void => {
   touchInput.release('jump')
 }
 
+const handleCrouchPointerDown = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.press('crouch')
+}
+
+const handleCrouchPointerUp = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.release('crouch')
+}
+
+const handleCrouchPointerCancel = (event: PointerEvent): void => {
+  if (event.pointerType !== 'touch') {
+    return
+  }
+
+  event.preventDefault()
+  touchInput.release('crouch')
+}
+
 jumpButton.addEventListener('pointerdown', handleJumpPointerDown)
 jumpButton.addEventListener('pointerup', handleJumpPointerUp)
 jumpButton.addEventListener('pointercancel', handleJumpPointerCancel)
+
+crouchButton.addEventListener('pointerdown', handleCrouchPointerDown)
+crouchButton.addEventListener('pointerup', handleCrouchPointerUp)
+crouchButton.addEventListener('pointercancel', handleCrouchPointerCancel)
 
 const gameApplication = new GameApplication(
   scheduler,

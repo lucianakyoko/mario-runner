@@ -65,6 +65,11 @@ canvas {
   -webkit-user-select: none;
 }
 
+.touch-control:active {
+  transform: translateY(2px);
+  background: #eee;
+}
+
 .touch-control:focus-visible {
   outline: 3px solid #222;
   outline-offset: 3px;
