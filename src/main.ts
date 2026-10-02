@@ -39,6 +39,7 @@ app.innerHTML = `
             class="touch-control"
             type="button"
             aria-label="Pular"
+            aria-pressed="false"
           >
             Pular
           </button>
@@ -48,6 +49,7 @@ app.innerHTML = `
             class="touch-control"
             type="button"
             aria-label="Abaixar"
+            aria-pressed="false"
           >
             Abaixar
           </button>
@@ -134,6 +136,7 @@ const handleJumpPointerDown = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  jumpButton.setAttribute('aria-pressed', 'true')
   touchInput.press('jump')
 }
 
@@ -143,6 +146,7 @@ const handleJumpPointerUp = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  jumpButton.setAttribute('aria-pressed', 'false')
   touchInput.release('jump')
 }
 
@@ -152,6 +156,7 @@ const handleJumpPointerCancel = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  jumpButton.setAttribute('aria-pressed', 'false')
   touchInput.release('jump')
 }
 
@@ -161,6 +166,7 @@ const handleCrouchPointerDown = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  crouchButton.setAttribute('aria-pressed', 'true')
   touchInput.press('crouch')
 }
 
@@ -170,6 +176,7 @@ const handleCrouchPointerUp = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  crouchButton.setAttribute('aria-pressed', 'false')
   touchInput.release('crouch')
 }
 
@@ -179,6 +186,7 @@ const handleCrouchPointerCancel = (event: PointerEvent): void => {
   }
 
   event.preventDefault()
+  crouchButton.setAttribute('aria-pressed', 'false')
   touchInput.release('crouch')
 }
 
