@@ -813,7 +813,7 @@ describe('GameApplication', () => {
     expect(application.currentMario.movementState).toBe('RUNNING')
   })
 
-  it('ignores gameplay commands in GAME_OVER', () => {
+  it('restarts the session when jump is active in GAME_OVER', () => {
     const scheduler = new FakeFrameScheduler()
     const input = new FakeInput()
     const application = createApplication(scheduler, input)
@@ -822,11 +822,10 @@ describe('GameApplication', () => {
     application.gameOver()
 
     input.activate('jump')
-    input.activate('crouch')
 
     scheduler.runNext(1000)
 
-    expect(application.state).toBe('GAME_OVER')
+    expect(application.state).toBe('READY')
     expect(application.currentMario.movementState).toBe('RUNNING')
     expect(application.currentMario.isGrounded).toBe(true)
   })

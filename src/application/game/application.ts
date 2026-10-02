@@ -45,8 +45,8 @@ import {
   type Scenario,
 } from '../../domain/scenario/scenario'
 import { updateScenarioMovement } from '../../domain/scenario/update-scenario-movement'
-import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
 import { calculatePowerUpSpawnX } from '../../domain/spawn/calculate-power-up-spawn-x'
+import { spawnCollectible } from '../../domain/spawn/spawn-collectible'
 import { spawnMushroom } from '../../domain/spawn/spawn-mushroom'
 import { spawnObstacle } from '../../domain/spawn/spawn-obstacle'
 import type { SpawnState } from '../../domain/spawn/spawn-state'
@@ -361,6 +361,14 @@ export class GameApplication {
     if (this.stateMachine.state === 'READY') {
       if (this.input.isActive('jump')) {
         this.start()
+      }
+
+      return
+    }
+
+    if (this.stateMachine.state === 'GAME_OVER') {
+      if (this.input.isActive('jump')) {
+        this.restart()
       }
 
       return
