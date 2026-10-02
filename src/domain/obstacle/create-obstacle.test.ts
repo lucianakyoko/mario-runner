@@ -44,7 +44,7 @@ describe('createObstacle', () => {
       x: 800,
       config: {
         ...defaultGameplayConfig.obstacles.GROUND_SMALL,
-        groundOffset: 12,
+        groundOffset: -12,
       },
       velocityX: -280,
     })

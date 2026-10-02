@@ -21,7 +21,7 @@ export const createObstacle = ({
   type,
   position: {
     x,
-    y: config.groundOffset,
+    y: config.groundOffset === 0 ? 0 : -config.groundOffset,
   },
   size: {
     width: config.width,

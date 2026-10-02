@@ -70,10 +70,10 @@ class FakeInput implements Input {
   }
 }
 
-const createMario = (): Mario => ({
+const createMario = (positionY = 0): Mario => ({
   position: {
     x: 0,
-    y: 0,
+    y: positionY,
   },
   velocity: {
     x: 280,
@@ -92,7 +92,7 @@ const createMario = (): Mario => ({
   movementState: 'RUNNING',
   powerState: 'NORMAL',
   lifeState: marioLifeState.ALIVE,
-  isGrounded: true,
+  isGrounded: positionY === 0,
 })
 
 const createScenario = (): Scenario => ({
@@ -138,10 +138,11 @@ const createApplication = (
   render: (gameTime: GameTime) => void = () => {},
   obstacles: Obstacle[] = [],
   coins: Collectible[] = [],
+  mario: Mario = createMario(),
 ): GameApplication =>
   new GameApplication(
     scheduler,
-    createMario(),
+    mario,
     createScenario(),
     input,
     update,
@@ -909,6 +910,46 @@ describe('GameApplication', () => {
     expect(application.currentCollision).toEqual({
       hasCollision: false,
     })
+  })
+
+  it('ends the game when normal Mario collides with an air obstacle', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const airConfig = defaultGameplayConfig.obstacles[OBSTACLE_TYPE.AIR]
+
+    const obstacle: Obstacle = {
+      id: 'air-obstacle-1',
+      type: OBSTACLE_TYPE.AIR,
+      position: {
+        x: 0,
+        y: -airConfig.groundOffset,
+      },
+      size: {
+        width: airConfig.width,
+        height: airConfig.height,
+      },
+      collisionBounds: airConfig.collisionBounds,
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      () => {},
+      () => {},
+      [obstacle],
+      [],
+      createMario(-airConfig.groundOffset),
+    )
+
+    application.start()
+    scheduler.runNext(16)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
   })
 
   it('does not detect collision when obstacles do not overlap Mario', () => {
