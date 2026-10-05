@@ -1,3 +1,5 @@
+import type { MusicType } from '../audio/music-type'
+
 export interface ScenarioPosition {
   x: number
 }
@@ -15,12 +17,14 @@ export interface Scenario {
   background: ScenarioBackground
   ground: ScenarioGround
   position: ScenarioPosition
+  music: MusicType
 }
 
 export interface InitialScenarioConfig {
   id: string
   backgroundId: string
   groundY: number
+  music: MusicType
 }
 
 export const createInitialScenario = (
@@ -36,4 +40,5 @@ export const createInitialScenario = (
   position: {
     x: 0,
   },
+  music: config.music,
 })

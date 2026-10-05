@@ -137,6 +137,7 @@ export class GameApplication {
       id: scenario.id,
       backgroundId: scenario.background.id,
       groundY: scenario.ground.y,
+      music: scenario.music,
     }
 
     this.initialDifficulty = {

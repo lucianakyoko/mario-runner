@@ -2,8 +2,10 @@ import './style.css'
 
 import { GameApplication } from './application/game/application'
 import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
+import { musicTypes } from './domain/audio/music-type'
 import { createInitialMario } from './domain/mario/mario'
 import { createInitialScenario } from './domain/scenario/scenario'
+import { BrowserAudioService } from './infrastructure/audio/browser-audio-service'
 import { KeyboardInput } from './infrastructure/input/keyboard-input'
 import { TouchInput } from './infrastructure/input/touch-input'
 import { AnimationFrameScheduler } from './infrastructure/timing/animation-frame-scheduler'
@@ -102,6 +104,10 @@ const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
 const keyboardInput = new KeyboardInput(window)
 const touchInput = new TouchInput(jumpButton)
+const audioService = new BrowserAudioService({
+  resolveMusicSource: (music) => `/audio/music/${music}.oga`,
+  resolveEffectSource: (effect) => `/audio/effects/${effect}.wav`,
+})
 
 keyboardInput.register()
 touchInput.register()
@@ -119,6 +125,7 @@ const scenario = createInitialScenario({
   id: 'default',
   backgroundId: defaultGameplayConfig.scenario.background.id,
   groundY: defaultGameplayConfig.physics.groundY,
+  music: musicTypes.DEFAULT,
 })
 
 const animationFrameDuration =
@@ -217,6 +224,10 @@ const gameApplication = new GameApplication(
         currentState === 'GAME_OVER'
           ? 'GAME OVER — PRESS RESTART'
           : currentState
+
+      if (currentState === 'RUNNING') {
+        audioService.playMusic(currentScenario.music)
+      }
 
       previousGameState = currentState
     }

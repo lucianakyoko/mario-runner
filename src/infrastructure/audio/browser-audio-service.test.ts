@@ -112,6 +112,26 @@ describe('BrowserAudioService', () => {
     expect(elements[0].playCalls).toBe(2)
   })
 
+  it('creates a new music element after the current music is stopped', async () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+    service.stopMusic()
+    service.playMusic(musicTypes.DEFAULT)
+
+    await Promise.resolve()
+
+    expect(elements).toHaveLength(2)
+    expect(elements[0].pauseCalls).toBe(1)
+    expect(elements[0].currentTime).toBe(0)
+    expect(elements[1].playCalls).toBe(1)
+  })
+
   it('disposes music and active effects', async () => {
     const elements: FakeAudioElement[] = []
     const service = new BrowserAudioService({
