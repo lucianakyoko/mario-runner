@@ -3,10 +3,9 @@ export const effectTypes = {
   COIN: 'coin',
   MEDAL: 'medal',
   POWER_UP: 'power-up',
-  GROW: 'grow',
   LOSE_POWER: 'lose-power',
   DEATH: 'death',
-  GAME_OVER: 'game-over',
+  CANNON_FIRE: 'cannon-fire',
 } as const
 
 export type EffectType = (typeof effectTypes)[keyof typeof effectTypes]
