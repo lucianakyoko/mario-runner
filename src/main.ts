@@ -1,7 +1,9 @@
 import './style.css'
 
+import type { AudioService } from './application/audio/audio-service'
 import { GameApplication } from './application/game/application'
 import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
+import { effectTypes } from './domain/audio/effect-type'
 import { musicTypes } from './domain/audio/music-type'
 import { createInitialMario } from './domain/mario/mario'
 import { createInitialScenario } from './domain/scenario/scenario'
@@ -13,7 +15,6 @@ import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
 import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
 import { selectMarioVisualVariant } from './presentation/mario/select-mario-visual-variant'
-import { effectTypes } from './domain/audio/effect-type'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -70,6 +71,40 @@ app.innerHTML = `
       </p>
     </section>
 
+    <section
+      <section
+        class="audio-controls"
+        aria-label="Controles de áudio"
+      >
+        <label for="audio-volume">
+          Volume
+        </label>
+
+        <input
+          id="audio-volume"
+          type="range"
+          min="0"
+          max="100"
+          value="100"
+          step="1"
+          aria-label="Volume do áudio"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="100"
+          aria-valuetext="100 por cento"
+        />
+
+        <button
+          id="audio-mute"
+          type="button"
+          aria-label="Silenciar áudio"
+          aria-pressed="false"
+        >
+          Silenciar
+        </button>
+      </section>
+    </section>
+
     <section aria-label="Information">
       <p>INFO</p>
     </section>
@@ -100,12 +135,24 @@ if (!crouchButton) {
   throw new Error('Touch crouch button not found.')
 }
 
+const volumeControl = document.querySelector<HTMLInputElement>('#audio-volume')
+
+if (!volumeControl) {
+  throw new Error('Audio volume control not found.')
+}
+
+const muteButton = document.querySelector<HTMLButtonElement>('#audio-mute')
+
+if (!muteButton) {
+  throw new Error('Audio mute button not found.')
+}
+
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
 const keyboardInput = new KeyboardInput(window)
 const touchInput = new TouchInput(jumpButton)
-const audioService = new BrowserAudioService({
+const audioService: AudioService = new BrowserAudioService({
   resolveMusicSource: (music) => `/audio/music/${music}.oga`,
   resolveEffectSource: (effect) => `/audio/effects/${effect}.wav`,
 })
@@ -137,6 +184,34 @@ const prefersReducedMotion = window.matchMedia(
 ).matches
 
 let previousGameState: string | undefined
+let isMuted = false
+
+const handleVolumeChange = (): void => {
+  const volumePercentage = Number(volumeControl.value)
+  const volume = volumePercentage / 100
+
+  audioService.setVolume(volume)
+
+  volumeControl.setAttribute('aria-valuenow', String(volumePercentage))
+
+  volumeControl.setAttribute('aria-valuetext', `${volumePercentage} por cento`)
+}
+
+const handleMuteClick = (): void => {
+  isMuted = !isMuted
+
+  audioService.setMuted(isMuted)
+
+  muteButton.textContent = isMuted ? 'Ativar som' : 'Silenciar'
+  muteButton.setAttribute(
+    'aria-label',
+    isMuted ? 'Ativar som' : 'Silenciar áudio',
+  )
+  muteButton.setAttribute('aria-pressed', String(isMuted))
+}
+
+volumeControl.addEventListener('input', handleVolumeChange)
+muteButton.addEventListener('click', handleMuteClick)
 
 const handleJumpPointerDown = (event: PointerEvent): void => {
   if (event.pointerType !== 'touch') {
@@ -145,6 +220,14 @@ const handleJumpPointerDown = (event: PointerEvent): void => {
 
   event.preventDefault()
   jumpButton.setAttribute('aria-pressed', 'true')
+
+  if (
+    gameApplication.state === 'READY' ||
+    gameApplication.state === 'GAME_OVER'
+  ) {
+    audioService.playMusic(scenario.music)
+  }
+
   touchInput.press('jump')
 }
 
@@ -228,6 +311,14 @@ const gameApplication = new GameApplication(
 
       if (currentState === 'RUNNING') {
         audioService.playMusic(currentScenario.music)
+      }
+
+      if (currentState === 'GAME_OVER') {
+        audioService.stopMusic()
+      }
+
+      if (currentState === 'READY' && previousGameState === 'GAME_OVER') {
+        audioService.stopEffects()
       }
 
       previousGameState = currentState

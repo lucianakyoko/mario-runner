@@ -12,6 +12,8 @@ class FakeAudioElement {
   public currentTime = 0
   public loop = false
   public preload = ''
+  public volume = 1
+  public muted = false
 
   public playCalls = 0
   public pauseCalls = 0
@@ -69,6 +71,7 @@ describe('BrowserAudioService', () => {
     expect(elements[0].loop).toBe(true)
     expect(elements[0].preload).toBe('auto')
     expect(elements[0].playCalls).toBe(1)
+    expect(elements[0].volume).toBe(1)
   })
 
   it('plays effects through independent audio elements', async () => {
@@ -89,10 +92,12 @@ describe('BrowserAudioService', () => {
     expect(elements[0].source).toBe('/audio/effects/coin.mp3')
     expect(elements[0].preload).toBe('auto')
     expect(elements[0].playCalls).toBe(1)
+    expect(elements[0].volume).toBe(1)
 
     expect(elements[1].source).toBe('/audio/effects/medal.mp3')
     expect(elements[1].preload).toBe('auto')
     expect(elements[1].playCalls).toBe(1)
+    expect(elements[1].volume).toBe(1)
   })
 
   it('reuses the current music element when the same music is played again', async () => {
@@ -130,6 +135,154 @@ describe('BrowserAudioService', () => {
     expect(elements[0].pauseCalls).toBe(1)
     expect(elements[0].currentTime).toBe(0)
     expect(elements[1].playCalls).toBe(1)
+  })
+
+  it('updates the volume of the current music', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+    service.setVolume(0.4)
+
+    expect(elements[0].volume).toBe(0.4)
+  })
+
+  it('updates the volume of active effects', async () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playEffect(effectTypes.COIN)
+    service.playEffect(effectTypes.MEDAL)
+
+    await Promise.resolve()
+
+    service.setVolume(0.3)
+
+    expect(elements[0].volume).toBe(0.3)
+    expect(elements[1].volume).toBe(0.3)
+  })
+
+  it('applies the configured volume to newly created audio elements', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.setVolume(0.6)
+    service.playMusic(musicTypes.DEFAULT)
+    service.playEffect(effectTypes.COIN)
+
+    expect(elements[0].volume).toBe(0.6)
+    expect(elements[1].volume).toBe(0.6)
+  })
+
+  it('clamps volume to the supported range', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+
+    service.setVolume(-1)
+    expect(elements[0].volume).toBe(0)
+
+    service.setVolume(2)
+    expect(elements[0].volume).toBe(1)
+  })
+
+  it('mutes the current music', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+    service.setMuted(true)
+
+    expect(elements[0].muted).toBe(true)
+  })
+
+  it('mutes active effects', async () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playEffect(effectTypes.COIN)
+    service.playEffect(effectTypes.MEDAL)
+
+    await Promise.resolve()
+
+    service.setMuted(true)
+
+    expect(elements[0].muted).toBe(true)
+    expect(elements[1].muted).toBe(true)
+  })
+
+  it('applies the muted state to newly created audio elements', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.setMuted(true)
+    service.playMusic(musicTypes.DEFAULT)
+    service.playEffect(effectTypes.COIN)
+
+    expect(elements[0].muted).toBe(true)
+    expect(elements[1].muted).toBe(true)
+  })
+
+  it('preserves the configured volume while muted', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+    service.setVolume(0.6)
+    service.setMuted(true)
+
+    expect(elements[0].volume).toBe(0.6)
+    expect(elements[0].muted).toBe(true)
+  })
+
+  it('unmutes the current music without changing the configured volume', () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    service.playMusic(musicTypes.DEFAULT)
+    service.setVolume(0.6)
+    service.setMuted(true)
+    service.setMuted(false)
+
+    expect(elements[0].muted).toBe(false)
+    expect(elements[0].volume).toBe(0.6)
   })
 
   it('disposes music and active effects', async () => {

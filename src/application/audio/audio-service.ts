@@ -5,6 +5,7 @@ export interface AudioService {
   playMusic(music: MusicType): void
   stopMusic(): void
   playEffect(effect: EffectType): void
+  stopEffects(): void
   setVolume(volume: number): void
   setMuted(muted: boolean): void
   dispose(): void

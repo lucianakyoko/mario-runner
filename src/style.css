@@ -27,6 +27,66 @@ main {
   padding: 48px 16px 32px;
 }
 
+.audio-controls {
+  display: flex;
+  width: min(100%, 800px);
+  align-items: center;
+  gap: 12px;
+}
+
+.audio-controls label {
+  flex: 0 0 auto;
+  font-weight: 700;
+}
+
+#audio-volume {
+  flex: 1;
+  min-width: 120px;
+  margin: 0;
+}
+
+#audio-mute {
+  min-width: 120px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 2px solid #222;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#audio-mute:active {
+  transform: translateY(2px);
+  background: #eee;
+}
+
+#audio-mute:focus-visible,
+#audio-volume:focus-visible {
+  outline: 3px solid #222;
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .audio-controls {
+    flex-wrap: wrap;
+  }
+
+  .audio-controls label {
+    width: 100%;
+  }
+
+  #audio-volume {
+    min-width: 0;
+  }
+
+  #audio-mute {
+    min-width: 112px;
+  }
+}
+
 main > section:first-child {
   width: min(100%, 800px);
 }

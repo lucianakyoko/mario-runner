@@ -3,9 +3,7 @@ import type { EffectType } from '../../domain/audio/effect-type'
 import type { MusicType } from '../../domain/audio/music-type'
 
 export type AudioElementFactory = (source: string) => HTMLAudioElement
-
 export type MusicSourceResolver = (music: MusicType) => string
-
 export type EffectSourceResolver = (effect: EffectType) => string
 
 export interface BrowserAudioServiceConfig {
@@ -22,6 +20,8 @@ export class BrowserAudioService implements AudioService {
   private musicElement: HTMLAudioElement | undefined
   private currentMusic: MusicType | undefined
   private readonly activeEffects = new Set<HTMLAudioElement>()
+  private volume = 1
+  private muted = false
 
   constructor(config: BrowserAudioServiceConfig) {
     this.resolveMusicSource = config.resolveMusicSource
@@ -32,6 +32,9 @@ export class BrowserAudioService implements AudioService {
 
   playMusic(music: MusicType): void {
     if (this.musicElement && this.currentMusic === music) {
+      this.musicElement.volume = this.volume
+      this.musicElement.muted = this.muted
+
       void this.musicElement.play().catch(() => {})
       return
     }
@@ -43,6 +46,8 @@ export class BrowserAudioService implements AudioService {
 
     audio.loop = true
     audio.preload = 'auto'
+    audio.volume = this.volume
+    audio.muted = this.muted
 
     this.musicElement = audio
     this.currentMusic = music
@@ -70,6 +75,8 @@ export class BrowserAudioService implements AudioService {
     const audio = this.createAudioElement(source)
 
     audio.preload = 'auto'
+    audio.volume = this.volume
+    audio.muted = this.muted
 
     this.activeEffects.add(audio)
 
@@ -82,28 +89,42 @@ export class BrowserAudioService implements AudioService {
     })
   }
 
-  setVolume(_volume: number): void {
-    // Implementado posteriormente.
-    console.log(_volume)
-  }
-
-  setMuted(_muted: boolean): void {
-    console.log(_muted)
-    // Implementado posteriormente.
-  }
-
-  dispose(): void {
-    this.stopMusic()
-    this.stopEffects()
-  }
-
-  private stopEffects(): void {
+  stopEffects(): void {
     for (const effect of this.activeEffects) {
       effect.pause()
       effect.currentTime = 0
     }
 
     this.activeEffects.clear()
+  }
+
+  setVolume(volume: number): void {
+    this.volume = Math.min(Math.max(volume, 0), 1)
+
+    if (this.musicElement) {
+      this.musicElement.volume = this.volume
+    }
+
+    for (const effect of this.activeEffects) {
+      effect.volume = this.volume
+    }
+  }
+
+  setMuted(muted: boolean): void {
+    this.muted = muted
+
+    if (this.musicElement) {
+      this.musicElement.muted = this.muted
+    }
+
+    for (const effect of this.activeEffects) {
+      effect.muted = this.muted
+    }
+  }
+
+  dispose(): void {
+    this.stopMusic()
+    this.stopEffects()
   }
 
   private releaseEffect(effect: HTMLAudioElement): void {
