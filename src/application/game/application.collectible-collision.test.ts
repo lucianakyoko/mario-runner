@@ -11,8 +11,9 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import type { Input } from '../input'
-import { GameApplication } from './application'
+import { GameApplication, type GameEvent } from './application'
 import { marioLifeState } from '../../domain/mario/mario-life-state'
+import { musicTypes } from '../../domain/audio/music-type'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -97,6 +98,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 0,
   },
+  music: musicTypes.DEFAULT,
 })
 
 const createCoin = (
@@ -160,6 +162,7 @@ const createMedal = (
 const createApplication = (
   scheduler: FakeFrameScheduler,
   coins: Collectible[] = [],
+  onEvent: (event: GameEvent) => void = () => {},
 ): GameApplication =>
   new GameApplication(
     scheduler,
@@ -170,6 +173,8 @@ const createApplication = (
     () => {},
     [],
     coins,
+    [],
+    onEvent,
   )
 
 describe('GameApplication collectible collision', () => {
@@ -197,6 +202,22 @@ describe('GameApplication collectible collision', () => {
     })
   })
 
+  it('emits the coin event only once when Mario collects a coin', () => {
+    const scheduler = new FakeFrameScheduler()
+    const coin = createCoin(0)
+    const events: string[] = []
+
+    const application = createApplication(scheduler, [coin], (event) =>
+      events.push(event),
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(events).toEqual(['COIN'])
+  })
+
   it('detects a collision between Mario and a medal', () => {
     const scheduler = new FakeFrameScheduler()
     const medal = createMedal(0)
@@ -219,6 +240,22 @@ describe('GameApplication collectible collision', () => {
     expect(application.currentScore).toEqual({
       value: 2,
     })
+  })
+
+  it('emits the medal event only once when Mario collects a medal', () => {
+    const scheduler = new FakeFrameScheduler()
+    const medal = createMedal(0)
+    const events: string[] = []
+
+    const application = createApplication(scheduler, [medal], (event) =>
+      events.push(event),
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(events).toEqual(['MEDAL'])
   })
 
   it('does not detect a collectible that does not overlap Mario', () => {

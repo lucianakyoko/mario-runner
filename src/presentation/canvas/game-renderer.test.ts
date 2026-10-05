@@ -12,6 +12,7 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
+import { musicTypes } from '../../domain/audio/music-type'
 
 const createMario = (): Mario => ({
   position: {
@@ -49,6 +50,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 0,
   },
+  music: musicTypes.DEFAULT,
 })
 
 const createMarioVisual = (): MarioVisual => ({

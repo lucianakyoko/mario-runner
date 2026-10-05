@@ -61,6 +61,9 @@ import { GameStateMachine } from '../game-state/game-state-machine'
 import type { Input } from '../input'
 import { Clock } from '../time/clock'
 
+export type GameEvent =
+  'JUMP' | 'COIN' | 'MEDAL' | 'POWER_UP' | 'LOSE_POWER' | 'DEATH'
+
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
   private readonly gameLoop: GameLoop
@@ -72,6 +75,7 @@ export class GameApplication {
   private readonly initialMarioConfig: InitialMarioConfig
   private readonly initialScenarioConfig: InitialScenarioConfig
   private readonly processedObstacleCollisionIds = new Set<string>()
+  private readonly onEvent: (event: GameEvent) => void
 
   private mario: Mario
   private scenario: Scenario
@@ -105,6 +109,7 @@ export class GameApplication {
     obstacles: Obstacle[] = [],
     coins: Collectible[] = [],
     powerUps: PowerUp[] = [],
+    onEvent: (event: GameEvent) => void = () => {},
   ) {
     const clock = new Clock()
 
@@ -117,6 +122,7 @@ export class GameApplication {
     this.obstacles = obstacles
     this.coins = coins
     this.powerUps = powerUps
+    this.onEvent = onEvent
     this.score = createScore()
     this.level = calculateLevel({
       score: this.score.value,
@@ -325,6 +331,13 @@ export class GameApplication {
         score: this.score.value,
         pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
       })
+
+      if (collectible.type === collectibleTypes.COIN) {
+        this.onEvent('COIN')
+      }
+      if (collectible.type === collectibleTypes.MEDAL) {
+        this.onEvent('MEDAL')
+      }
     }
 
     this.coins = this.coins
@@ -338,6 +351,10 @@ export class GameApplication {
 
   private consumeDetectedPowerUps(powerUps: PowerUp[]): void {
     const consumedIds = new Set(powerUps.map((powerUp) => powerUp.id))
+
+    powerUps.forEach(() => {
+      this.onEvent('POWER_UP')
+    })
 
     this.powerUps = this.powerUps
       .map((powerUp) =>
@@ -493,6 +510,8 @@ export class GameApplication {
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
     this.obstacles = removeOffscreenObstacles(this.obstacles)
 
+    const previousMarioMovementState = this.mario.movementState
+
     this.mario = resolveMarioGroundMovement(
       this.mario,
       {
@@ -503,6 +522,13 @@ export class GameApplication {
         jumpForce: defaultGameplayConfig.physics.jumpForce,
       },
     )
+
+    if (
+      previousMarioMovementState !== 'JUMPING' &&
+      this.mario.movementState === 'JUMPING'
+    ) {
+      this.onEvent('JUMP')
+    }
 
     this.mario = updateMarioMovement(this.mario, gameTime.deltaTime)
 
@@ -572,11 +598,14 @@ export class GameApplication {
         collisionBounds: defaultGameplayConfig.mario.normal.collisionBounds,
       })
 
+      this.onEvent('LOSE_POWER')
+
       return
     }
 
     if (shouldDieMario(this.mario, this.collisionResult.hasCollision)) {
       this.mario = dieMario(this.mario)
+      this.onEvent('DEATH')
     }
   }
 }

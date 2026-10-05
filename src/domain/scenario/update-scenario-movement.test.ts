@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Scenario } from './scenario'
 import { updateScenarioMovement } from './update-scenario-movement'
+import { musicTypes } from '../audio/music-type'
 
 const createScenario = (): Scenario => ({
   id: 'default',
@@ -14,6 +15,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 100,
   },
+  music: musicTypes.DEFAULT,
 })
 
 describe('updateScenarioMovement', () => {

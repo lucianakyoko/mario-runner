@@ -13,6 +13,7 @@ import { CanvasSurface } from './presentation/canvas/canvas-surface'
 import { GameRenderer } from './presentation/canvas/game-renderer'
 import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
 import { selectMarioVisualVariant } from './presentation/mario/select-mario-visual-variant'
+import { effectTypes } from './domain/audio/effect-type'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -260,5 +261,33 @@ const gameApplication = new GameApplication(
       gameApplication.currentScore.value,
       gameApplication.currentLevel,
     )
+  },
+  [],
+  [],
+  [],
+  (event) => {
+    if (event === 'JUMP') {
+      audioService.playEffect(effectTypes.JUMP)
+    }
+
+    if (event === 'COIN') {
+      audioService.playEffect(effectTypes.COIN)
+    }
+
+    if (event === 'MEDAL') {
+      audioService.playEffect(effectTypes.MEDAL)
+    }
+
+    if (event === 'POWER_UP') {
+      audioService.playEffect(effectTypes.POWER_UP)
+    }
+
+    if (event === 'LOSE_POWER') {
+      audioService.playEffect(effectTypes.LOSE_POWER)
+    }
+
+    if (event === 'DEATH') {
+      audioService.playEffect(effectTypes.DEATH)
+    }
   },
 )

@@ -12,6 +12,7 @@ import type {
 import type { Input } from '../input'
 import { GameApplication } from './application'
 import { marioLifeState } from '../../domain/mario/mario-life-state'
+import { musicTypes } from '../../domain/audio/music-type'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -96,6 +97,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 0,
   },
+  music: musicTypes.DEFAULT,
 })
 
 const createMushroom = (x: number, y = 0, id = 'mushroom-1'): PowerUp => ({

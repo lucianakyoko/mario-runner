@@ -15,9 +15,10 @@ import type {
   FrameCallback,
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
-import { GameApplication } from './application'
+import { GameApplication, type GameEvent } from './application'
 import { calculateLevel } from '../../domain/progression/calculate-level'
 import { marioPowerState } from '../../domain/mario/mario-power-state'
+import { musicTypes } from '../../domain/audio/music-type'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -106,6 +107,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 0,
   },
+  music: musicTypes.DEFAULT,
 })
 
 const createObstacle = (): Obstacle => ({
@@ -139,6 +141,7 @@ const createApplication = (
   obstacles: Obstacle[] = [],
   coins: Collectible[] = [],
   mario: Mario = createMario(),
+  onEvent: (event: GameEvent) => void = () => {},
 ): GameApplication =>
   new GameApplication(
     scheduler,
@@ -149,6 +152,8 @@ const createApplication = (
     render,
     obstacles,
     coins,
+    [],
+    onEvent,
   )
 
 describe('GameApplication', () => {
@@ -218,6 +223,30 @@ describe('GameApplication', () => {
     expect(application.currentMario.velocity.y).toBe(
       -defaultGameplayConfig.physics.jumpForce,
     )
+  })
+
+  it('emits the jump event once when Mario starts a jump', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const events: string[] = []
+    const application = createApplication(
+      scheduler,
+      input,
+      undefined,
+      undefined,
+      [],
+      [],
+      createMario(),
+      (event) => events.push(event),
+    )
+
+    application.start()
+    input.activate('jump')
+
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(events).toEqual(['JUMP'])
   })
 
   it('updates Mario jump while the scenario is moving', () => {
@@ -1149,6 +1178,53 @@ describe('GameApplication', () => {
     expect(application.state).toBe('GAME_OVER')
   })
 
+  it('emits the death event when normal Mario collides with an obstacle', () => {
+    const scheduler = new FakeFrameScheduler()
+
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const events: GameEvent[] = []
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      undefined,
+      undefined,
+      [obstacle],
+      [],
+      createMario(),
+      (event) => events.push(event),
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.lifeState).toBe(marioLifeState.DEAD)
+    expect(application.state).toBe('GAME_OVER')
+    expect(events).toEqual(['DEATH'])
+  })
+
   it('removes Mario power after colliding with an obstacle', () => {
     const scheduler = new FakeFrameScheduler()
 
@@ -1852,5 +1928,57 @@ describe('GameApplication', () => {
       firstObstacle.collisionBounds,
     )
     expect(secondObstacle.velocity).toEqual(firstObstacle.velocity)
+  })
+
+  it('emits the lose-power event when powered Mario collides with an obstacle', () => {
+    const scheduler = new FakeFrameScheduler()
+    const obstacle: Obstacle = {
+      id: 'obstacle-1',
+      type: OBSTACLE_TYPE.GROUND_SMALL,
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 32,
+        height: 32,
+      },
+      collisionBounds: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 32,
+        height: 32,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const poweredMario = growMario(createMario(), {
+      width: defaultGameplayConfig.mario.powered.width,
+      height: defaultGameplayConfig.mario.powered.height,
+      collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+    })
+
+    const events: GameEvent[] = []
+
+    const application = createApplication(
+      scheduler,
+      new FakeInput(),
+      undefined,
+      undefined,
+      [obstacle],
+      [],
+      poweredMario,
+      (event) => events.push(event),
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+
+    expect(application.currentMario.powerState).toBe(marioPowerState.NORMAL)
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(events).toEqual(['LOSE_POWER'])
   })
 })

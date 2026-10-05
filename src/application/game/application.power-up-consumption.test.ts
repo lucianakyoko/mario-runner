@@ -10,8 +10,9 @@ import type {
   FrameScheduler,
 } from '../game-loop/frame-scheduler'
 import type { Input } from '../input'
-import { GameApplication } from './application'
+import { GameApplication, type GameEvent } from './application'
 import { marioLifeState } from '../../domain/mario/mario-life-state'
+import { musicTypes } from '../../domain/audio/music-type'
 
 class FakeFrameScheduler implements FrameScheduler {
   private nextRequestId = 1
@@ -96,6 +97,7 @@ const createScenario = (): Scenario => ({
   position: {
     x: 0,
   },
+  music: musicTypes.DEFAULT,
 })
 
 const createMushroom = (
@@ -130,6 +132,7 @@ const createMushroom = (
 const createApplication = (
   scheduler: FakeFrameScheduler,
   powerUps: PowerUp[] = [],
+  onEvent: (event: GameEvent) => void = () => {},
 ): GameApplication =>
   new GameApplication(
     scheduler,
@@ -141,6 +144,7 @@ const createApplication = (
     [],
     [],
     powerUps,
+    onEvent,
   )
 
 describe('GameApplication power-up consumption', () => {
@@ -202,5 +206,21 @@ describe('GameApplication power-up consumption', () => {
 
     expect(application.currentPowerUps).toEqual([])
     expect(application.currentMario.powerState).toBe('POWERED')
+  })
+
+  it('emits the power-up event only once when Mario consumes a mushroom', () => {
+    const scheduler = new FakeFrameScheduler()
+    const mushroom = createMushroom(0)
+    const events: string[] = []
+
+    const application = createApplication(scheduler, [mushroom], (event) =>
+      events.push(event),
+    )
+
+    application.start()
+    scheduler.runNext(1000)
+    scheduler.runNext(1250)
+
+    expect(events).toEqual(['POWER_UP'])
   })
 })
