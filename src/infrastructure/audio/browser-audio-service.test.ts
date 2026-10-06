@@ -309,6 +309,31 @@ describe('BrowserAudioService', () => {
     }
   })
 
+  it('does not propagate a music playback rejection', async () => {
+    const elements: FakeAudioElement[] = []
+    const service = new BrowserAudioService({
+      resolveMusicSource: (music) => `/audio/music/${music}.mp3`,
+      resolveEffectSource: (effect) => `/audio/effects/${effect}.mp3`,
+      createAudioElement: createAudioFactory(elements),
+    })
+
+    elements.push(new FakeAudioElement('/audio/music/default.mp3'))
+
+    const failingElement = elements[0]
+
+    failingElement.play = (): Promise<void> => {
+      failingElement.playCalls += 1
+
+      return Promise.reject(new Error('Autoplay blocked'))
+    }
+
+    service.playMusic(musicTypes.DEFAULT)
+
+    await Promise.resolve()
+
+    expect(failingElement.playCalls).toBe(0)
+  })
+
   it('releases an effect when playback ends', async () => {
     const elements: FakeAudioElement[] = []
     const service = new BrowserAudioService({

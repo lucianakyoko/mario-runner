@@ -213,6 +213,15 @@ const handleMuteClick = (): void => {
 volumeControl.addEventListener('input', handleVolumeChange)
 muteButton.addEventListener('click', handleMuteClick)
 
+const unlockAudioFromUserInteraction = (): void => {
+  if (
+    gameApplication.state === 'READY' ||
+    gameApplication.state === 'GAME_OVER'
+  ) {
+    audioService.playMusic(scenario.music)
+  }
+}
+
 const handleJumpPointerDown = (event: PointerEvent): void => {
   if (event.pointerType !== 'touch') {
     return
@@ -220,14 +229,7 @@ const handleJumpPointerDown = (event: PointerEvent): void => {
 
   event.preventDefault()
   jumpButton.setAttribute('aria-pressed', 'true')
-
-  if (
-    gameApplication.state === 'READY' ||
-    gameApplication.state === 'GAME_OVER'
-  ) {
-    audioService.playMusic(scenario.music)
-  }
-
+  unlockAudioFromUserInteraction()
   touchInput.press('jump')
 }
 
@@ -288,6 +290,14 @@ jumpButton.addEventListener('pointercancel', handleJumpPointerCancel)
 crouchButton.addEventListener('pointerdown', handleCrouchPointerDown)
 crouchButton.addEventListener('pointerup', handleCrouchPointerUp)
 crouchButton.addEventListener('pointercancel', handleCrouchPointerCancel)
+
+const handleKeyboardInteraction = (): void => {
+  if (keyboardInput.isActive('jump')) {
+    unlockAudioFromUserInteraction()
+  }
+}
+
+window.addEventListener('keydown', handleKeyboardInteraction)
 
 const gameApplication = new GameApplication(
   scheduler,
