@@ -40,16 +40,16 @@ describe('createObstacle', () => {
   it('uses the configured ground offset for the vertical position', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
+      type: OBSTACLE_TYPE.AIR,
       x: 800,
       config: {
-        ...defaultGameplayConfig.obstacles.GROUND_SMALL,
-        groundOffset: -12,
+        ...defaultGameplayConfig.obstacles.AIR,
+        groundOffset: 64,
       },
       velocityX: -280,
     })
 
-    expect(obstacle.position.y).toBe(12)
+    expect(obstacle.position.y).toBe(-64)
   })
 
   it('uses the configured dimensions', () => {

@@ -87,7 +87,7 @@ export class GameRenderer {
       const visual = this.getObstacleVisual(obstacle)
       const screenX = obstacle.position.x - cameraX + visual.offsetX
       const screenY =
-        screenGroundY - visual.height - obstacle.position.y + visual.offsetY
+        screenGroundY - visual.height + obstacle.position.y + visual.offsetY
 
       context.fillStyle = this.getObstacleColor(obstacle.type)
       context.fillRect(screenX, screenY, visual.width, visual.height)

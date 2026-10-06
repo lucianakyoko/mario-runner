@@ -499,7 +499,7 @@ describe('GameRenderer', () => {
     const scenario = createScenario()
     const mario = createMario()
     const marioVisual = createMarioVisual()
-    const obstacle = createObstacle(OBSTACLE_TYPE.AIR, 200, 64)
+    const obstacle = createObstacle(OBSTACLE_TYPE.AIR, 200, -64)
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
