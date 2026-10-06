@@ -6,6 +6,8 @@ const PUBLIC_AUDIO_DIRECTORY = 'public/audio'
 const ASSETS_DIRECTORY = join(DIST_DIRECTORY, 'assets')
 const SERVICE_WORKER_PATH = join(DIST_DIRECTORY, 'sw.js')
 const CACHE_NAME = 'mario-runner-v1'
+const OFFLINE_NAVIGATION_URL = '/index.html'
+const STATIC_RESOURCE_PREFIXES = ['/assets/', '/audio/']
 
 const getAssetUrls = async () => {
   const assetFiles = await readdir(ASSETS_DIRECTORY)
@@ -41,6 +43,8 @@ const generateServiceWorker = async () => {
   const precacheUrls = urls.map((url) => `  '${url}'`).join(',\n')
 
   const serviceWorker = `const CACHE_NAME = '${CACHE_NAME}'
+const OFFLINE_NAVIGATION_URL = '${OFFLINE_NAVIGATION_URL}'
+const STATIC_RESOURCE_PREFIXES = ${JSON.stringify(STATIC_RESOURCE_PREFIXES)}
 const PRECACHE_URLS = [
 ${precacheUrls},
 ]
@@ -48,6 +52,41 @@ ${precacheUrls},
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)),
+  )
+})
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') {
+    return
+  }
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(OFFLINE_NAVIGATION_URL)),
+    )
+
+    return
+  }
+
+  const requestUrl = new URL(event.request.url)
+
+  if (
+    requestUrl.origin !== self.location.origin ||
+    !STATIC_RESOURCE_PREFIXES.some((prefix) =>
+      requestUrl.pathname.startsWith(prefix),
+    )
+  ) {
+    return
+  }
+
+  event.respondWith(
+    caches.match(event.request, { ignoreVary: true }).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse
+      }
+
+      return fetch(event.request)
+    }),
   )
 })
 
