@@ -16,6 +16,18 @@ import { GameRenderer } from './presentation/canvas/game-renderer'
 import { createAnimatedMarioVisual } from './presentation/mario/mario-visual'
 import { selectMarioVisualVariant } from './presentation/mario/select-mario-visual-variant'
 
+const registerServiceWorker = (): void => {
+  if (!('serviceWorker' in navigator)) {
+    return
+  }
+
+  void navigator.serviceWorker.register('/sw.js').catch(() => {
+    // Falha no Service Worker não deve impedir o jogo de funcionar.
+  })
+}
+
+registerServiceWorker()
+
 const app = document.querySelector<HTMLDivElement>('#app')
 
 if (!app) {
@@ -193,7 +205,6 @@ const handleVolumeChange = (): void => {
   audioService.setVolume(volume)
 
   volumeControl.setAttribute('aria-valuenow', String(volumePercentage))
-
   volumeControl.setAttribute('aria-valuetext', `${volumePercentage} por cento`)
 }
 
