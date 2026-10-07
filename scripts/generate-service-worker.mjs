@@ -5,7 +5,8 @@ const DIST_DIRECTORY = 'dist'
 const PUBLIC_AUDIO_DIRECTORY = 'public/audio'
 const ASSETS_DIRECTORY = join(DIST_DIRECTORY, 'assets')
 const SERVICE_WORKER_PATH = join(DIST_DIRECTORY, 'sw.js')
-const CACHE_NAME = 'mario-runner-v1'
+const CACHE_VERSION = 'v1'
+const CACHE_NAME = `mario-runner-${CACHE_VERSION}`
 const OFFLINE_NAVIGATION_URL = '/index.html'
 const STATIC_RESOURCE_PREFIXES = ['/assets/', '/audio/']
 
@@ -90,8 +91,20 @@ self.addEventListener('fetch', (event) => {
   )
 })
 
-self.addEventListener('activate', () => {
-  // A limpeza de caches será implementada na Task 12.5.
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter(
+            (cacheName) =>
+              cacheName.startsWith('mario-runner-') &&
+              cacheName !== CACHE_NAME,
+          )
+          .map((cacheName) => caches.delete(cacheName)),
+      ),
+    ),
+  )
 })
 `
 
