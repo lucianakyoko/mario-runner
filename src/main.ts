@@ -156,7 +156,7 @@ if (!volumeControl) {
 const muteButton = document.querySelector<HTMLButtonElement>('#audio-mute')
 
 if (!muteButton) {
-  throw new Error('Audio mute button not found.')
+  throw new Error('Mute button not found.')
 }
 
 const surface = new CanvasSurface(canvas)
@@ -224,15 +224,6 @@ const handleMuteClick = (): void => {
 volumeControl.addEventListener('input', handleVolumeChange)
 muteButton.addEventListener('click', handleMuteClick)
 
-const unlockAudioFromUserInteraction = (): void => {
-  if (
-    gameApplication.state === 'READY' ||
-    gameApplication.state === 'GAME_OVER'
-  ) {
-    audioService.playMusic(scenario.music)
-  }
-}
-
 const handleJumpPointerDown = (event: PointerEvent): void => {
   if (event.pointerType !== 'touch') {
     return
@@ -240,7 +231,6 @@ const handleJumpPointerDown = (event: PointerEvent): void => {
 
   event.preventDefault()
   jumpButton.setAttribute('aria-pressed', 'true')
-  unlockAudioFromUserInteraction()
   touchInput.press('jump')
 }
 
@@ -262,6 +252,20 @@ const handleJumpPointerCancel = (event: PointerEvent): void => {
   event.preventDefault()
   jumpButton.setAttribute('aria-pressed', 'false')
   touchInput.release('jump')
+}
+
+// const handleJumpClick = (): void => {
+//   audioService.playMusic(scenario.music)
+// }
+
+const handleJumpClick = (): void => {
+  console.log('[audio] touch click', {
+    state: gameApplication.state,
+    userActivation: navigator.userActivation.isActive,
+    hasBeenActive: navigator.userActivation.hasBeenActive,
+  })
+
+  audioService.playMusic(scenario.music)
 }
 
 const handleCrouchPointerDown = (event: PointerEvent): void => {
@@ -297,6 +301,7 @@ const handleCrouchPointerCancel = (event: PointerEvent): void => {
 jumpButton.addEventListener('pointerdown', handleJumpPointerDown)
 jumpButton.addEventListener('pointerup', handleJumpPointerUp)
 jumpButton.addEventListener('pointercancel', handleJumpPointerCancel)
+jumpButton.addEventListener('click', handleJumpClick)
 
 crouchButton.addEventListener('pointerdown', handleCrouchPointerDown)
 crouchButton.addEventListener('pointerup', handleCrouchPointerUp)
@@ -304,7 +309,7 @@ crouchButton.addEventListener('pointercancel', handleCrouchPointerCancel)
 
 const handleKeyboardInteraction = (): void => {
   if (keyboardInput.isActive('jump')) {
-    unlockAudioFromUserInteraction()
+    audioService.playMusic(scenario.music)
   }
 }
 
@@ -330,8 +335,24 @@ const gameApplication = new GameApplication(
           ? 'GAME OVER — PRESS RESTART'
           : currentState
 
-      if (currentState === 'RUNNING') {
-        audioService.playMusic(currentScenario.music)
+      // if (currentState === 'RUNNING') {
+      //   audioService.playMusic(currentScenario.music)
+      // }
+      if (currentState !== previousGameState) {
+        gameStatus.textContent =
+          currentState === 'GAME_OVER'
+            ? 'GAME OVER — PRESS RESTART'
+            : currentState
+
+        if (currentState === 'GAME_OVER') {
+          audioService.stopMusic()
+        }
+
+        if (currentState === 'READY' && previousGameState === 'GAME_OVER') {
+          audioService.stopEffects()
+        }
+
+        previousGameState = currentState
       }
 
       if (currentState === 'GAME_OVER') {

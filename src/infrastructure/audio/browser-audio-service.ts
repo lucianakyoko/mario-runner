@@ -52,7 +52,10 @@ export class BrowserAudioService implements AudioService {
     this.musicElement = audio
     this.currentMusic = music
 
-    void audio.play().catch(() => {})
+    // void audio.play().catch(() => {})
+    void audio.play().catch((error: unknown) => {
+      console.error('[audio] music playback failed', error)
+    })
   }
 
   stopMusic(): void {
