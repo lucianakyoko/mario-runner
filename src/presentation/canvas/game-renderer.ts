@@ -10,6 +10,12 @@ import type { Scenario } from '../../domain/scenario/scenario'
 import { createGameOverVisual } from '../game-over/game-over-visual'
 import type { MarioVisual } from '../mario/mario-visual'
 import type { ObstacleVisual } from '../obstacle/obstacle-visual'
+import {
+  createMarioSpriteCatalog,
+  getMarioSpriteFrame,
+  isSpriteLoaded,
+  type MarioSpriteCatalog,
+} from '../mario/mario-sprite-catalog'
 import { CanvasSurface } from './canvas-surface'
 
 const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
@@ -27,6 +33,7 @@ const GAME_OVER_TEXT_COLOR = '#000000'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
+  private marioSprites: MarioSpriteCatalog | undefined
 
   constructor(surface: CanvasSurface) {
     this.surface = surface
@@ -53,7 +60,7 @@ export class GameRenderer {
     this.renderCollectibles(coins, mario, scenario)
     this.renderPowerUps(powerUps, mario, scenario)
     this.renderHud(state, score, level)
-    this.renderMario(mario, marioVisual, scenario)
+    this.renderMario(state, mario, marioVisual, scenario)
     this.renderGameOver(state)
   }
 
@@ -252,7 +259,20 @@ export class GameRenderer {
     }
   }
 
+  private getMarioSprites(): MarioSpriteCatalog | undefined {
+    if (typeof Image === 'undefined') {
+      return undefined
+    }
+
+    if (!this.marioSprites) {
+      this.marioSprites = createMarioSpriteCatalog()
+    }
+
+    return this.marioSprites
+  }
+
   private renderMario(
+    state: GameState,
     mario: Mario,
     visual: MarioVisual,
     scenario: Scenario,
@@ -266,6 +286,51 @@ export class GameRenderer {
 
     const screenY =
       screenGroundY - visual.height + mario.position.y + visual.offsetY
+
+    const sprites = this.getMarioSprites()
+
+    if (sprites) {
+      if (visual.variant === 'DEAD') {
+        const deadSprite = sprites.dead
+
+        if (isSpriteLoaded(deadSprite)) {
+          context.drawImage(
+            deadSprite,
+            0,
+            0,
+            16,
+            16,
+            screenX,
+            screenY,
+            visual.width,
+            visual.height,
+          )
+          return
+        }
+      } else {
+        const sprite = visual.variant === 'BIG' ? sprites.big : sprites.small
+
+        if (isSpriteLoaded(sprite.image)) {
+          const frame =
+            state === 'READY'
+              ? sprite.frames.idle
+              : getMarioSpriteFrame(sprite, visual)
+
+          context.drawImage(
+            sprite.image,
+            frame.x,
+            frame.y,
+            frame.width,
+            frame.height,
+            screenX,
+            screenY,
+            visual.width,
+            visual.height,
+          )
+          return
+        }
+      }
+    }
 
     context.fillStyle = '#000000'
     context.fillRect(screenX, screenY, visual.width, visual.height)

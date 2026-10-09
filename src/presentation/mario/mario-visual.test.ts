@@ -17,6 +17,7 @@ describe('createMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -30,6 +31,7 @@ describe('createMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -43,6 +45,7 @@ describe('createMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -64,6 +67,7 @@ describe('createMarioVisualForState', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -77,6 +81,7 @@ describe('createMarioVisualForState', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -90,6 +95,7 @@ describe('createMarioVisualForState', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -103,6 +109,7 @@ describe('createMarioVisualForState', () => {
       offsetX: -1,
       offsetY: 0,
       movementState: 'JUMPING',
+      animationFrame: 0,
     })
   })
 
@@ -116,6 +123,7 @@ describe('createMarioVisualForState', () => {
       offsetX: -1,
       offsetY: 0,
       movementState: 'JUMPING',
+      animationFrame: 0,
     })
   })
 
@@ -129,6 +137,7 @@ describe('createMarioVisualForState', () => {
       offsetX: 1,
       offsetY: 2,
       movementState: 'FALLING',
+      animationFrame: 0,
     })
   })
 
@@ -142,6 +151,7 @@ describe('createMarioVisualForState', () => {
       offsetX: 1,
       offsetY: 2,
       movementState: 'FALLING',
+      animationFrame: 0,
     })
   })
 
@@ -155,6 +165,7 @@ describe('createMarioVisualForState', () => {
       offsetX: -2,
       offsetY: 0,
       movementState: 'CROUCHING',
+      animationFrame: 0,
     })
   })
 
@@ -168,12 +179,13 @@ describe('createMarioVisualForState', () => {
       offsetX: -2,
       offsetY: 0,
       movementState: 'CROUCHING',
+      animationFrame: 0,
     })
   })
 })
 
 describe('createAnimatedMarioVisual', () => {
-  it('uses the first small running frame at the beginning of the animation', () => {
+  it('uses the first small running frame at the beginning', () => {
     const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0, 0.1)
 
     expect(visual).toEqual({
@@ -183,10 +195,11 @@ describe('createAnimatedMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
-  it('uses the first big running frame at the beginning of the animation', () => {
+  it('uses the first big running frame at the beginning', () => {
     const visual = createAnimatedMarioVisual('BIG', 'RUNNING', 0, 0.1)
 
     expect(visual).toEqual({
@@ -196,6 +209,7 @@ describe('createAnimatedMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -209,23 +223,28 @@ describe('createAnimatedMarioVisual', () => {
       offsetX: -1,
       offsetY: 2,
       movementState: 'RUNNING',
+      animationFrame: 1,
     })
   })
 
-  it('switches to the second big running frame after one frame duration', () => {
-    const visual = createAnimatedMarioVisual('BIG', 'RUNNING', 0.1, 0.1)
+  it('switches big Mario frames without changing its geometry', () => {
+    const firstFrame = createAnimatedMarioVisual('BIG', 'RUNNING', 0, 0.1)
+    const secondFrame = createAnimatedMarioVisual('BIG', 'RUNNING', 0.1, 0.1)
 
-    expect(visual).toEqual({
+    expect(firstFrame.animationFrame).toBe(0)
+    expect(secondFrame.animationFrame).toBe(1)
+
+    expect(secondFrame).toMatchObject({
       variant: 'BIG',
-      width: 34,
-      height: 62,
-      offsetX: -1,
-      offsetY: 2,
+      width: 32,
+      height: 64,
+      offsetX: 0,
+      offsetY: 0,
       movementState: 'RUNNING',
     })
   })
 
-  it('loops back to the first running frame', () => {
+  it('loops back to the first small running frame', () => {
     const visual = createAnimatedMarioVisual('SMALL', 'RUNNING', 0.2, 0.1)
 
     expect(visual).toEqual({
@@ -235,6 +254,7 @@ describe('createAnimatedMarioVisual', () => {
       offsetX: 0,
       offsetY: 0,
       movementState: 'RUNNING',
+      animationFrame: 0,
     })
   })
 
@@ -248,6 +268,7 @@ describe('createAnimatedMarioVisual', () => {
       offsetX: -1,
       offsetY: 0,
       movementState: 'JUMPING',
+      animationFrame: 0,
     })
   })
 })

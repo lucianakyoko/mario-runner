@@ -1,6 +1,7 @@
 import type { MarioMovementState } from '../../domain/mario/mario-movement-state'
 
 export type MarioVisualVariant = 'SMALL' | 'BIG' | 'DEAD'
+export type MarioAnimationFrame = 0 | 1
 
 export interface MarioVisual {
   variant: MarioVisualVariant
@@ -9,6 +10,7 @@ export interface MarioVisual {
   offsetX: number
   offsetY: number
   movementState: MarioMovementState
+  animationFrame: MarioAnimationFrame
 }
 
 export const createMarioVisual = (
@@ -18,6 +20,7 @@ export const createMarioVisual = (
   height: number,
   offsetX: number,
   offsetY: number,
+  animationFrame: MarioAnimationFrame = 0,
 ): MarioVisual => ({
   variant,
   width,
@@ -25,6 +28,7 @@ export const createMarioVisual = (
   offsetX,
   offsetY,
   movementState,
+  animationFrame,
 })
 
 export const createMarioVisualForState = (
@@ -84,16 +88,30 @@ export const createAnimatedMarioVisual = (
     return createMarioVisualForState(variant, movementState)
   }
 
-  const animationFrame = Math.floor(elapsedTime / frameDuration) % 2
+  const animationFrame = (Math.floor(elapsedTime / frameDuration) %
+    2) as MarioAnimationFrame
+
+  if (variant === 'BIG') {
+    return createMarioVisual(
+      variant,
+      movementState,
+      32,
+      64,
+      0,
+      0,
+      animationFrame,
+    )
+  }
 
   if (animationFrame === 0) {
     return createMarioVisual(
       variant,
       movementState,
       32,
-      variant === 'BIG' ? 64 : 48,
+      48,
       0,
       0,
+      animationFrame,
     )
   }
 
@@ -101,8 +119,9 @@ export const createAnimatedMarioVisual = (
     variant,
     movementState,
     34,
-    variant === 'BIG' ? 62 : 46,
+    46,
     -1,
     2,
+    animationFrame,
   )
 }

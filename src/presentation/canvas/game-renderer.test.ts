@@ -60,6 +60,7 @@ const createMarioVisual = (): MarioVisual => ({
   offsetX: -1,
   offsetY: 0,
   movementState: 'JUMPING',
+  animationFrame: 0,
 })
 
 const createBigMarioVisual = (): MarioVisual => ({
@@ -69,6 +70,7 @@ const createBigMarioVisual = (): MarioVisual => ({
   offsetX: -1,
   offsetY: 0,
   movementState: 'JUMPING',
+  animationFrame: 0,
 })
 
 const createObstacle = (
