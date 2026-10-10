@@ -27,9 +27,10 @@ const createFrame = (
   x: number,
   width: number,
   height: number,
+  y = 0,
 ): SpriteFrame => ({
   x,
-  y: 0,
+  y,
   width,
   height,
 })
@@ -51,17 +52,13 @@ const createMarioSprite = (
       .slice(0, index)
       .reduce((total, frameWidth) => total + frameWidth, 0)
 
-    const height =
+    const isCrouchingFrame =
       crouchingHeight !== undefined && index === frameWidths.length - 1
-        ? crouchingHeight
-        : frameHeight
 
-    return {
-      x,
-      y: 0,
-      width,
-      height,
-    }
+    const height = isCrouchingFrame ? crouchingHeight : frameHeight
+    const y = isCrouchingFrame ? frameHeight - height : 0
+
+    return createFrame(x, width, height, y)
   })
 
   return {

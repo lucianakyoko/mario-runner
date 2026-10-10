@@ -70,9 +70,9 @@ export const createMarioVisualForState = (
       return createMarioVisual(
         variant,
         movementState,
-        36,
-        variant === 'BIG' ? 48 : 32,
-        -2,
+        variant === 'BIG' ? 28 : 36,
+        variant === 'BIG' ? 36 : 32,
+        variant === 'BIG' ? 2 : -2,
         0,
       )
   }

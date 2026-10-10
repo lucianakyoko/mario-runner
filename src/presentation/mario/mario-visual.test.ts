@@ -174,9 +174,9 @@ describe('createMarioVisualForState', () => {
 
     expect(visual).toEqual({
       variant: 'BIG',
-      width: 36,
-      height: 48,
-      offsetX: -2,
+      width: 28,
+      height: 36,
+      offsetX: 2,
       offsetY: 0,
       movementState: 'CROUCHING',
       animationFrame: 0,
