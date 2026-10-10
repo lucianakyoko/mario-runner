@@ -493,7 +493,7 @@ export class GameApplication {
         defaultGameplayConfig.spawn.powerUpObstacleClearance,
       ),
       mushroomId: `mushroom-${this.nextMushroomId}`,
-      velocityX: -difficulty.obstacleSpeed,
+      velocityX: -defaultGameplayConfig.powerUp.speed,
       minSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
       maxSpawnDistance: defaultGameplayConfig.spawn.powerUpMaxDistance,
     })

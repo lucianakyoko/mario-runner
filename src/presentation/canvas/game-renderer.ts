@@ -174,8 +174,10 @@ export class GameRenderer {
     const sprites = this.getCollectibleSprites()
 
     for (const powerUp of powerUps) {
-      const screenX = powerUp.position.x - cameraX
-      const screenY = screenGroundY - powerUp.size.height + powerUp.position.y
+      const screenX = Math.round(powerUp.position.x - cameraX)
+      const screenY = Math.round(
+        screenGroundY - powerUp.size.height + powerUp.position.y,
+      )
       const sprite =
         powerUp.type === POWER_UP_TYPE.MUSHROOM ? sprites?.mushroom : undefined
 
