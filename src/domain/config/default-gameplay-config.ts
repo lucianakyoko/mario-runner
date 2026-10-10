@@ -153,5 +153,6 @@ export const defaultGameplayConfig: GameplayConfig = {
   },
   animation: {
     defaultFrameDuration: 100,
+    collectibleFrameDuration: 250,
   },
 }

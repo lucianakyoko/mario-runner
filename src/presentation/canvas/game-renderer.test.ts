@@ -127,6 +127,7 @@ const createPowerUp = (x: number, y = 0): PowerUp => ({
 const createSurface = (): CanvasSurface => {
   const context = {
     clearRect: vi.fn(),
+    drawImage: vi.fn(),
     fillText: vi.fn(),
     fillRect: vi.fn(),
     fillStyle: '',

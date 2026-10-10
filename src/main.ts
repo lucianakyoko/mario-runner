@@ -393,6 +393,7 @@ const gameApplication = new GameApplication(
       gameApplication.currentPowerUps,
       gameApplication.currentScore.value,
       gameApplication.currentLevel,
+      animationTime,
     )
   },
   [],

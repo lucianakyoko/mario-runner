@@ -17,6 +17,12 @@ import {
   type MarioSpriteCatalog,
 } from '../mario/mario-sprite-catalog'
 import { CanvasSurface } from './canvas-surface'
+import {
+  createCollectibleSpriteCatalog,
+  isCollectibleSpriteLoaded,
+  type CollectibleSpriteCatalog,
+} from '../collectible/collectible-sprite-catalog'
+import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 
 const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
 const DEFAULT_GROUND_HEIGHT = 32
@@ -34,6 +40,7 @@ const GAME_OVER_TEXT_COLOR = '#000000'
 export class GameRenderer {
   private readonly surface: CanvasSurface
   private marioSprites: MarioSpriteCatalog | undefined
+  private collectibleSprites: CollectibleSpriteCatalog | undefined
 
   constructor(surface: CanvasSurface) {
     this.surface = surface
@@ -49,6 +56,7 @@ export class GameRenderer {
     powerUps: PowerUp[] = [],
     score = 0,
     level = 1,
+    animationTime = 0,
   ): void {
     const { element, context } = this.surface
 
@@ -57,7 +65,7 @@ export class GameRenderer {
     this.renderBackground(scenario)
     this.renderGround(scenario)
     this.renderObstacles(obstacles, mario, scenario)
-    this.renderCollectibles(coins, mario, scenario)
+    this.renderCollectibles(coins, mario, scenario, animationTime)
     this.renderPowerUps(powerUps, mario, scenario)
     this.renderHud(state, score, level)
     this.renderMario(state, mario, marioVisual, scenario)
@@ -105,20 +113,46 @@ export class GameRenderer {
     collectibles: Collectible[],
     mario: Mario,
     scenario: Scenario,
+    animationTime: number,
   ): void {
     const { context } = this.surface
 
     const cameraX = mario.position.x - this.surface.element.width * 0.25
     const screenGroundY = this.surface.element.height - scenario.ground.y
+    const sprites = this.getCollectibleSprites()
+
+    const frameDuration =
+      defaultGameplayConfig.animation.collectibleFrameDuration / 1000
 
     for (const collectible of collectibles) {
       const screenX = collectible.position.x - cameraX
-
       const screenY =
         screenGroundY - collectible.size.height + collectible.position.y
 
-      context.fillStyle = this.getCollectibleColor(collectible)
+      const animatedSprite = sprites?.[collectible.type]
+      const sprite = animatedSprite?.image
 
+      if (sprite && isCollectibleSpriteLoaded(sprite)) {
+        const frameIndex =
+          Math.floor(animationTime / frameDuration) %
+          animatedSprite.frames.length
+        const frame = animatedSprite.frames[frameIndex]!
+
+        context.drawImage(
+          sprite,
+          frame.x,
+          frame.y,
+          frame.width,
+          frame.height,
+          screenX,
+          screenY,
+          collectible.size.width,
+          collectible.size.height,
+        )
+        continue
+      }
+
+      context.fillStyle = this.getCollectibleColor(collectible)
       context.fillRect(
         screenX,
         screenY,
@@ -137,14 +171,30 @@ export class GameRenderer {
 
     const cameraX = mario.position.x - this.surface.element.width * 0.25
     const screenGroundY = this.surface.element.height - scenario.ground.y
+    const sprites = this.getCollectibleSprites()
 
     for (const powerUp of powerUps) {
       const screenX = powerUp.position.x - cameraX
-
       const screenY = screenGroundY - powerUp.size.height + powerUp.position.y
+      const sprite =
+        powerUp.type === POWER_UP_TYPE.MUSHROOM ? sprites?.mushroom : undefined
+
+      if (sprite && isCollectibleSpriteLoaded(sprite)) {
+        context.drawImage(
+          sprite,
+          0,
+          0,
+          sprite.naturalWidth,
+          sprite.naturalHeight,
+          screenX,
+          screenY,
+          powerUp.size.width,
+          powerUp.size.height,
+        )
+        continue
+      }
 
       context.fillStyle = this.getPowerUpColor(powerUp)
-
       context.fillRect(
         screenX,
         screenY,
@@ -269,6 +319,18 @@ export class GameRenderer {
     }
 
     return this.marioSprites
+  }
+
+  private getCollectibleSprites(): CollectibleSpriteCatalog | undefined {
+    if (typeof Image === 'undefined') {
+      return undefined
+    }
+
+    if (!this.collectibleSprites) {
+      this.collectibleSprites = createCollectibleSpriteCatalog()
+    }
+
+    return this.collectibleSprites
   }
 
   private renderMario(

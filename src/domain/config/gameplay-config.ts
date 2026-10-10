@@ -103,6 +103,7 @@ export interface CollisionConfig {
 
 export interface AnimationConfig {
   defaultFrameDuration: number
+  collectibleFrameDuration: number
 }
 
 export interface GameplayConfig {
