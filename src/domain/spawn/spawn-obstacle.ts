@@ -4,6 +4,7 @@ import type { Obstacle } from '../obstacle/obstacle'
 import { createObstacle } from '../obstacle/create-obstacle'
 import type { Random } from '../random/random'
 import { selectObstacleType } from './select-obstacle-type'
+import { selectObstacleVariant } from './select-obstacle-variant'
 import { selectSpawnDistance } from './select-spawn-distance'
 import type { SpawnState } from './spawn-state'
 
@@ -39,11 +40,13 @@ export const spawnObstacle = ({
   }
 
   const type = selectObstacleType(random)
+  const variant = selectObstacleVariant(random, type)
   const config = obstacleConfigs[type]
 
   const obstacle = createObstacle({
     id: obstacleId,
     type,
+    variant,
     x: spawnX,
     config,
     velocityX: -difficulty.obstacleSpeed,

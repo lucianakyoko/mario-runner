@@ -13,6 +13,7 @@ import type { MarioVisual } from '../mario/mario-visual'
 import { CanvasSurface } from './canvas-surface'
 import { GameRenderer } from './game-renderer'
 import { musicTypes } from '../../domain/audio/music-type'
+import { OBSTACLE_VARIANT } from '../obstacle/obstacle-sprite-catalog'
 
 const createMario = (): Mario => ({
   position: {
@@ -80,6 +81,12 @@ const createObstacle = (
 ): Obstacle => ({
   id: `${type}-${x}`,
   type,
+  variant:
+    type === OBSTACLE_TYPE.GROUND_TALL
+      ? OBSTACLE_VARIANT.PTOOIE
+      : type === OBSTACLE_TYPE.AIR
+        ? OBSTACLE_VARIANT.CANNONBALL
+        : OBSTACLE_VARIANT.MUNCHER,
   position: {
     x,
     y,

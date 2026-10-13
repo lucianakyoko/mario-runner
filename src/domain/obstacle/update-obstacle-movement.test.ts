@@ -7,6 +7,7 @@ import { updateObstacleMovement } from './update-obstacle-movement'
 const createObstacle = (): Obstacle => ({
   id: 'obstacle-1',
   type: OBSTACLE_TYPE.GROUND_SMALL,
+  variant: 'MUNCHER',
   position: {
     x: 400,
     y: 0,

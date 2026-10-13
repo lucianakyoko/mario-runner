@@ -8,6 +8,7 @@ describe('createObstacle', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       x: 800,
       config: defaultGameplayConfig.obstacles.GROUND_SMALL,
       velocityX: -280,
@@ -16,6 +17,7 @@ describe('createObstacle', () => {
     expect(obstacle).toEqual({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 800,
         y: 0,
@@ -41,6 +43,7 @@ describe('createObstacle', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.AIR,
+      variant: 'CANNONBALL',
       x: 800,
       config: {
         ...defaultGameplayConfig.obstacles.AIR,
@@ -56,6 +59,7 @@ describe('createObstacle', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       x: 800,
       config: {
         ...defaultGameplayConfig.obstacles.GROUND_SMALL,
@@ -75,6 +79,7 @@ describe('createObstacle', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       x: 800,
       config: {
         ...defaultGameplayConfig.obstacles.GROUND_SMALL,
@@ -107,6 +112,7 @@ describe('createObstacle', () => {
     const obstacle = createObstacle({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       x: 800,
       config: defaultGameplayConfig.obstacles.GROUND_SMALL,
       velocityX: -320,

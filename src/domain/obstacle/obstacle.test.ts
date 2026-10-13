@@ -9,6 +9,7 @@ describe('Obstacle', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 400,
         y: 0,
@@ -32,6 +33,7 @@ describe('Obstacle', () => {
     expect(obstacle).toEqual({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 400,
         y: 0,
@@ -57,6 +59,7 @@ describe('Obstacle', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-2',
       type: OBSTACLE_TYPE.GROUND_TALL,
+      variant: 'PTOOIE',
       position: {
         x: 600,
         y: 0,
@@ -102,6 +105,7 @@ describe('Obstacle', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-3',
       type: OBSTACLE_TYPE.AIR,
+      variant: 'CANNONBALL',
       position: {
         x: 800,
         y: 64,
@@ -147,6 +151,7 @@ describe('Obstacle', () => {
     const firstObstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 400,
         y: 0,
@@ -170,6 +175,7 @@ describe('Obstacle', () => {
     const secondObstacle: Obstacle = {
       id: 'obstacle-2',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 600,
         y: 0,
@@ -200,6 +206,7 @@ describe('getObstacleCollisionBounds', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 100,
         y: 200,
@@ -232,6 +239,7 @@ describe('getObstacleCollisionBounds', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_TALL,
+      variant: 'PTOOIE',
       position: {
         x: 100,
         y: 200,
@@ -272,6 +280,7 @@ describe('getObstacleCollisionBounds', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.AIR,
+      variant: 'CANNONBALL',
       position: {
         x: 300,
         y: 120,

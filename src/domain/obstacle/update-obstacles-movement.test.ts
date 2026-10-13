@@ -8,6 +8,7 @@ const createObstacles = (): Obstacle[] => [
   {
     id: 'obstacle-1',
     type: OBSTACLE_TYPE.GROUND_SMALL,
+    variant: 'MUNCHER',
     position: {
       x: 400,
       y: 0,
@@ -30,6 +31,7 @@ const createObstacles = (): Obstacle[] => [
   {
     id: 'obstacle-2',
     type: OBSTACLE_TYPE.AIR,
+    variant: 'CANNONBALL',
     position: {
       x: 800,
       y: 64,

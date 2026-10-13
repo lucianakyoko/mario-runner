@@ -113,6 +113,7 @@ const createScenario = (): Scenario => ({
 const createObstacle = (): Obstacle => ({
   id: 'obstacle-1',
   type: OBSTACLE_TYPE.GROUND_SMALL,
+  variant: 'MUNCHER',
   position: {
     x: 400,
     y: 0,
@@ -411,6 +412,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'old-obstacle',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: -40,
         y: 0,
@@ -905,6 +907,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -949,6 +952,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'air-obstacle-1',
       type: OBSTACLE_TYPE.AIR,
+      variant: 'CANNONBALL',
       position: {
         x: 0,
         y: -airConfig.groundOffset,
@@ -987,6 +991,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 500,
         y: 0,
@@ -1143,6 +1148,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1184,6 +1190,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1231,6 +1238,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1279,6 +1287,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1327,6 +1336,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: { x: 0, y: 0 },
       size: { width: 32, height: 32 },
       collisionBounds: {
@@ -1377,6 +1387,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: { x: 0, y: 0 },
       size: { width: 32, height: 32 },
       collisionBounds: {
@@ -1420,6 +1431,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: { x: 0, y: 0 },
       size: { width: 32, height: 32 },
       collisionBounds: {
@@ -1477,6 +1489,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: { x: 0, y: 0 },
       size: { width: 32, height: 32 },
       collisionBounds: {
@@ -1512,6 +1525,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1556,6 +1570,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: { x: 0, y: 0 },
       size: { width: 32, height: 32 },
       collisionBounds: {
@@ -1607,6 +1622,7 @@ describe('GameApplication', () => {
     const firstObstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1630,6 +1646,7 @@ describe('GameApplication', () => {
     const secondObstacle: Obstacle = {
       id: 'obstacle-2',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 280,
         y: 0,
@@ -1699,6 +1716,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1762,6 +1780,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,
@@ -1829,6 +1848,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 1000,
         y: 0,
@@ -1935,6 +1955,7 @@ describe('GameApplication', () => {
     const obstacle: Obstacle = {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 0,
         y: 0,

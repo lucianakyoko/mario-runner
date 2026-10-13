@@ -7,6 +7,7 @@ import { removeOffscreenObstacles } from './remove-offscreen-obstacles'
 const createObstacle = (x: number): Obstacle => ({
   id: `obstacle-${x}`,
   type: OBSTACLE_TYPE.GROUND_SMALL,
+  variant: 'MUNCHER',
   position: {
     x,
     y: 0,

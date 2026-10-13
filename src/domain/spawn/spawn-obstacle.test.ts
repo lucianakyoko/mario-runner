@@ -107,6 +107,7 @@ describe('spawnObstacle', () => {
     expect(result.obstacles[0]).toEqual({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 800,
         y: 0,
@@ -166,6 +167,7 @@ describe('spawnObstacle', () => {
     const existingObstacle: Obstacle = {
       id: 'obstacle-existing',
       type: OBSTACLE_TYPE.GROUND_TALL,
+      variant: 'PTOOIE',
       position: {
         x: 600,
         y: 0,
@@ -201,6 +203,7 @@ describe('spawnObstacle', () => {
     expect(result.obstacles[1]).toEqual({
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
+      variant: 'MUNCHER',
       position: {
         x: 800,
         y: 0,

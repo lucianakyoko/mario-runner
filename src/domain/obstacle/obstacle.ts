@@ -2,6 +2,7 @@ import { createCollisionRectangle } from '../collision/create-collision-rectangl
 import type { CollisionBounds } from '../collision/collision-bounds'
 import type { Rectangle } from '../collision/rectangle'
 import type { ObstacleType } from './obstacle-type'
+import type { ObstacleVariant } from './obstacle-variant'
 
 export interface ObstaclePosition {
   x: number
@@ -21,7 +22,7 @@ export interface ObstacleVelocity {
 export interface Obstacle {
   id: string
   type: ObstacleType
-
+  variant: ObstacleVariant
   position: ObstaclePosition
 
   // Área visual (sprite renderizado)

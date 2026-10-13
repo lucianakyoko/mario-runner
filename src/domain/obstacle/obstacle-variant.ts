@@ -1,0 +1,11 @@
+export const OBSTACLE_VARIANT = {
+  CANNONBALL: 'CANNONBALL',
+  HAMMER: 'HAMMER',
+  PTOOIE: 'PTOOIE',
+  MUNCHER: 'MUNCHER',
+  NIPPERPLANT: 'NIPPERPLANT',
+  SPINY: 'SPINY',
+} as const
+
+export type ObstacleVariant =
+  (typeof OBSTACLE_VARIANT)[keyof typeof OBSTACLE_VARIANT]

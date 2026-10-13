@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { SeededRandom } from '../../infrastructure/random/seeded-random'
 import type { ObstacleConfigs } from '../config/gameplay-config'
 import type { Difficulty } from '../difficulty/difficulty'
-import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { Obstacle } from '../obstacle/obstacle'
+import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import { spawnObstacle } from './spawn-obstacle'
 import type { SpawnState } from './spawn-state'
 
@@ -81,6 +81,7 @@ const generateSequence = (seed: number) => {
 
   const sequence: Array<{
     type: Obstacle['type']
+    variant: Obstacle['variant']
     nextSpawnDistance: number
   }> = []
 
@@ -92,6 +93,7 @@ const generateSequence = (seed: number) => {
 
     sequence.push({
       type: obstacles[index].type,
+      variant: obstacles[index].variant,
       nextSpawnDistance: state.nextSpawnDistance,
     })
 
@@ -105,7 +107,7 @@ const generateSequence = (seed: number) => {
 }
 
 describe('spawnObstacle deterministic sequence', () => {
-  it('produces the same sequence with the same seed', () => {
+  it('produces the same types, variants and distances with the same seed', () => {
     const firstSequence = generateSequence(12345)
     const secondSequence = generateSequence(12345)
 
