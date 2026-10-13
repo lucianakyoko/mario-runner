@@ -267,7 +267,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -286,7 +286,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      236,
+      220,
       marioVisual.width,
       marioVisual.height,
     )
@@ -309,7 +309,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual)
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(199, 236, 34, 64)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(199, 220, 34, 64)
   })
 
   it('renders Mario according to the current scenario ground', () => {
@@ -325,7 +325,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       199,
-      212,
+      196,
       marioVisual.width,
       marioVisual.height,
     )
@@ -345,7 +345,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -445,7 +445,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -640,7 +640,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       5,
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -671,7 +671,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       4,
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )
@@ -758,7 +758,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       4,
       199,
-      252,
+      236,
       marioVisual.width,
       marioVisual.height,
     )

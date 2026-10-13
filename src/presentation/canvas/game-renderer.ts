@@ -398,7 +398,11 @@ export class GameRenderer {
     const screenGroundY = element.height - scenario.ground.y
 
     const screenY =
-      screenGroundY - visual.height + mario.position.y + visual.offsetY
+      screenGroundY -
+      DEFAULT_GROUND_HEIGHT -
+      visual.height +
+      mario.position.y +
+      visual.offsetY
     const sprites = this.getMarioSprites()
 
     if (sprites) {
