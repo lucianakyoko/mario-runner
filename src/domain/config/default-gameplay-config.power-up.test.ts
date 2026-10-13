@@ -8,7 +8,7 @@ describe('defaultGameplayConfig powerUp', () => {
       width: 32,
       height: 32,
       groundOffset: 0,
-      speed: 280,
+      speed: 150,
       collisionBounds: {
         offsetX: 2,
         offsetY: 2,

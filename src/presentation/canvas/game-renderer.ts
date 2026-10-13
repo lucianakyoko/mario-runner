@@ -25,7 +25,8 @@ import {
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 
 const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
-const DEFAULT_GROUND_HEIGHT = 32
+const DEFAULT_GROUND_HEIGHT = 16
+const GROUND_TILE_SIZE = 16
 const DEFAULT_GROUND_COLOR = '#8B4513'
 const GROUND_SMALL_COLOR = '#228B22'
 const GROUND_TALL_COLOR = '#006400'
@@ -36,11 +37,13 @@ const MUSHROOM_COLOR = '#FF0000'
 const GAME_OVER_TITLE_FONT = 'bold 32px monospace'
 const GAME_OVER_INSTRUCTION_FONT = '16px monospace'
 const GAME_OVER_TEXT_COLOR = '#000000'
+const GROUND_SPRITE_PATH = '/sprites/environments/ground-1-middle.png'
 
 export class GameRenderer {
   private readonly surface: CanvasSurface
   private marioSprites: MarioSpriteCatalog | undefined
   private collectibleSprites: CollectibleSpriteCatalog | undefined
+  private groundSprite: HTMLImageElement | undefined
 
   constructor(surface: CanvasSurface) {
     this.surface = surface
@@ -81,11 +84,48 @@ export class GameRenderer {
 
   private renderGround(scenario: Scenario): void {
     const { element, context } = this.surface
+    const groundY = element.height - scenario.ground.y - DEFAULT_GROUND_HEIGHT
+    const sprite = this.getGroundSprite()
 
-    const groundY = element.height - scenario.ground.y
+    if (!sprite || !isSpriteLoaded(sprite)) {
+      context.fillStyle = DEFAULT_GROUND_COLOR
+      context.fillRect(0, groundY, element.width, DEFAULT_GROUND_HEIGHT)
+      return
+    }
 
-    context.fillStyle = DEFAULT_GROUND_COLOR
-    context.fillRect(0, groundY, element.width, DEFAULT_GROUND_HEIGHT)
+    const offset =
+      ((scenario.position.x % GROUND_TILE_SIZE) + GROUND_TILE_SIZE) %
+      GROUND_TILE_SIZE
+    const firstTileX = -offset
+
+    for (let x = firstTileX; x < element.width; x += GROUND_TILE_SIZE) {
+      for (let row = 0; row < DEFAULT_GROUND_HEIGHT; row += GROUND_TILE_SIZE) {
+        context.drawImage(
+          sprite,
+          0,
+          0,
+          GROUND_TILE_SIZE,
+          GROUND_TILE_SIZE,
+          x,
+          groundY + row,
+          GROUND_TILE_SIZE,
+          GROUND_TILE_SIZE,
+        )
+      }
+    }
+  }
+
+  private getGroundSprite(): HTMLImageElement | undefined {
+    if (typeof Image === 'undefined') {
+      return undefined
+    }
+
+    if (!this.groundSprite) {
+      this.groundSprite = new Image()
+      this.groundSprite.src = GROUND_SPRITE_PATH
+    }
+
+    return this.groundSprite
   }
 
   private renderObstacles(
@@ -101,8 +141,17 @@ export class GameRenderer {
     for (const obstacle of obstacles) {
       const visual = this.getObstacleVisual(obstacle)
       const screenX = obstacle.position.x - cameraX + visual.offsetX
+
+      const isGroundObstacle =
+        obstacle.type === OBSTACLE_TYPE.GROUND_SMALL ||
+        obstacle.type === OBSTACLE_TYPE.GROUND_TALL
+
+      const obstacleGroundY = isGroundObstacle
+        ? screenGroundY - DEFAULT_GROUND_HEIGHT
+        : screenGroundY
+
       const screenY =
-        screenGroundY - visual.height + obstacle.position.y + visual.offsetY
+        obstacleGroundY - visual.height + obstacle.position.y + visual.offsetY
 
       context.fillStyle = this.getObstacleColor(obstacle.type)
       context.fillRect(screenX, screenY, visual.width, visual.height)

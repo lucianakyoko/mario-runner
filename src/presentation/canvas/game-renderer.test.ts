@@ -195,7 +195,51 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual)
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(0, 280, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(0, 264, 800, 16)
+  })
+
+  it('renders the ground sprite repeatedly across the canvas', () => {
+    const originalImage = globalThis.Image
+
+    class MockImage {
+      complete = true
+      naturalWidth = 16
+      naturalHeight = 16
+      src = ''
+
+      addEventListener(): void {}
+      removeEventListener(): void {}
+    }
+
+    vi.stubGlobal('Image', MockImage)
+
+    try {
+      const surface = createSurface()
+      const renderer = new GameRenderer(surface)
+
+      renderer.render(
+        'RUNNING',
+        createScenario(),
+        createMario(),
+        createMarioVisual(),
+      )
+
+      expect(surface.context.drawImage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          src: '/sprites/environments/ground-1-middle.png',
+        }),
+        0,
+        0,
+        16,
+        16,
+        expect.any(Number),
+        expect.any(Number),
+        16,
+        16,
+      )
+    } finally {
+      vi.stubGlobal('Image', originalImage)
+    }
   })
 
   it('renders the ground using the current scenario data', () => {
@@ -209,7 +253,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual)
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(0, 260, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(0, 244, 800, 16)
   })
 
   it('renders Mario with the expected visual dimensions', () => {
@@ -396,7 +440,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
 
-    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 284, 800, 16)
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
@@ -434,9 +478,9 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       2,
       0,
-      surface.element.height - defaultGameplayConfig.physics.groundY,
+      surface.element.height - defaultGameplayConfig.physics.groundY - 16,
       800,
-      32,
+      16,
     )
   })
 
@@ -450,7 +494,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 268, 32, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 252, 32, 32)
   })
 
   it('renders a tall ground obstacle using its visual dimensions', () => {
@@ -463,7 +507,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 252, 32, 48)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(400, 236, 32, 48)
   })
 
   it('renders ground obstacles according to their world position', () => {
@@ -476,7 +520,7 @@ describe('GameRenderer', () => {
 
     renderer.render('RUNNING', scenario, mario, marioVisual, [obstacle])
 
-    expect(surface.context.fillRect).toHaveBeenCalledWith(500, 268, 32, 32)
+    expect(surface.context.fillRect).toHaveBeenCalledWith(500, 252, 32, 32)
   })
 
   it('does not change obstacles when rendering', () => {
@@ -575,7 +619,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
 
-    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 284, 800, 16)
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
@@ -614,12 +658,12 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
 
-    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 284, 800, 16)
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       400,
-      268,
+      252,
       32,
       32,
     )
@@ -701,12 +745,12 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(1, 0, 0, 800, 300)
 
-    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 300, 800, 32)
+    expect(surface.context.fillRect).toHaveBeenNthCalledWith(2, 0, 284, 800, 16)
 
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       3,
       400,
-      268,
+      252,
       32,
       32,
     )
