@@ -2,9 +2,9 @@ import './style.css'
 
 import type { AudioService } from './application/audio/audio-service'
 import { GameApplication } from './application/game/application'
-import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
 import { effectTypes } from './domain/audio/effect-type'
 import { musicTypes } from './domain/audio/music-type'
+import { defaultGameplayConfig } from './domain/config/default-gameplay-config'
 import { createInitialMario } from './domain/mario/mario'
 import { createInitialScenario } from './domain/scenario/scenario'
 import { BrowserAudioService } from './infrastructure/audio/browser-audio-service'
@@ -164,6 +164,7 @@ const renderer = new GameRenderer(surface)
 const scheduler = new AnimationFrameScheduler()
 const keyboardInput = new KeyboardInput(window)
 const touchInput = new TouchInput(jumpButton)
+
 const audioService: AudioService = new BrowserAudioService({
   resolveMusicSource: (music) => `/audio/music/${music}.oga`,
   resolveEffectSource: (effect) => `/audio/effects/${effect}.wav`,
@@ -254,17 +255,7 @@ const handleJumpPointerCancel = (event: PointerEvent): void => {
   touchInput.release('jump')
 }
 
-// const handleJumpClick = (): void => {
-//   audioService.playMusic(scenario.music)
-// }
-
 const handleJumpClick = (): void => {
-  console.log('[audio] touch click', {
-    state: gameApplication.state,
-    userActivation: navigator.userActivation.isActive,
-    hasBeenActive: navigator.userActivation.hasBeenActive,
-  })
-
   audioService.playMusic(scenario.music)
 }
 
@@ -335,26 +326,6 @@ const gameApplication = new GameApplication(
           ? 'GAME OVER — PRESS RESTART'
           : currentState
 
-      // if (currentState === 'RUNNING') {
-      //   audioService.playMusic(currentScenario.music)
-      // }
-      if (currentState !== previousGameState) {
-        gameStatus.textContent =
-          currentState === 'GAME_OVER'
-            ? 'GAME OVER — PRESS RESTART'
-            : currentState
-
-        if (currentState === 'GAME_OVER') {
-          audioService.stopMusic()
-        }
-
-        if (currentState === 'READY' && previousGameState === 'GAME_OVER') {
-          audioService.stopEffects()
-        }
-
-        previousGameState = currentState
-      }
-
       if (currentState === 'GAME_OVER') {
         audioService.stopMusic()
       }
@@ -422,6 +393,10 @@ const gameApplication = new GameApplication(
 
     if (event === 'DEATH') {
       audioService.playEffect(effectTypes.DEATH)
+    }
+
+    if (event === 'CANNON_FIRE') {
+      audioService.playEffect(effectTypes.CANNON_FIRE)
     }
   },
 )

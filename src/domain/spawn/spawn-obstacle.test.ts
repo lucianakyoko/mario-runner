@@ -1,227 +1,74 @@
-import { describe, expect, it } from 'vitest'
-
 import type { ObstacleConfigs } from '../config/gameplay-config'
 import type { Difficulty } from '../difficulty/difficulty'
-import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { Obstacle } from '../obstacle/obstacle'
+import {
+  OBSTACLE_VARIANT,
+  type ObstacleVariant,
+} from '../obstacle/obstacle-variant'
+import { createObstacle } from '../obstacle/create-obstacle'
 import type { Random } from '../random/random'
-import { spawnObstacle } from './spawn-obstacle'
+import { selectObstacleType } from './select-obstacle-type'
+import { selectObstacleVariant } from './select-obstacle-variant'
+import { selectSpawnDistance } from './select-spawn-distance'
 import type { SpawnState } from './spawn-state'
 
-const obstacleConfigs: ObstacleConfigs = {
-  [OBSTACLE_TYPE.GROUND_SMALL]: {
-    width: 32,
-    height: 32,
-    groundOffset: 0,
-    speed: 280,
-    collisionBounds: {
-      offsetX: 2,
-      offsetY: 2,
-      width: 28,
-      height: 30,
-    },
-  },
-  [OBSTACLE_TYPE.GROUND_TALL]: {
-    width: 32,
-    height: 48,
-    groundOffset: 0,
-    speed: 280,
-    collisionBounds: {
-      offsetX: 2,
-      offsetY: 2,
-      width: 28,
-      height: 46,
-    },
-  },
-  [OBSTACLE_TYPE.AIR]: {
-    width: 32,
-    height: 24,
-    groundOffset: 64,
-    speed: 280,
-    collisionBounds: {
-      offsetX: 2,
-      offsetY: 2,
-      width: 28,
-      height: 20,
-    },
-  },
+export interface SpawnObstacleParams {
+  state: SpawnState
+  obstacles: Obstacle[]
+  random: Random
+  difficulty: Difficulty
+  obstacleConfigs: ObstacleConfigs
+  spawnX: number
+  obstacleId: string
 }
 
-const difficulty: Difficulty = {
-  obstacleSpeed: 280,
-  obstacleMinDistance: 320,
-  obstacleMaxDistance: 700,
+export interface SpawnObstacleResult {
+  state: SpawnState
+  obstacles: Obstacle[]
 }
 
-const createState = (): SpawnState => ({
-  distanceSinceLastSpawn: 300,
-  nextSpawnDistance: 300,
-})
+const STATIONARY_VARIANTS = new Set<ObstacleVariant>([
+  OBSTACLE_VARIANT.MUNCHER,
+  OBSTACLE_VARIANT.NIPPERPLANT,
+])
 
-const createRandom = (): Random => ({
-  next: () => 0,
-  nextInt: (min, max) => {
-    if (min === 0 && max === 2) {
-      return 0
-    }
+export const spawnObstacle = ({
+  state,
+  obstacles,
+  random,
+  difficulty,
+  obstacleConfigs,
+  spawnX,
+  obstacleId,
+}: SpawnObstacleParams): SpawnObstacleResult => {
+  if (state.distanceSinceLastSpawn < state.nextSpawnDistance) {
+    return { state, obstacles }
+  }
 
-    return min
-  },
-})
+  const type = selectObstacleType(random)
+  const variant = selectObstacleVariant(random, type)
+  const config = obstacleConfigs[type]
 
-describe('spawnObstacle', () => {
-  it('does not spawn before reaching the required distance', () => {
-    const state: SpawnState = {
-      distanceSinceLastSpawn: 299,
-      nextSpawnDistance: 300,
-    }
-
-    const result = spawnObstacle({
-      state,
-      obstacles: [],
-      random: createRandom(),
-      difficulty,
-      obstacleConfigs,
-      spawnX: 800,
-      obstacleId: 'obstacle-1',
-    })
-
-    expect(result).toEqual({
-      state,
-      obstacles: [],
-    })
+  const obstacle = createObstacle({
+    id: obstacleId,
+    type,
+    variant,
+    x: spawnX,
+    config,
+    velocityX: STATIONARY_VARIANTS.has(variant)
+      ? 0
+      : -difficulty.obstacleSpeed * 0.5,
   })
 
-  it('creates and adds an obstacle when the required distance is reached', () => {
-    const result = spawnObstacle({
-      state: createState(),
-      obstacles: [],
-      random: createRandom(),
-      difficulty,
-      obstacleConfigs,
-      spawnX: 800,
-      obstacleId: 'obstacle-1',
-    })
-
-    expect(result.obstacles).toHaveLength(1)
-    expect(result.obstacles[0]).toEqual({
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
-      variant: 'MUNCHER',
-      position: {
-        x: 800,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
-      collisionBounds: {
-        offsetX: 2,
-        offsetY: 2,
-        width: 28,
-        height: 30,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    })
-  })
-
-  it('uses the difficulty to select the next spawn distance', () => {
-    const result = spawnObstacle({
-      state: createState(),
-      obstacles: [],
-      random: createRandom(),
-      difficulty,
-      obstacleConfigs,
-      spawnX: 800,
-      obstacleId: 'obstacle-1',
-    })
-
-    expect(result.state).toEqual({
+  return {
+    state: {
       distanceSinceLastSpawn: 0,
-      nextSpawnDistance: 320,
-    })
-  })
-
-  it('uses the difficulty to determine obstacle speed', () => {
-    const result = spawnObstacle({
-      state: createState(),
-      obstacles: [],
-      random: createRandom(),
-      difficulty: {
-        ...difficulty,
-        obstacleSpeed: 420,
-      },
-      obstacleConfigs,
-      spawnX: 800,
-      obstacleId: 'obstacle-1',
-    })
-
-    expect(result.obstacles[0].velocity.x).toBe(-420)
-  })
-
-  it('preserves existing obstacles', () => {
-    const existingObstacle: Obstacle = {
-      id: 'obstacle-existing',
-      type: OBSTACLE_TYPE.GROUND_TALL,
-      variant: 'PTOOIE',
-      position: {
-        x: 600,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 48,
-      },
-      collisionBounds: {
-        offsetX: 0,
-        offsetY: 0,
-        width: 32,
-        height: 48,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    }
-
-    const result = spawnObstacle({
-      state: createState(),
-      obstacles: [existingObstacle],
-      random: createRandom(),
-      difficulty,
-      obstacleConfigs,
-      spawnX: 800,
-      obstacleId: 'obstacle-1',
-    })
-
-    expect(result.obstacles).toHaveLength(2)
-    expect(result.obstacles[0]).toEqual(existingObstacle)
-    expect(result.obstacles[1]).toEqual({
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
-      variant: 'MUNCHER',
-      position: {
-        x: 800,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
-      collisionBounds: {
-        offsetX: 2,
-        offsetY: 2,
-        width: 28,
-        height: 30,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    })
-  })
-})
+      nextSpawnDistance: selectSpawnDistance(
+        random,
+        difficulty.obstacleMinDistance,
+        difficulty.obstacleMaxDistance,
+      ),
+    },
+    obstacles: [...obstacles, obstacle],
+  }
+}

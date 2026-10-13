@@ -1,8 +1,14 @@
 import type { ObstacleType } from '../obstacle/obstacle-type'
-
+import type { ObstacleVariant } from '../obstacle/obstacle-variant'
 export interface MovementConfig {
   initialSpeed: number
   maxSpeed: number
+}
+
+export interface AnimationConfig {
+  defaultFrameDuration: number
+  collectibleFrameDuration: number
+  obstacleFrameDurations: Partial<Record<ObstacleVariant, number>>
 }
 
 export interface PhysicsConfig {
@@ -34,6 +40,13 @@ export interface SpawnConfig {
   powerUpMinDistance: number
   powerUpMaxDistance: number
   powerUpObstacleClearance: number
+  collectibleChanceIncreasePerLevel: number
+  collectibleChanceMax: number
+  collectibleMinDistanceDecreasePerLevel: number
+  collectibleMaxDistanceDecreasePerLevel: number
+  collectibleMinDistanceFloor: number
+  collectibleMaxDistanceFloor: number
+  cannonFireDelay: number
 }
 
 export interface DifficultyConfig {

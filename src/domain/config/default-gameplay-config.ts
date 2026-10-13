@@ -1,5 +1,6 @@
 import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
 import type { GameplayConfig } from './gameplay-config'
+import { OBSTACLE_VARIANT } from '../obstacle/obstacle-variant'
 
 export const defaultGameplayConfig: GameplayConfig = {
   movement: {
@@ -32,6 +33,13 @@ export const defaultGameplayConfig: GameplayConfig = {
     powerUpMinDistance: 320,
     powerUpMaxDistance: 700,
     powerUpObstacleClearance: 64,
+    collectibleChanceIncreasePerLevel: 0.05,
+    collectibleChanceMax: 0.75,
+    collectibleMinDistanceDecreasePerLevel: 20,
+    collectibleMaxDistanceDecreasePerLevel: 40,
+    collectibleMinDistanceFloor: 160,
+    collectibleMaxDistanceFloor: 260,
+    cannonFireDelay: 0.25,
   },
   difficulty: {
     progressionInterval: 10,
@@ -154,5 +162,8 @@ export const defaultGameplayConfig: GameplayConfig = {
   animation: {
     defaultFrameDuration: 100,
     collectibleFrameDuration: 250,
+    obstacleFrameDurations: {
+      [OBSTACLE_VARIANT.PTOOIE]: 250,
+    },
   },
 }

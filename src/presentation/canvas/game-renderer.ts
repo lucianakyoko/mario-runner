@@ -94,7 +94,7 @@ export class GameRenderer {
     this.renderClouds(scenario)
     this.renderGround(scenario)
     this.renderBushes(scenario)
-    this.renderObstacles(obstacles, mario, scenario)
+    this.renderObstacles(obstacles, mario, scenario, animationTime)
     this.renderCollectibles(coins, mario, scenario, animationTime)
     this.renderPowerUps(powerUps, mario, scenario)
     this.renderHud(state, score, level)
@@ -256,12 +256,15 @@ export class GameRenderer {
     obstacles: Obstacle[],
     mario: Mario,
     scenario: Scenario,
+    animationTime: number,
   ): void {
     const { element, context } = this.surface
 
     const cameraX = mario.position.x - element.width * 0.25
     const screenGroundY = element.height - scenario.ground.y
     const sprites = this.getObstacleSprites()
+    // const frameDuration =
+    //   defaultGameplayConfig.animation.defaultFrameDuration / 1000
 
     for (const obstacle of obstacles) {
       const visual = this.getObstacleVisual(obstacle)
@@ -279,9 +282,20 @@ export class GameRenderer {
         obstacleGroundY - visual.height + obstacle.position.y + visual.offsetY
 
       const sprite = sprites?.[obstacle.variant]
-      const frame = sprite?.frames[0]
 
-      if (sprite && frame && isObstacleSpriteLoaded(sprite.image)) {
+      if (
+        sprite &&
+        sprite.frames.length > 0 &&
+        isObstacleSpriteLoaded(sprite.image)
+      ) {
+        const frameDuration =
+          (defaultGameplayConfig.animation.obstacleFrameDurations[
+            obstacle.variant
+          ] ?? defaultGameplayConfig.animation.defaultFrameDuration) / 1000
+        const frameIndex =
+          Math.floor(animationTime / frameDuration) % sprite.frames.length
+        const frame = sprite.frames[frameIndex]!
+
         context.drawImage(
           sprite.image,
           frame.x,

@@ -1,6 +1,10 @@
 import type { ObstacleConfigs } from '../config/gameplay-config'
 import type { Difficulty } from '../difficulty/difficulty'
 import type { Obstacle } from '../obstacle/obstacle'
+import {
+  OBSTACLE_VARIANT,
+  type ObstacleVariant,
+} from '../obstacle/obstacle-variant'
 import { createObstacle } from '../obstacle/create-obstacle'
 import type { Random } from '../random/random'
 import { selectObstacleType } from './select-obstacle-type'
@@ -23,6 +27,11 @@ export interface SpawnObstacleResult {
   obstacles: Obstacle[]
 }
 
+const STATIONARY_VARIANTS = new Set<ObstacleVariant>([
+  OBSTACLE_VARIANT.MUNCHER,
+  OBSTACLE_VARIANT.NIPPERPLANT,
+])
+
 export const spawnObstacle = ({
   state,
   obstacles,
@@ -33,10 +42,7 @@ export const spawnObstacle = ({
   obstacleId,
 }: SpawnObstacleParams): SpawnObstacleResult => {
   if (state.distanceSinceLastSpawn < state.nextSpawnDistance) {
-    return {
-      state,
-      obstacles,
-    }
+    return { state, obstacles }
   }
 
   const type = selectObstacleType(random)
@@ -49,7 +55,9 @@ export const spawnObstacle = ({
     variant,
     x: spawnX,
     config,
-    velocityX: -difficulty.obstacleSpeed,
+    velocityX: STATIONARY_VARIANTS.has(variant)
+      ? 0
+      : -difficulty.obstacleSpeed * 0.5,
   })
 
   return {

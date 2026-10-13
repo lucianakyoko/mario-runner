@@ -547,6 +547,62 @@ describe('GameRenderer', () => {
     expect(obstacles).toEqual(obstaclesBeforeRender)
   })
 
+  it('renders the obstacle animation frame according to elapsed time', () => {
+    const originalImage = globalThis.Image
+
+    class MockImage {
+      complete = true
+      naturalWidth = 112
+      naturalHeight = 16
+      src = ''
+
+      addEventListener(): void {}
+      removeEventListener(): void {}
+    }
+
+    vi.stubGlobal('Image', MockImage)
+
+    try {
+      const surface = createSurface()
+      const renderer = new GameRenderer(surface)
+      const scenario = createScenario()
+      const mario = createMario()
+      const marioVisual = createMarioVisual()
+      const obstacle = createObstacle(OBSTACLE_TYPE.AIR, 200, -64)
+
+      obstacle.variant = OBSTACLE_VARIANT.HAMMER
+
+      renderer.render(
+        'RUNNING',
+        scenario,
+        mario,
+        marioVisual,
+        [obstacle],
+        [],
+        [],
+        0,
+        1,
+        0.25,
+      )
+
+      expect(surface.context.drawImage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          src: '/sprites/obstacles/hammer.png',
+        }),
+        32,
+        0,
+        16,
+        16,
+        400,
+        212,
+        32,
+        24,
+      )
+    } finally {
+      vi.stubGlobal('Image', originalImage)
+    }
+  })
+
   it('renders an air obstacle at its configured vertical position', () => {
     const surface = createSurface()
     const renderer = new GameRenderer(surface)

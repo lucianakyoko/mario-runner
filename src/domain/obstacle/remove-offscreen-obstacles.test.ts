@@ -29,36 +29,37 @@ const createObstacle = (x: number): Obstacle => ({
 })
 
 describe('removeOffscreenObstacles', () => {
-  it('keeps obstacles that are still visible', () => {
-    const obstacles = [createObstacle(10), createObstacle(-20)]
+  it('keeps obstacles at or ahead of the camera left edge', () => {
+    const obstacles = [createObstacle(110), createObstacle(80)]
 
-    const result = removeOffscreenObstacles(obstacles)
-
-    expect(result).toEqual(obstacles)
+    expect(removeOffscreenObstacles(obstacles, 100)).toEqual(obstacles)
   })
 
-  it('removes obstacles that are completely outside the world', () => {
-    const visible = createObstacle(40)
-    const offscreen = createObstacle(-40)
+  it('removes obstacles completely behind the camera', () => {
+    const visible = createObstacle(80)
+    const offscreen = createObstacle(60)
 
-    const result = removeOffscreenObstacles([visible, offscreen])
-
-    expect(result).toEqual([visible])
-  })
-
-  it('returns an empty collection when every obstacle is offscreen', () => {
-    const result = removeOffscreenObstacles([
-      createObstacle(-50),
-      createObstacle(-80),
+    expect(removeOffscreenObstacles([visible, offscreen], 100)).toEqual([
+      visible,
     ])
+  })
 
-    expect(result).toEqual([])
+  it('keeps an obstacle whose right edge touches the camera boundary', () => {
+    const obstacle = createObstacle(68)
+
+    expect(removeOffscreenObstacles([obstacle], 100)).toEqual([obstacle])
+  })
+
+  it('returns an empty collection when every obstacle is behind the camera', () => {
+    expect(
+      removeOffscreenObstacles([createObstacle(10), createObstacle(40)], 100),
+    ).toEqual([])
   })
 
   it('does not mutate the original collection', () => {
-    const obstacles = [createObstacle(-40), createObstacle(20)]
+    const obstacles = [createObstacle(10), createObstacle(120)]
 
-    removeOffscreenObstacles(obstacles)
+    removeOffscreenObstacles(obstacles, 100)
 
     expect(obstacles).toHaveLength(2)
   })

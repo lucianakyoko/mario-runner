@@ -24,17 +24,18 @@ import { shouldDieMario } from '../../domain/mario/should-die-mario'
 import { updateMarioMovement } from '../../domain/mario/update-mario-movement'
 import { updateMarioVerticalMovement } from '../../domain/mario/update-mario-vertical-movement'
 import { updateMarioVerticalPosition } from '../../domain/mario/update-mario-vertical-position'
+import { growMario } from '../../domain/mario/grow-mario'
+import { loseMarioPower } from '../../domain/mario/lose-mario-power'
+import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
 import type { Obstacle } from '../../domain/obstacle/obstacle'
 import { getObstacleCollisionBounds } from '../../domain/obstacle/obstacle'
+import { OBSTACLE_VARIANT } from '../../domain/obstacle/obstacle-variant'
 import { removeOffscreenObstacles } from '../../domain/obstacle/remove-offscreen-obstacles'
 import { updateObstaclesMovement } from '../../domain/obstacle/update-obstacles-movement'
 import type { PowerUp } from '../../domain/power-up/power-up'
 import { consumePowerUp } from '../../domain/power-up/consume-power-up'
 import { createPowerUpCollidable } from '../../domain/power-up/create-power-up-collidable'
 import { updatePowerUpsMovement } from '../../domain/power-up/update-power-ups-movement'
-import { growMario } from '../../domain/mario/grow-mario'
-import { loseMarioPower } from '../../domain/mario/lose-mario-power'
-import { shouldLoseMarioPower } from '../../domain/mario/should-lose-mario-power'
 import { addScore } from '../../domain/score/add-score'
 import { createScore } from '../../domain/score/create-score'
 import { getCollectibleScoreValue } from '../../domain/score/get-collectible-score-value'
@@ -62,7 +63,13 @@ import type { Input } from '../input'
 import { Clock } from '../time/clock'
 
 export type GameEvent =
-  'JUMP' | 'COIN' | 'MEDAL' | 'POWER_UP' | 'LOSE_POWER' | 'DEATH'
+  | 'JUMP'
+  | 'COIN'
+  | 'MEDAL'
+  | 'POWER_UP'
+  | 'LOSE_POWER'
+  | 'DEATH'
+  | 'CANNON_FIRE'
 
 export class GameApplication {
   private readonly stateMachine: GameStateMachine
@@ -91,6 +98,11 @@ export class GameApplication {
   private nextCoinId = 1
   private nextMedalId = 1
   private nextMushroomId = 1
+
+  private pendingCannonballs: Array<{
+    obstacle: Obstacle
+    remainingTime: number
+  }> = []
 
   private collisionResult: CollisionResult = {
     hasCollision: false,
@@ -243,6 +255,7 @@ export class GameApplication {
     this.obstacles = []
     this.coins = []
     this.powerUps = []
+    this.pendingCannonballs = []
 
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
@@ -280,6 +293,7 @@ export class GameApplication {
   }
 
   gameOver(): void {
+    this.pendingCannonballs = []
     this.collisionResult = { hasCollision: false }
     this.collectibleCollisions = []
     this.powerUpCollisions = []
@@ -335,6 +349,7 @@ export class GameApplication {
       if (collectible.type === collectibleTypes.COIN) {
         this.onEvent('COIN')
       }
+
       if (collectible.type === collectibleTypes.MEDAL) {
         this.onEvent('MEDAL')
       }
@@ -375,6 +390,23 @@ export class GameApplication {
     })
   }
 
+  private updatePendingCannonballs(deltaTime: number): void {
+    const readyObstacles: Obstacle[] = []
+
+    this.pendingCannonballs = this.pendingCannonballs.filter((pending) => {
+      pending.remainingTime -= deltaTime
+
+      if (pending.remainingTime <= 0) {
+        readyObstacles.push(pending.obstacle)
+        return false
+      }
+
+      return true
+    })
+
+    this.obstacles = [...this.obstacles, ...readyObstacles]
+  }
+
   private updateSession = (gameTime: GameTime): void => {
     if (this.stateMachine.state === 'READY') {
       if (this.input.isActive('jump')) {
@@ -395,6 +427,8 @@ export class GameApplication {
     if (this.stateMachine.state !== 'RUNNING') {
       return
     }
+
+    this.updatePendingCannonballs(gameTime.deltaTime)
 
     const traveledDistance =
       defaultGameplayConfig.scenario.speed * gameTime.deltaTime
@@ -426,19 +460,43 @@ export class GameApplication {
     const spawnX =
       this.mario.position.x + defaultGameplayConfig.viewport.width * 0.75
 
+    const spawnConfig = defaultGameplayConfig.spawn
+    const collectibleLevel = Math.max(0, this.level - 1)
+
+    const collectibleChance = Math.min(
+      spawnConfig.collectibleChanceMax,
+      spawnConfig.collectibleChance +
+        collectibleLevel * spawnConfig.collectibleChanceIncreasePerLevel,
+    )
+
+    const collectibleMinDistance = Math.max(
+      spawnConfig.collectibleMinDistanceFloor,
+      spawnConfig.collectibleMinDistance -
+        collectibleLevel * spawnConfig.collectibleMinDistanceDecreasePerLevel,
+    )
+
+    const collectibleMaxDistance = Math.max(
+      spawnConfig.collectibleMaxDistanceFloor,
+      spawnConfig.collectibleMaxDistance -
+        collectibleLevel * spawnConfig.collectibleMaxDistanceDecreasePerLevel,
+    )
+
     const collectibleSpawnResult = spawnCollectible({
       state: this.collectibleSpawnState,
       collectibles: this.coins,
       random: this.random,
-      collectibleChance: defaultGameplayConfig.spawn.collectibleChance,
-      coinSpawnWeight: defaultGameplayConfig.spawn.coinSpawnWeight,
-      medalSpawnWeight: defaultGameplayConfig.spawn.medalSpawnWeight,
+      collectibleChance,
+      coinSpawnWeight: spawnConfig.coinSpawnWeight,
+      medalSpawnWeight: spawnConfig.medalSpawnWeight,
       coinConfig: defaultGameplayConfig.coin,
       medalConfig: defaultGameplayConfig.medal,
       spawnX,
-      velocityX: -difficulty.obstacleSpeed,
-      minSpawnDistance: defaultGameplayConfig.spawn.collectibleMinDistance,
-      maxSpawnDistance: defaultGameplayConfig.spawn.collectibleMaxDistance,
+      velocityX: this.mario.velocity.x - difficulty.obstacleSpeed,
+      minSpawnDistance: collectibleMinDistance,
+      maxSpawnDistance: Math.max(
+        collectibleMinDistance,
+        collectibleMaxDistance,
+      ),
       collectibleIds: {
         [collectibleTypes.COIN]: `coin-${this.nextCoinId}`,
         [collectibleTypes.MEDAL]: `medal-${this.nextMedalId}`,
@@ -479,7 +537,54 @@ export class GameApplication {
     }
 
     this.spawnState = spawnResult.state
-    this.obstacles = spawnResult.obstacles
+
+    const spawnedObstacle = obstacleWasSpawned
+      ? spawnResult.obstacles[spawnResult.obstacles.length - 1]
+      : undefined
+
+    if (spawnedObstacle?.variant === OBSTACLE_VARIANT.CANNONBALL) {
+      const cannonball: Obstacle = {
+        ...spawnedObstacle,
+        position: {
+          ...spawnedObstacle.position,
+          x:
+            spawnedObstacle.position.x +
+            (this.mario.velocity.x + difficulty.obstacleSpeed * 0.5) *
+              spawnConfig.cannonFireDelay,
+        },
+      }
+
+      this.obstacles = spawnResult.obstacles.slice(0, -1)
+
+      this.pendingCannonballs.push({
+        obstacle: cannonball,
+        remainingTime: spawnConfig.cannonFireDelay,
+      })
+
+      this.onEvent('CANNON_FIRE')
+    } else if (
+      spawnedObstacle &&
+      spawnedObstacle.variant !== OBSTACLE_VARIANT.MUNCHER &&
+      spawnedObstacle.variant !== OBSTACLE_VARIANT.NIPPERPLANT
+    ) {
+      const compensatedSpawnX =
+        spawnedObstacle.position.x +
+        difficulty.obstacleSpeed * 0.5 * gameTime.deltaTime
+
+      this.obstacles = spawnResult.obstacles.map((obstacle) =>
+        obstacle.id === spawnedObstacle.id
+          ? {
+              ...obstacle,
+              position: {
+                ...obstacle.position,
+                x: compensatedSpawnX,
+              },
+            }
+          : obstacle,
+      )
+    } else {
+      this.obstacles = spawnResult.obstacles
+    }
 
     const mushroomSpawnResult = spawnMushroom({
       state: this.powerUpSpawnState,
@@ -493,7 +598,7 @@ export class GameApplication {
         defaultGameplayConfig.spawn.powerUpObstacleClearance,
       ),
       mushroomId: `mushroom-${this.nextMushroomId}`,
-      velocityX: -defaultGameplayConfig.powerUp.speed,
+      velocityX: this.mario.velocity.x - defaultGameplayConfig.powerUp.speed,
       minSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
       maxSpawnDistance: defaultGameplayConfig.spawn.powerUpMaxDistance,
     })
@@ -508,7 +613,11 @@ export class GameApplication {
     this.coins = updateCollectiblesMovement(this.coins, gameTime.deltaTime)
     this.powerUps = updatePowerUpsMovement(this.powerUps, gameTime.deltaTime)
     this.obstacles = updateObstaclesMovement(this.obstacles, gameTime.deltaTime)
-    this.obstacles = removeOffscreenObstacles(this.obstacles)
+
+    const cameraLeftX =
+      this.mario.position.x - defaultGameplayConfig.viewport.width * 0.25
+
+    this.obstacles = removeOffscreenObstacles(this.obstacles, cameraLeftX)
 
     const previousMarioMovementState = this.mario.movementState
 
