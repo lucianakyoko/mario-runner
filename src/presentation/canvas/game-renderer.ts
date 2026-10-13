@@ -16,13 +16,19 @@ import {
   isSpriteLoaded,
   type MarioSpriteCatalog,
 } from '../mario/mario-sprite-catalog'
-import { CanvasSurface } from './canvas-surface'
 import {
   createCollectibleSpriteCatalog,
   isCollectibleSpriteLoaded,
   type CollectibleSpriteCatalog,
 } from '../collectible/collectible-sprite-catalog'
+import {
+  createEnvironmentDecorationCatalog,
+  isEnvironmentDecorationLoaded,
+  type EnvironmentDecorationCatalog,
+  type EnvironmentDecorationFrame,
+} from '../environment/environment-decoration-catalog'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
+import { CanvasSurface } from './canvas-surface'
 
 const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
 const DEFAULT_GROUND_HEIGHT = 16
@@ -39,10 +45,23 @@ const GAME_OVER_INSTRUCTION_FONT = '16px monospace'
 const GAME_OVER_TEXT_COLOR = '#000000'
 const GROUND_SPRITE_PATH = '/sprites/environments/ground-1-middle.png'
 
+const CLOUD_SPACING = 300
+const CLOUD_PARALLAX_FACTOR = 0.35
+const CLOUD_INITIAL_OFFSET = 80
+const CLOUD_HEIGHTS = [36, 72, 48, 88] as const
+
+const BUSH_SPACING = 360
+const BUSH_INITIAL_OFFSET = 110
+const BUSH_SCALE = 1.25
+
+const positiveModulo = (value: number, divisor: number): number =>
+  ((value % divisor) + divisor) % divisor
+
 export class GameRenderer {
   private readonly surface: CanvasSurface
   private marioSprites: MarioSpriteCatalog | undefined
   private collectibleSprites: CollectibleSpriteCatalog | undefined
+  private environmentDecorations: EnvironmentDecorationCatalog | undefined
   private groundSprite: HTMLImageElement | undefined
 
   constructor(surface: CanvasSurface) {
@@ -66,7 +85,9 @@ export class GameRenderer {
     context.clearRect(0, 0, element.width, element.height)
 
     this.renderBackground(scenario)
+    this.renderClouds(scenario)
     this.renderGround(scenario)
+    this.renderBushes(scenario)
     this.renderObstacles(obstacles, mario, scenario)
     this.renderCollectibles(coins, mario, scenario, animationTime)
     this.renderPowerUps(powerUps, mario, scenario)
@@ -82,6 +103,36 @@ export class GameRenderer {
     context.fillRect(0, 0, element.width, element.height)
   }
 
+  private renderClouds(scenario: Scenario): void {
+    const { element } = this.surface
+
+    const catalog = this.getEnvironmentDecorations()
+    const cloud = catalog?.cloud
+
+    if (!cloud || !isEnvironmentDecorationLoaded(cloud.image)) {
+      return
+    }
+
+    const scrollPosition =
+      scenario.position.x * CLOUD_PARALLAX_FACTOR + CLOUD_INITIAL_OFFSET
+    const offset = positiveModulo(scrollPosition, CLOUD_SPACING)
+    const firstCloudX = -offset
+    const firstCloudIndex = Math.floor(scrollPosition / CLOUD_SPACING)
+
+    for (
+      let x = firstCloudX, index = firstCloudIndex;
+      x < element.width;
+      x += CLOUD_SPACING, index += 1
+    ) {
+      const frameIndex = positiveModulo(index, cloud.frames.length)
+      const frame = cloud.frames[frameIndex]!
+      const heightIndex = positiveModulo(index, CLOUD_HEIGHTS.length)
+      const y = CLOUD_HEIGHTS[heightIndex]!
+
+      this.drawDecorationFrame(cloud.image, frame, x, y)
+    }
+  }
+
   private renderGround(scenario: Scenario): void {
     const { element, context } = this.surface
     const groundY = element.height - scenario.ground.y - DEFAULT_GROUND_HEIGHT
@@ -93,9 +144,7 @@ export class GameRenderer {
       return
     }
 
-    const offset =
-      ((scenario.position.x % GROUND_TILE_SIZE) + GROUND_TILE_SIZE) %
-      GROUND_TILE_SIZE
+    const offset = positiveModulo(scenario.position.x, GROUND_TILE_SIZE)
     const firstTileX = -offset
 
     for (let x = firstTileX; x < element.width; x += GROUND_TILE_SIZE) {
@@ -113,6 +162,75 @@ export class GameRenderer {
         )
       }
     }
+  }
+
+  private renderBushes(scenario: Scenario): void {
+    const { element } = this.surface
+    const catalog = this.getEnvironmentDecorations()
+    const bush = catalog?.bush
+
+    if (!bush || !isEnvironmentDecorationLoaded(bush.image)) {
+      return
+    }
+
+    const scrollPosition = scenario.position.x + BUSH_INITIAL_OFFSET
+    const offset = positiveModulo(scrollPosition, BUSH_SPACING)
+    const firstBushX = -offset
+    const firstBushIndex = Math.floor(scrollPosition / BUSH_SPACING)
+    const groundTop = element.height - scenario.ground.y - DEFAULT_GROUND_HEIGHT
+
+    for (
+      let x = firstBushX, index = firstBushIndex;
+      x < element.width;
+      index += 1
+    ) {
+      const frameIndex = positiveModulo(index, bush.frames.length)
+      const frame = bush.frames[frameIndex]!
+      const scaledHeight = frame.height * BUSH_SCALE
+
+      this.drawDecorationFrame(
+        bush.image,
+        frame,
+        x,
+        groundTop - scaledHeight,
+        BUSH_SCALE,
+      )
+
+      x += BUSH_SPACING
+    }
+  }
+
+  private drawDecorationFrame(
+    image: HTMLImageElement,
+    frame: EnvironmentDecorationFrame,
+    x: number,
+    y: number,
+    scale = 1,
+  ): void {
+    this.surface.context.drawImage(
+      image,
+      frame.sourceX,
+      frame.sourceY,
+      frame.width,
+      frame.height,
+      Math.round(x),
+      Math.round(y),
+      Math.round(frame.width * scale),
+      Math.round(frame.height * scale),
+    )
+  }
+
+  private getEnvironmentDecorations():
+    EnvironmentDecorationCatalog | undefined {
+    if (typeof Image === 'undefined') {
+      return undefined
+    }
+
+    if (!this.environmentDecorations) {
+      this.environmentDecorations = createEnvironmentDecorationCatalog()
+    }
+
+    return this.environmentDecorations
   }
 
   private getGroundSprite(): HTMLImageElement | undefined {
