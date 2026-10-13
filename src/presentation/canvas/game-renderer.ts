@@ -27,6 +27,11 @@ import {
   type EnvironmentDecorationCatalog,
   type EnvironmentDecorationFrame,
 } from '../environment/environment-decoration-catalog'
+import {
+  createObstacleSpriteCatalog,
+  isObstacleSpriteLoaded,
+  type ObstacleSpriteCatalog,
+} from '../obstacle/obstacle-sprite-catalog'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import { CanvasSurface } from './canvas-surface'
 
@@ -62,6 +67,7 @@ export class GameRenderer {
   private marioSprites: MarioSpriteCatalog | undefined
   private collectibleSprites: CollectibleSpriteCatalog | undefined
   private environmentDecorations: EnvironmentDecorationCatalog | undefined
+  private obstacleSprites: ObstacleSpriteCatalog | undefined
   private groundSprite: HTMLImageElement | undefined
 
   constructor(surface: CanvasSurface) {
@@ -255,6 +261,7 @@ export class GameRenderer {
 
     const cameraX = mario.position.x - element.width * 0.25
     const screenGroundY = element.height - scenario.ground.y
+    const sprites = this.getObstacleSprites()
 
     for (const obstacle of obstacles) {
       const visual = this.getObstacleVisual(obstacle)
@@ -271,9 +278,39 @@ export class GameRenderer {
       const screenY =
         obstacleGroundY - visual.height + obstacle.position.y + visual.offsetY
 
+      const sprite = sprites?.[obstacle.variant]
+      const frame = sprite?.frames[0]
+
+      if (sprite && frame && isObstacleSpriteLoaded(sprite.image)) {
+        context.drawImage(
+          sprite.image,
+          frame.x,
+          frame.y,
+          frame.width,
+          frame.height,
+          Math.round(screenX),
+          Math.round(screenY),
+          visual.width,
+          visual.height,
+        )
+        continue
+      }
+
       context.fillStyle = this.getObstacleColor(obstacle.type)
       context.fillRect(screenX, screenY, visual.width, visual.height)
     }
+  }
+
+  private getObstacleSprites(): ObstacleSpriteCatalog | undefined {
+    if (typeof Image === 'undefined') {
+      return undefined
+    }
+
+    if (!this.obstacleSprites) {
+      this.obstacleSprites = createObstacleSpriteCatalog()
+    }
+
+    return this.obstacleSprites
   }
 
   private renderCollectibles(
