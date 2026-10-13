@@ -225,7 +225,10 @@ export class GameRenderer {
     for (const powerUp of powerUps) {
       const screenX = Math.round(powerUp.position.x - cameraX)
       const screenY = Math.round(
-        screenGroundY - powerUp.size.height + powerUp.position.y,
+        screenGroundY -
+          DEFAULT_GROUND_HEIGHT -
+          powerUp.size.height +
+          powerUp.position.y,
       )
       const sprite =
         powerUp.type === POWER_UP_TYPE.MUSHROOM ? sprites?.mushroom : undefined

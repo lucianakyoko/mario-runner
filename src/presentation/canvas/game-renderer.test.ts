@@ -578,7 +578,7 @@ describe('GameRenderer', () => {
 
     expect(surface.context.fillRect).toHaveBeenCalledWith(
       400,
-      268,
+      252,
       mushroom.size.width,
       mushroom.size.height,
     )
@@ -632,7 +632,7 @@ describe('GameRenderer', () => {
     expect(surface.context.fillRect).toHaveBeenNthCalledWith(
       4,
       450,
-      268,
+      252,
       mushroom.size.width,
       mushroom.size.height,
     )
