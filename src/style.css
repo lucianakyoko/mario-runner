@@ -245,8 +245,10 @@ canvas {
   }
 
   .touch-controls {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+    gap: 12px;
   }
 
   .touch-control {
