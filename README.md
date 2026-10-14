@@ -6,6 +6,8 @@ O projeto combina uma experiência simples e responsiva com uma arquitetura prep
 
 > Projeto independente, desenvolvido para fins de estudo e entretenimento.
 
+[🎮 Clique aqui para jogar](https://mario-runner.vercel.app/), ou acesse https://mario-runner.vercel.app
+
 ---
 
 ## 🎮 Sobre o jogo
