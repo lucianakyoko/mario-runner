@@ -97,7 +97,7 @@ export class GameRenderer {
     this.renderObstacles(obstacles, mario, scenario, animationTime)
     this.renderCollectibles(coins, mario, scenario, animationTime)
     this.renderPowerUps(powerUps, mario, scenario)
-    this.renderHud(state, score, level)
+    this.renderHud(state, level, score)
     this.renderMario(state, mario, marioVisual, scenario)
     this.renderGameOver(state)
   }
