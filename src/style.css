@@ -69,24 +69,6 @@ main {
   outline-offset: 3px;
 }
 
-@media (max-width: 768px) {
-  .audio-controls {
-    flex-wrap: wrap;
-  }
-
-  .audio-controls label {
-    width: 100%;
-  }
-
-  #audio-volume {
-    min-width: 0;
-  }
-
-  #audio-mute {
-    min-width: 112px;
-  }
-}
-
 main > section:first-child {
   width: min(100%, 800px);
 }
@@ -138,14 +120,81 @@ canvas {
   outline-offset: 3px;
 }
 
-main > section:last-child {
+.game-information {
   width: min(100%, 800px);
-  padding: 16px;
+  padding: 20px 16px;
   border: 1px solid #222;
+  border-radius: 8px;
+  text-align: center;
 }
 
-main > section:last-child p {
+.connection-status {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.connection-status[hidden] {
+  display: none;
+}
+
+.connection-status p {
+  margin: 6px 0;
+}
+
+.offline-message {
+  font-weight: 700;
+}
+
+.game-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.developer-credit {
   margin: 0;
+  text-align: center;
+}
+
+.heart {
+  color: #e63946;
+}
+
+.developer-credit a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.social-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.social-links a {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: inherit;
+  transition: color 150ms ease;
+}
+
+.social-links a:hover {
+  color: #555;
+}
+
+.social-links a:focus-visible,
+.developer-credit a:focus-visible {
+  outline: 3px solid #222;
+  outline-offset: 4px;
 }
 
 .visually-hidden {
@@ -179,6 +228,22 @@ main > section:last-child p {
     padding: 24px 12px;
   }
 
+  .audio-controls {
+    flex-wrap: wrap;
+  }
+
+  .audio-controls label {
+    width: 100%;
+  }
+
+  #audio-volume {
+    min-width: 0;
+  }
+
+  #audio-mute {
+    min-width: 112px;
+  }
+
   .touch-controls {
     flex-direction: column;
     align-items: center;
@@ -194,5 +259,17 @@ main > section:last-child p {
   .touch-controls {
     flex-direction: row;
     align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-footer {
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-links a {
+    transition: none;
   }
 }

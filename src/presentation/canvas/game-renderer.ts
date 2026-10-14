@@ -427,7 +427,7 @@ export class GameRenderer {
     }
   }
 
-  private renderHud(state: GameState, score: number, level: number): void {
+  private renderHud(_state: GameState, _level: number, score: number): void {
     const { context } = this.surface
 
     context.fillStyle = '#000000'
@@ -435,9 +435,7 @@ export class GameRenderer {
     context.textAlign = 'left'
     context.textBaseline = 'top'
 
-    context.fillText(`STATE: ${this.getStateLabel(state)}`, 16, 16)
     context.fillText(`SCORE: ${score}`, 16, 36)
-    context.fillText(`LEVEL: ${level}`, 16, 56)
   }
 
   private renderGameOver(state: GameState): void {
@@ -622,27 +620,5 @@ export class GameRenderer {
 
     context.fillStyle = '#000000'
     context.fillRect(screenX, screenY, visual.width, visual.height)
-  }
-
-  private getStateLabel(state: GameState): string {
-    switch (state) {
-      case 'READY':
-        return 'READY'
-
-      case 'RUNNING':
-        return 'RUNNING'
-
-      case 'GAME_OVER':
-        return 'GAME OVER'
-
-      case 'PAUSED':
-        return 'PAUSED'
-
-      case 'LOADING':
-        return 'LOADING'
-
-      case 'TRANSITIONING':
-        return 'TRANSITIONING'
-    }
   }
 }

@@ -35,92 +35,143 @@ if (!app) {
 }
 
 app.innerHTML = `
-  <main>
-    <section aria-label="Game">
-      <div class="game-surface">
-        <canvas
-          id="game-canvas"
-          width="800"
-          height="300"
-          aria-label="Mario Runner"
-          aria-describedby="game-status"
-        ></canvas>
+  
+<main>
+  <section aria-label="Game">
+    <div class="game-surface">
+      <canvas
+        id="game-canvas"
+        width="800"
+        height="300"
+        aria-label="Mario Runner"
+        aria-describedby="game-status"
+      ></canvas>
 
-        <div
-          class="touch-controls"
-          aria-label="Touch controls"
-        >
-          <button
-            id="touch-jump"
-            class="touch-control"
-            type="button"
-            aria-label="Pular"
-            aria-pressed="false"
-          >
-            Pular
-          </button>
-
-          <button
-            id="touch-crouch"
-            class="touch-control"
-            type="button"
-            aria-label="Abaixar"
-            aria-pressed="false"
-          >
-            Abaixar
-          </button>
-        </div>
-      </div>
-
-      <p
-        id="game-status"
-        class="visually-hidden"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        READY
-      </p>
-    </section>
-
-    <section
-      <section
-        class="audio-controls"
-        aria-label="Controles de áudio"
-      >
-        <label for="audio-volume">
-          Volume
-        </label>
-
-        <input
-          id="audio-volume"
-          type="range"
-          min="0"
-          max="100"
-          value="100"
-          step="1"
-          aria-label="Volume do áudio"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="100"
-          aria-valuetext="100 por cento"
-        />
-
+      <div class="touch-controls" aria-label="Controles de toque">
         <button
-          id="audio-mute"
+          id="touch-jump"
+          class="touch-control"
           type="button"
-          aria-label="Silenciar áudio"
+          aria-label="Pular"
           aria-pressed="false"
         >
-          Silenciar
+          Pular
         </button>
-      </section>
-    </section>
 
-    <section aria-label="Information">
-      <p>INFO</p>
-    </section>
-  </main>
+        <button
+          id="touch-crouch"
+          class="touch-control"
+          type="button"
+          aria-label="Abaixar"
+          aria-pressed="false"
+        >
+          Abaixar
+        </button>
+      </div>
+    </div>
+
+    <p
+      id="game-status"
+      class="visually-hidden"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      READY
+    </p>
+  </section>
+
+  <section class="audio-controls" aria-label="Controles de áudio">
+    <label for="audio-volume">Volume</label>
+
+    <input
+      id="audio-volume"
+      type="range"
+      min="0"
+      max="100"
+      value="100"
+      step="1"
+      aria-label="Volume do áudio"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="100"
+      aria-valuetext="100 por cento"
+    />
+
+    <button
+      id="audio-mute"
+      type="button"
+      aria-label="Silenciar áudio"
+      aria-pressed="false"
+    >
+      Silenciar
+    </button>
+  </section>
+
+  <section class="game-information" aria-label="Informações do jogo">
+    <div
+      id="connection-status"
+      class="connection-status"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      <p class="offline-message">
+        Ops! Parece que você está sem internet.
+      </p>
+      <p>Pressione Espaço ou ↑ para jogar.</p>
+    </div>
+
+    <footer class="game-footer">
+      <p class="developer-credit">
+        Desenvolvido com <span class="heart" aria-label="amor">♥</span> por
+        <a
+          href="https://lucianakyoko.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Luciana Kyoko</a>
+      </p>
+
+      <nav class="social-links" aria-label="Redes sociais e código">
+        <a
+          href="https://github.com/lucianakyoko/mario-runner"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub do Mario Runner"
+          title="GitHub"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="currentColor"
+          >
+            <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.31-3.76-1.31-.5-1.28-1.24-1.62-1.24-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.75 2.04 3.3 1.56.1-.71.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.15 3.05-1.15.61 1.55.23 2.7.11 2.98.72.78 1.15 1.78 1.15 3 0 4.29-2.61 5.24-5.1 5.51.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" />
+          </svg>
+        </a>
+
+        <a
+          href="https://www.linkedin.com/in/lucianakyoko"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn de Luciana Kyoko"
+          title="LinkedIn"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="currentColor"
+          >
+            <path d="M20.45 2H3.55C2.69 2 2 2.68 2 3.52v16.96c0 .84.69 1.52 1.55 1.52h16.9c.86 0 1.55-.68 1.55-1.52V3.52c0-.84-.69-1.52-1.55-1.52ZM7.93 18.5H4.96V9h2.97v9.5ZM6.45 7.7a1.72 1.72 0 1 1 .02-3.44 1.72 1.72 0 0 1-.02 3.44ZM19.04 18.5h-2.97v-4.62c0-1.1-.02-2.52-1.54-2.52-1.54 0-1.78 1.2-1.78 2.44v4.7H9.78V9h2.85v1.3h.04c.4-.75 1.37-1.54 2.82-1.54 3.02 0 3.58 1.99 3.58 4.58v5.16Z" />
+          </svg>
+        </a>
+      </nav>
+    </footer>
+  </section>
+</main>
 `
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')
@@ -158,6 +209,24 @@ const muteButton = document.querySelector<HTMLButtonElement>('#audio-mute')
 if (!muteButton) {
   throw new Error('Mute button not found.')
 }
+
+
+const connectionStatus =
+  document.querySelector<HTMLDivElement>('#connection-status')
+
+if (!connectionStatus) {
+  throw new Error('Connection status element not found.')
+}
+
+const updateConnectionStatus = (): void => {
+  connectionStatus.hidden = navigator.onLine
+}
+
+window.addEventListener('online', updateConnectionStatus)
+window.addEventListener('offline', updateConnectionStatus)
+
+updateConnectionStatus()
+
 
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
