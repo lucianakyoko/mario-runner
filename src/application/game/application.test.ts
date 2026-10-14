@@ -711,7 +711,7 @@ describe('GameApplication', () => {
     expect(application.currentObstacles).toHaveLength(1)
     expect(application.currentObstacles[0]).toMatchObject({
       id: 'obstacle-1',
-      type: 'GROUND_TALL',
+      type: 'GROUND_SMALL',
     })
   })
 

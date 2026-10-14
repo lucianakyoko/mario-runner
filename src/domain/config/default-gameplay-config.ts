@@ -1,6 +1,6 @@
 import { OBSTACLE_TYPE } from '../obstacle/obstacle-type'
-import type { GameplayConfig } from './gameplay-config'
 import { OBSTACLE_VARIANT } from '../obstacle/obstacle-variant'
+import type { GameplayConfig } from './gameplay-config'
 
 export const defaultGameplayConfig: GameplayConfig = {
   movement: {
@@ -24,9 +24,9 @@ export const defaultGameplayConfig: GameplayConfig = {
   spawn: {
     obstacleMinDistance: 320,
     obstacleMaxDistance: 700,
-    collectibleMinDistance: 320,
-    collectibleMaxDistance: 700,
-    collectibleChance: 0.25,
+    collectibleMinDistance: 220,
+    collectibleMaxDistance: 480,
+    collectibleChance: 0.45,
     coinSpawnWeight: 0.8,
     medalSpawnWeight: 0.2,
     powerUpChance: 0.05,
@@ -131,6 +131,12 @@ export const defaultGameplayConfig: GameplayConfig = {
         width: 28,
         height: 44,
       },
+      crouchingCollisionBounds: {
+        offsetX: 2,
+        offsetY: 24,
+        width: 28,
+        height: 20,
+      },
     },
     powered: {
       width: 32,
@@ -140,6 +146,12 @@ export const defaultGameplayConfig: GameplayConfig = {
         offsetY: 2,
         width: 28,
         height: 60,
+      },
+      crouchingCollisionBounds: {
+        offsetX: 2,
+        offsetY: -20,
+        width: 28,
+        height: 80,
       },
     },
   },

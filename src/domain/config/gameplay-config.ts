@@ -1,5 +1,6 @@
 import type { ObstacleType } from '../obstacle/obstacle-type'
 import type { ObstacleVariant } from '../obstacle/obstacle-variant'
+
 export interface MovementConfig {
   initialSpeed: number
   maxSpeed: number
@@ -93,6 +94,7 @@ export interface MarioStateConfig {
   width: number
   height: number
   collisionBounds: CollisionBoundsConfig
+  crouchingCollisionBounds: CollisionBoundsConfig
 }
 
 export interface MarioConfig {
@@ -112,11 +114,6 @@ export interface ProgressionConfig {
 
 export interface CollisionConfig {
   mario: CollisionBoundsConfig
-}
-
-export interface AnimationConfig {
-  defaultFrameDuration: number
-  collectibleFrameDuration: number
 }
 
 export interface GameplayConfig {

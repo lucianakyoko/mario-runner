@@ -77,7 +77,9 @@ export class GameApplication {
   private readonly input: Input
   private readonly update: Update
   private readonly render: Render
-  private readonly random: SeededRandom
+  private readonly obstacleRandom: SeededRandom
+  private readonly collectibleRandom: SeededRandom
+  private readonly powerUpRandom: SeededRandom
   private readonly initialDifficulty: Difficulty
   private readonly initialMarioConfig: InitialMarioConfig
   private readonly initialScenarioConfig: InitialScenarioConfig
@@ -136,11 +138,15 @@ export class GameApplication {
     this.powerUps = powerUps
     this.onEvent = onEvent
     this.score = createScore()
+
     this.level = calculateLevel({
       score: this.score.value,
       pointsPerLevel: defaultGameplayConfig.progression.pointsPerLevel,
     })
-    this.random = new SeededRandom(1)
+
+    this.obstacleRandom = new SeededRandom(1)
+    this.collectibleRandom = new SeededRandom(2)
+    this.powerUpRandom = new SeededRandom(3)
 
     this.initialMarioConfig = {
       width: mario.size.width,
@@ -179,12 +185,9 @@ export class GameApplication {
       nextSpawnDistance: defaultGameplayConfig.spawn.powerUpMinDistance,
     }
 
-    this.nextObstacleId = 1
-    this.nextCoinId = 1
-    this.nextMedalId = 1
-    this.nextMushroomId = 1
-
-    this.random.reset()
+    this.obstacleRandom.reset()
+    this.collectibleRandom.reset()
+    this.powerUpRandom.reset()
 
     this.gameLoop = new GameLoop(
       clock,
@@ -287,7 +290,10 @@ export class GameApplication {
     this.nextMedalId = 1
     this.nextMushroomId = 1
 
-    this.random.reset()
+    this.obstacleRandom.reset()
+    this.collectibleRandom.reset()
+    this.powerUpRandom.reset()
+
     this.processedObstacleCollisionIds.clear()
     this.stateMachine.transitionTo('READY')
   }
@@ -302,7 +308,22 @@ export class GameApplication {
 
   private createMarioCollidable(): Collidable {
     return {
-      getCollisionBounds: () => getMarioCollisionBounds(this.mario),
+      getCollisionBounds: () => {
+        const marioConfig =
+          this.mario.powerState === 'POWERED'
+            ? defaultGameplayConfig.mario.powered
+            : defaultGameplayConfig.mario.normal
+
+        const collisionBounds =
+          this.mario.movementState === 'CROUCHING'
+            ? marioConfig.crouchingCollisionBounds
+            : marioConfig.collisionBounds
+
+        return getMarioCollisionBounds({
+          ...this.mario,
+          collisionBounds,
+        })
+      },
     }
   }
 
@@ -484,7 +505,7 @@ export class GameApplication {
     const collectibleSpawnResult = spawnCollectible({
       state: this.collectibleSpawnState,
       collectibles: this.coins,
-      random: this.random,
+      random: this.collectibleRandom,
       collectibleChance,
       coinSpawnWeight: spawnConfig.coinSpawnWeight,
       medalSpawnWeight: spawnConfig.medalSpawnWeight,
@@ -522,7 +543,7 @@ export class GameApplication {
     const spawnResult = spawnObstacle({
       state: this.spawnState,
       obstacles: this.obstacles,
-      random: this.random,
+      random: this.obstacleRandom,
       difficulty,
       obstacleConfigs: defaultGameplayConfig.obstacles,
       spawnX,
@@ -589,7 +610,7 @@ export class GameApplication {
     const mushroomSpawnResult = spawnMushroom({
       state: this.powerUpSpawnState,
       powerUps: this.powerUps,
-      random: this.random,
+      random: this.powerUpRandom,
       powerUpChance: defaultGameplayConfig.spawn.powerUpChance,
       mushroomConfig: defaultGameplayConfig.powerUp,
       spawnX: calculatePowerUpSpawnX(
@@ -661,12 +682,14 @@ export class GameApplication {
 
     const mario = this.createMarioCollidable()
 
-    const collidingObstacle = this.obstacles.find(
-      (obstacle) =>
-        !this.processedObstacleCollisionIds.has(obstacle.id) &&
-        detectCollision(mario, this.createObstacleCollidable(obstacle))
-          .hasCollision,
-    )
+    const collidingObstacle = this.obstacles.find((obstacle) => {
+      if (this.processedObstacleCollisionIds.has(obstacle.id)) {
+        return false
+      }
+
+      return detectCollision(mario, this.createObstacleCollidable(obstacle))
+        .hasCollision
+    })
 
     const hasCollision = collidingObstacle !== undefined
 
