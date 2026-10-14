@@ -35,7 +35,7 @@ describe('createCollectibleCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 104,
-      y: 206,
+      y: 198,
       width: 16,
       height: 18,
     })
@@ -50,13 +50,13 @@ describe('createCollectibleCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 184,
-      y: 146,
+      y: 138,
       width: 16,
       height: 18,
     })
   })
 
-  it('keeps collision bounds independent from the visual size', () => {
+  it('preserves collision dimensions when the visual size changes', () => {
     const collectible = createCollectible()
     const collidable = createCollectibleCollidable(collectible)
 
@@ -67,7 +67,7 @@ describe('createCollectibleCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 104,
-      y: 206,
+      y: 142,
       width: 16,
       height: 18,
     })

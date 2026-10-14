@@ -3,6 +3,8 @@ import type { CollisionBounds } from '../collision/collision-bounds'
 import type { Rectangle } from '../collision/rectangle'
 import type { ObstacleType } from './obstacle-type'
 import type { ObstacleVariant } from './obstacle-variant'
+import { OBSTACLE_TYPE as OBSTACLE_TYPES } from './obstacle-type'
+import { GROUND_HEIGHT } from '../config/gameplay-constants'
 
 export interface ObstaclePosition {
   x: number
@@ -34,5 +36,14 @@ export interface Obstacle {
   velocity: ObstacleVelocity
 }
 
-export const getObstacleCollisionBounds = (obstacle: Obstacle): Rectangle =>
-  createCollisionRectangle(obstacle.position, obstacle.collisionBounds)
+export const getObstacleCollisionBounds = (obstacle: Obstacle): Rectangle => {
+  const groundOffset = obstacle.type === OBSTACLE_TYPES.AIR ? GROUND_HEIGHT : 0
+
+  return createCollisionRectangle(
+    {
+      x: obstacle.position.x,
+      y: obstacle.position.y + groundOffset - obstacle.size.height,
+    },
+    obstacle.collisionBounds,
+  )
+}

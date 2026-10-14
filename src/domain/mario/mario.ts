@@ -65,5 +65,31 @@ export const createInitialMario = (config: InitialMarioConfig): Mario => ({
   isGrounded: true,
 })
 
+export const getMarioVisualHeight = (mario: Mario): number => {
+  const isBig =
+    mario.powerState === marioPowerState.POWERED &&
+    mario.lifeState !== marioLifeState.DEAD
+
+  switch (mario.movementState) {
+    case 'RUNNING':
+      return isBig ? 64 : 48
+
+    case 'JUMPING':
+      return isBig ? 64 : 48
+
+    case 'FALLING':
+      return isBig ? 62 : 46
+
+    case 'CROUCHING':
+      return isBig ? 36 : 32
+  }
+}
+
 export const getMarioCollisionBounds = (mario: Mario): Rectangle =>
-  createCollisionRectangle(mario.position, mario.collisionBounds)
+  createCollisionRectangle(
+    {
+      x: mario.position.x,
+      y: mario.position.y - getMarioVisualHeight(mario),
+    },
+    mario.collisionBounds,
+  )

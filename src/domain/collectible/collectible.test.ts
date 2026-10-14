@@ -53,6 +53,13 @@ describe('Collectible', () => {
       },
       isCollected: false,
     })
+
+    expect(getCollectibleCollisionBounds(collectible)).toEqual({
+      x: 402,
+      y: 114,
+      width: 20,
+      height: 20,
+    })
   })
 
   it('represents a medal', () => {
@@ -96,55 +103,35 @@ describe('Collectible', () => {
       height: 26,
     })
     expect(collectible.isCollected).toBe(false)
+
+    expect(getCollectibleCollisionBounds(collectible)).toEqual({
+      x: 604,
+      y: 67,
+      width: 24,
+      height: 26,
+    })
   })
 
   it('keeps collectible identity independent from its type', () => {
     const firstCollectible: Collectible = {
       id: 'collectible-1',
       type: collectibleTypes.COIN,
-      position: {
-        x: 400,
-        y: 120,
-      },
-      size: {
-        width: 24,
-        height: 24,
-      },
+      position: { x: 400, y: 120 },
+      size: { width: 24, height: 24 },
       collisionBounds: {
         offsetX: 2,
         offsetY: 2,
         width: 20,
         height: 20,
       },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
+      velocity: { x: -280, y: 0 },
       isCollected: false,
     }
 
     const secondCollectible: Collectible = {
+      ...firstCollectible,
       id: 'collectible-2',
-      type: collectibleTypes.COIN,
-      position: {
-        x: 600,
-        y: 120,
-      },
-      size: {
-        width: 24,
-        height: 24,
-      },
-      collisionBounds: {
-        offsetX: 2,
-        offsetY: 2,
-        width: 20,
-        height: 20,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-      isCollected: false,
+      position: { x: 600, y: 120 },
     }
 
     expect(firstCollectible.id).not.toBe(secondCollectible.id)
@@ -155,136 +142,18 @@ describe('Collectible', () => {
     const collectible: Collectible = {
       id: 'collectible-1',
       type: collectibleTypes.COIN,
-      position: {
-        x: 400,
-        y: 120,
-      },
-      size: {
-        width: 24,
-        height: 24,
-      },
+      position: { x: 400, y: 120 },
+      size: { width: 24, height: 24 },
       collisionBounds: {
         offsetX: 2,
         offsetY: 2,
         width: 20,
         height: 20,
       },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
+      velocity: { x: -280, y: 0 },
       isCollected: true,
     }
 
     expect(collectible.isCollected).toBe(true)
-  })
-})
-
-describe('getCollectibleCollisionBounds', () => {
-  it('creates collision bounds from collectible position and configured bounds', () => {
-    const collectible: Collectible = {
-      id: 'collectible-1',
-      type: collectibleTypes.COIN,
-      position: {
-        x: 100,
-        y: 200,
-      },
-      size: {
-        width: 24,
-        height: 24,
-      },
-      collisionBounds: {
-        offsetX: 4,
-        offsetY: 6,
-        width: 16,
-        height: 18,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-      isCollected: false,
-    }
-
-    expect(getCollectibleCollisionBounds(collectible)).toEqual({
-      x: 104,
-      y: 206,
-      width: 16,
-      height: 18,
-    })
-  })
-
-  it('follows collectible position without depending on visual dimensions', () => {
-    const collectible: Collectible = {
-      id: 'collectible-1',
-      type: collectibleTypes.MEDAL,
-      position: {
-        x: 100,
-        y: 200,
-      },
-      size: {
-        width: 64,
-        height: 64,
-      },
-      collisionBounds: {
-        offsetX: 6,
-        offsetY: 8,
-        width: 24,
-        height: 28,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-      isCollected: false,
-    }
-
-    collectible.position.x = 180
-    collectible.position.y = 140
-
-    expect(getCollectibleCollisionBounds(collectible)).toEqual({
-      x: 186,
-      y: 148,
-      width: 24,
-      height: 28,
-    })
-
-    expect(collectible.size).toEqual({
-      width: 64,
-      height: 64,
-    })
-  })
-
-  it('keeps collision bounds independent from the collectible visual area', () => {
-    const collectible: Collectible = {
-      id: 'collectible-1',
-      type: collectibleTypes.COIN,
-      position: {
-        x: 300,
-        y: 120,
-      },
-      size: {
-        width: 96,
-        height: 64,
-      },
-      collisionBounds: {
-        offsetX: 8,
-        offsetY: 4,
-        width: 20,
-        height: 18,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-      isCollected: false,
-    }
-
-    expect(getCollectibleCollisionBounds(collectible)).toEqual({
-      x: 308,
-      y: 124,
-      width: 20,
-      height: 18,
-    })
   })
 })

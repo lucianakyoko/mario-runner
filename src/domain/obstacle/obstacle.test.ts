@@ -53,6 +53,13 @@ describe('Obstacle', () => {
         y: 0,
       },
     })
+
+    expect(getObstacleCollisionBounds(obstacle)).toEqual({
+      x: 402,
+      y: -30,
+      width: 28,
+      height: 30,
+    })
   })
 
   it('represents a tall ground obstacle', () => {
@@ -145,6 +152,13 @@ describe('Obstacle', () => {
       x: -280,
       y: 40,
     })
+
+    expect(getObstacleCollisionBounds(obstacle)).toEqual({
+      x: 802,
+      y: 58,
+      width: 28,
+      height: 20,
+    })
   })
 
   it('keeps obstacle identity independent from its type', () => {
@@ -152,160 +166,23 @@ describe('Obstacle', () => {
       id: 'obstacle-1',
       type: OBSTACLE_TYPE.GROUND_SMALL,
       variant: 'MUNCHER',
-      position: {
-        x: 400,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
+      position: { x: 400, y: 0 },
+      size: { width: 32, height: 32 },
       collisionBounds: {
         offsetX: 2,
         offsetY: 2,
         width: 28,
         height: 30,
       },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
+      velocity: { x: -280, y: 0 },
     }
 
     const secondObstacle: Obstacle = {
+      ...firstObstacle,
       id: 'obstacle-2',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
-      variant: 'MUNCHER',
-      position: {
-        x: 600,
-        y: 0,
-      },
-      size: {
-        width: 32,
-        height: 32,
-      },
-      collisionBounds: {
-        offsetX: 2,
-        offsetY: 2,
-        width: 28,
-        height: 30,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
     }
 
     expect(firstObstacle.id).not.toBe(secondObstacle.id)
     expect(firstObstacle.type).toBe(secondObstacle.type)
-  })
-})
-
-describe('getObstacleCollisionBounds', () => {
-  it('creates collision bounds from obstacle position and configured bounds', () => {
-    const obstacle: Obstacle = {
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_SMALL,
-      variant: 'MUNCHER',
-      position: {
-        x: 100,
-        y: 200,
-      },
-      size: {
-        width: 40,
-        height: 48,
-      },
-      collisionBounds: {
-        offsetX: 4,
-        offsetY: 6,
-        width: 28,
-        height: 34,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    }
-
-    expect(getObstacleCollisionBounds(obstacle)).toEqual({
-      x: 104,
-      y: 206,
-      width: 28,
-      height: 34,
-    })
-  })
-
-  it('follows obstacle position without depending on visual dimensions', () => {
-    const obstacle: Obstacle = {
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.GROUND_TALL,
-      variant: 'PTOOIE',
-      position: {
-        x: 100,
-        y: 200,
-      },
-      size: {
-        width: 64,
-        height: 80,
-      },
-      collisionBounds: {
-        offsetX: 3,
-        offsetY: 5,
-        width: 24,
-        height: 40,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    }
-
-    obstacle.position.x = 180
-    obstacle.position.y = 140
-
-    expect(getObstacleCollisionBounds(obstacle)).toEqual({
-      x: 183,
-      y: 145,
-      width: 24,
-      height: 40,
-    })
-
-    expect(obstacle.size).toEqual({
-      width: 64,
-      height: 80,
-    })
-  })
-
-  it('keeps collision bounds independent from the obstacle visual area', () => {
-    const obstacle: Obstacle = {
-      id: 'obstacle-1',
-      type: OBSTACLE_TYPE.AIR,
-      variant: 'CANNONBALL',
-      position: {
-        x: 300,
-        y: 120,
-      },
-      size: {
-        width: 96,
-        height: 64,
-      },
-      collisionBounds: {
-        offsetX: 8,
-        offsetY: 4,
-        width: 32,
-        height: 20,
-      },
-      velocity: {
-        x: -280,
-        y: 0,
-      },
-    }
-
-    expect(getObstacleCollisionBounds(obstacle)).toEqual({
-      x: 308,
-      y: 124,
-      width: 32,
-      height: 20,
-    })
   })
 })

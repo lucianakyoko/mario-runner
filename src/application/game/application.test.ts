@@ -985,6 +985,56 @@ describe('GameApplication', () => {
     expect(application.state).toBe('GAME_OVER')
   })
 
+  it('keeps powered Mario alive when crouching under a low air obstacle', () => {
+    const scheduler = new FakeFrameScheduler()
+    const input = new FakeInput()
+    const airConfig = defaultGameplayConfig.obstacles[OBSTACLE_TYPE.AIR]
+
+    const obstacle: Obstacle = {
+      id: 'low-air-obstacle-1',
+      type: OBSTACLE_TYPE.AIR,
+      variant: 'CANNONBALL',
+      position: {
+        x: 0,
+        y: -30,
+      },
+      size: {
+        width: airConfig.width,
+        height: airConfig.height,
+      },
+      collisionBounds: airConfig.collisionBounds,
+      velocity: {
+        x: 0,
+        y: 0,
+      },
+    }
+
+    const poweredMario = growMario(createMario(), {
+      width: defaultGameplayConfig.mario.powered.width,
+      height: defaultGameplayConfig.mario.powered.height,
+      collisionBounds: defaultGameplayConfig.mario.powered.collisionBounds,
+    })
+
+    const application = createApplication(
+      scheduler,
+      input,
+      () => {},
+      () => {},
+      [obstacle],
+      [],
+      poweredMario,
+    )
+
+    input.activate('crouch')
+    application.start()
+    scheduler.runNext(16)
+
+    expect(application.currentMario.movementState).toBe('CROUCHING')
+    expect(application.currentMario.powerState).toBe(marioPowerState.POWERED)
+    expect(application.currentMario.lifeState).toBe(marioLifeState.ALIVE)
+    expect(application.state).toBe('RUNNING')
+  })
+
   it('does not detect collision when obstacles do not overlap Mario', () => {
     const scheduler = new FakeFrameScheduler()
 

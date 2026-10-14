@@ -33,7 +33,7 @@ describe('createPowerUpCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 102,
-      y: 2,
+      y: -30,
       width: 28,
       height: 28,
     })
@@ -48,13 +48,13 @@ describe('createPowerUpCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 182,
-      y: -38,
+      y: -70,
       width: 28,
       height: 28,
     })
   })
 
-  it('keeps collision bounds independent from the visual size', () => {
+  it('preserves collision dimensions when the visual size changes', () => {
     const mushroom = createTestMushroom()
     const collidable = createPowerUpCollidable(mushroom)
 
@@ -65,7 +65,7 @@ describe('createPowerUpCollidable', () => {
 
     expect(collidable.getCollisionBounds()).toEqual({
       x: 102,
-      y: 2,
+      y: -78,
       width: 28,
       height: 28,
     })

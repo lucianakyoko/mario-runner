@@ -36,4 +36,10 @@ export interface PowerUp {
 }
 
 export const getPowerUpCollisionBounds = (powerUp: PowerUp): Rectangle =>
-  createCollisionRectangle(powerUp.position, powerUp.collisionBounds)
+  createCollisionRectangle(
+    {
+      x: powerUp.position.x,
+      y: powerUp.position.y - powerUp.size.height,
+    },
+    powerUp.collisionBounds,
+  )

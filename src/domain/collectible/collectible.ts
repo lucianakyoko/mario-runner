@@ -2,6 +2,7 @@ import { createCollisionRectangle } from '../collision/create-collision-rectangl
 import type { CollisionBounds } from '../collision/collision-bounds'
 import type { Rectangle } from '../collision/rectangle'
 import type { CollectibleType } from './collectible-type'
+import { GROUND_HEIGHT } from '../config/gameplay-constants'
 
 export interface CollectiblePosition {
   x: number
@@ -33,4 +34,10 @@ export interface Collectible {
 export const getCollectibleCollisionBounds = (
   collectible: Collectible,
 ): Rectangle =>
-  createCollisionRectangle(collectible.position, collectible.collisionBounds)
+  createCollisionRectangle(
+    {
+      x: collectible.position.x,
+      y: collectible.position.y + GROUND_HEIGHT - collectible.size.height,
+    },
+    collectible.collisionBounds,
+  )

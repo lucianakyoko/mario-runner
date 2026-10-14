@@ -149,9 +149,9 @@ export const defaultGameplayConfig: GameplayConfig = {
       },
       crouchingCollisionBounds: {
         offsetX: 2,
-        offsetY: -20,
+        offsetY: 24,
         width: 28,
-        height: 80,
+        height: 20,
       },
     },
   },

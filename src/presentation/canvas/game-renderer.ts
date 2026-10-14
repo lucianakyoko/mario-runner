@@ -34,9 +34,9 @@ import {
 } from '../obstacle/obstacle-sprite-catalog'
 import { defaultGameplayConfig } from '../../domain/config/default-gameplay-config'
 import { CanvasSurface } from './canvas-surface'
+import { GROUND_HEIGHT } from '../../domain/config/gameplay-constants'
 
 const DEFAULT_BACKGROUND_COLOR = '#87CEEB'
-const DEFAULT_GROUND_HEIGHT = 16
 const GROUND_TILE_SIZE = 16
 const DEFAULT_GROUND_COLOR = '#8B4513'
 const GROUND_SMALL_COLOR = '#228B22'
@@ -141,12 +141,12 @@ export class GameRenderer {
 
   private renderGround(scenario: Scenario): void {
     const { element, context } = this.surface
-    const groundY = element.height - scenario.ground.y - DEFAULT_GROUND_HEIGHT
+    const groundY = element.height - scenario.ground.y - GROUND_HEIGHT
     const sprite = this.getGroundSprite()
 
     if (!sprite || !isSpriteLoaded(sprite)) {
       context.fillStyle = DEFAULT_GROUND_COLOR
-      context.fillRect(0, groundY, element.width, DEFAULT_GROUND_HEIGHT)
+      context.fillRect(0, groundY, element.width, GROUND_HEIGHT)
       return
     }
 
@@ -154,7 +154,7 @@ export class GameRenderer {
     const firstTileX = -offset
 
     for (let x = firstTileX; x < element.width; x += GROUND_TILE_SIZE) {
-      for (let row = 0; row < DEFAULT_GROUND_HEIGHT; row += GROUND_TILE_SIZE) {
+      for (let row = 0; row < GROUND_HEIGHT; row += GROUND_TILE_SIZE) {
         context.drawImage(
           sprite,
           0,
@@ -183,7 +183,7 @@ export class GameRenderer {
     const offset = positiveModulo(scrollPosition, BUSH_SPACING)
     const firstBushX = -offset
     const firstBushIndex = Math.floor(scrollPosition / BUSH_SPACING)
-    const groundTop = element.height - scenario.ground.y - DEFAULT_GROUND_HEIGHT
+    const groundTop = element.height - scenario.ground.y - GROUND_HEIGHT
 
     for (
       let x = firstBushX, index = firstBushIndex;
@@ -275,7 +275,7 @@ export class GameRenderer {
         obstacle.type === OBSTACLE_TYPE.GROUND_TALL
 
       const obstacleGroundY = isGroundObstacle
-        ? screenGroundY - DEFAULT_GROUND_HEIGHT
+        ? screenGroundY - GROUND_HEIGHT
         : screenGroundY
 
       const screenY =
@@ -395,7 +395,7 @@ export class GameRenderer {
       const screenX = Math.round(powerUp.position.x - cameraX)
       const screenY = Math.round(
         screenGroundY -
-          DEFAULT_GROUND_HEIGHT -
+          GROUND_HEIGHT -
           powerUp.size.height +
           powerUp.position.y,
       )
@@ -571,7 +571,7 @@ export class GameRenderer {
 
     const screenY =
       screenGroundY -
-      DEFAULT_GROUND_HEIGHT -
+      GROUND_HEIGHT -
       visual.height +
       mario.position.y +
       visual.offsetY

@@ -50,7 +50,7 @@ describe('createInitialMario', () => {
 })
 
 describe('getMarioCollisionBounds', () => {
-  it('creates collision bounds from Mario position and configured bounds', () => {
+  it('converts the ground-based position into top-based collision bounds', () => {
     const mario = createInitialMario({
       width: 32,
       height: 48,
@@ -67,7 +67,7 @@ describe('getMarioCollisionBounds', () => {
 
     expect(getMarioCollisionBounds(mario)).toEqual({
       x: 102,
-      y: 203,
+      y: 155,
       width: 28,
       height: 44,
     })
@@ -95,11 +95,36 @@ describe('getMarioCollisionBounds', () => {
 
     expect(getMarioCollisionBounds(mario)).toEqual({
       x: 142,
-      y: 183,
+      y: 135,
       width: 28,
       height: 44,
     })
 
     expect(mario.collisionBounds).toEqual(originalCollisionBounds)
+  })
+
+  it('uses the crouching visual height for collision bounds', () => {
+    const mario = createInitialMario({
+      width: 32,
+      height: 48,
+      initialX: 100,
+      groundY: 200,
+      initialSpeed: 280,
+      collisionBounds: {
+        offsetX: 2,
+        offsetY: 24,
+        width: 28,
+        height: 20,
+      },
+    })
+
+    mario.movementState = 'CROUCHING'
+
+    expect(getMarioCollisionBounds(mario)).toEqual({
+      x: 102,
+      y: 192,
+      width: 28,
+      height: 20,
+    })
   })
 })

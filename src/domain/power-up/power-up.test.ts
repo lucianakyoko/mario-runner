@@ -24,7 +24,7 @@ describe('PowerUp', () => {
     expect(powerUp.isCollected).toBe(false)
   })
 
-  it('should calculate collision bounds independently from visual size', () => {
+  it('calculates collision bounds from the bottom-based position', () => {
     const powerUp: PowerUp = {
       id: 'mushroom-1',
       type: POWER_UP_TYPE.MUSHROOM,
@@ -42,13 +42,13 @@ describe('PowerUp', () => {
 
     expect(getPowerUpCollisionBounds(powerUp)).toEqual({
       x: 103,
-      y: 54,
+      y: 22,
       width: 24,
       height: 22,
     })
   })
 
-  it('should keep collision bounds independent from visual size', () => {
+  it('keeps collision bounds independent from visual size', () => {
     const powerUp: PowerUp = {
       id: 'mushroom-2',
       type: POWER_UP_TYPE.MUSHROOM,
@@ -66,7 +66,7 @@ describe('PowerUp', () => {
 
     expect(getPowerUpCollisionBounds(powerUp)).toEqual({
       x: 308,
-      y: 124,
+      y: 76,
       width: 32,
       height: 20,
     })
