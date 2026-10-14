@@ -12,6 +12,11 @@ O projeto combina uma experiência simples e responsiva com uma arquitetura prep
 
 Mario Runner é um jogo de corrida infinita inspirado na simplicidade do Chrome Dino Game, com personagens, sprites e elementos visuais inspirados em Super Mario Bros. 3.
 
+![Mario Runner — game-over](.github/game-over.png)
+![Mario Runner — crouch](.github/crouch.png)
+![Mario Runner — mario-jump](.github/mario-jump.png)
+![Mario Runner — running](.github/running.png)
+
 ### Funcionalidades
 
 - Corrida infinita
@@ -42,10 +47,6 @@ Em dispositivos móveis, utilize os controles touch disponibilizados pelo jogo.
 | Medalha |      2 |
 
 A cada 20 pontos, o nível aumenta e a dificuldade progride. Evite os obstáculos, aproveite os coletáveis e utilize os power-ups para prolongar sua corrida.
-
-## 🖼️ Capturas de tela
-
-![Mario Runner — game-over](.github/game-over.png)
 
 ## 🛠️ Tecnologias
 
