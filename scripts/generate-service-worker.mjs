@@ -3,12 +3,13 @@ import { join, relative, sep } from 'node:path'
 
 const DIST_DIRECTORY = 'dist'
 const PUBLIC_AUDIO_DIRECTORY = 'public/audio'
+const PUBLIC_SPRITES_DIRECTORY = 'public/sprites'
 const ASSETS_DIRECTORY = join(DIST_DIRECTORY, 'assets')
 const SERVICE_WORKER_PATH = join(DIST_DIRECTORY, 'sw.js')
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v3'
 const CACHE_NAME = `mario-runner-${CACHE_VERSION}`
 const OFFLINE_NAVIGATION_URL = '/index.html'
-const STATIC_RESOURCE_PREFIXES = ['/assets/', '/audio/']
+const STATIC_RESOURCE_PREFIXES = ['/assets/', '/audio/', '/sprites/']
 
 const getAssetUrls = async () => {
   const assetFiles = await readdir(ASSETS_DIRECTORY)
@@ -18,28 +19,33 @@ const getAssetUrls = async () => {
     .map((file) => `/assets/${file}`)
 }
 
-const getAudioUrls = async () => {
-  const audioFiles = await readdir(PUBLIC_AUDIO_DIRECTORY, {
+const getPublicResourceUrls = async (directory, urlPrefix) => {
+  const files = await readdir(directory, {
     recursive: true,
     withFileTypes: true,
   })
 
-  return audioFiles
+  return files
     .filter((file) => file.isFile())
     .map((file) => {
-      const relativePath = relative(
-        PUBLIC_AUDIO_DIRECTORY,
-        join(file.parentPath, file.name),
-      )
+      const relativePath = relative(directory, join(file.parentPath, file.name))
 
-      return `/audio/${relativePath.split(sep).join('/')}`
+      return `${urlPrefix}/${relativePath.split(sep).join('/')}`
     })
 }
 
 const generateServiceWorker = async () => {
   const assetUrls = await getAssetUrls()
-  const audioUrls = await getAudioUrls()
-  const urls = ['/index.html', ...assetUrls, ...audioUrls]
+  const audioUrls = await getPublicResourceUrls(
+    PUBLIC_AUDIO_DIRECTORY,
+    '/audio',
+  )
+  const spriteUrls = await getPublicResourceUrls(
+    PUBLIC_SPRITES_DIRECTORY,
+    '/sprites',
+  )
+
+  const urls = ['/index.html', ...assetUrls, ...audioUrls, ...spriteUrls]
 
   const precacheUrls = urls.map((url) => `  '${url}'`).join(',\n')
 
@@ -49,6 +55,21 @@ const STATIC_RESOURCE_PREFIXES = ${JSON.stringify(STATIC_RESOURCE_PREFIXES)}
 const PRECACHE_URLS = [
 ${precacheUrls},
 ]
+
+const createOfflineResponse = () =>
+  new Response('Recurso indisponível offline.', {
+    status: 503,
+    statusText: 'Service Unavailable',
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
+
+const getOfflineNavigationResponse = async () => {
+  const cachedResponse = await caches.match(OFFLINE_NAVIGATION_URL)
+
+  return cachedResponse ?? createOfflineResponse()
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -63,7 +84,7 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(OFFLINE_NAVIGATION_URL)),
+      fetch(event.request).catch(() => getOfflineNavigationResponse()),
     )
 
     return
@@ -86,24 +107,27 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse
       }
 
-      return fetch(event.request)
+      return fetch(event.request).catch(() => createOfflineResponse())
     }),
   )
 })
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames
-          .filter(
-            (cacheName) =>
-              cacheName.startsWith('mario-runner-') &&
-              cacheName !== CACHE_NAME,
-          )
-          .map((cacheName) => caches.delete(cacheName)),
-      ),
-    ),
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter(
+              (cacheName) =>
+                cacheName.startsWith('mario-runner-') &&
+                cacheName !== CACHE_NAME,
+            )
+            .map((cacheName) => caches.delete(cacheName)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   )
 })
 `

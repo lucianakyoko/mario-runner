@@ -210,7 +210,6 @@ if (!muteButton) {
   throw new Error('Mute button not found.')
 }
 
-
 const connectionStatus =
   document.querySelector<HTMLDivElement>('#connection-status')
 
@@ -226,7 +225,6 @@ window.addEventListener('online', updateConnectionStatus)
 window.addEventListener('offline', updateConnectionStatus)
 
 updateConnectionStatus()
-
 
 const surface = new CanvasSurface(canvas)
 const renderer = new GameRenderer(surface)
